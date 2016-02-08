@@ -1,0 +1,63 @@
+{
+  "name": "rewrap",
+  "displayName": "Rewrap",
+  "description": "Re-wraps comments to a given column length",
+  "version": "0.0.1",
+  "publisher": "stkb",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stkb/vscode-rewrap.git"
+  },
+  "bugs": {
+    "url": "https://github.com/stkb/vscode-rewrap/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "vscode": "^0.10.6"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:rewrap.rewrapComment"
+  ],
+  "main": "./out/src/extension",
+  "contributes": {
+    "commands": [
+      {
+        "command": "rewrap.rewrapComment",
+        "title": "Rewrap Comment"
+      }
+    ],
+    "configuration": {
+      "title": "Rewrap configuration",
+      "properties": {
+        "rewrap.wrappingColumn": {
+          "type": "number",
+          "default": 0,
+          "description": "Controls after how many characters comments are wrapped."
+        }
+      }
+    },
+    "keybindings": [
+      {
+        "command": "rewrap.rewrapComment",
+        "key": "ctrl+k ctrl+w",
+        "mac": "cmd+k cmd+w",
+        "when": "editorTextFocus"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+    "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install"
+  },
+  "devDependencies": {
+    "typescript": "^1.7.5",
+    "vscode": "^0.11.0"
+  },
+  "dependencies": {
+    "greedy-wrap": "^0.1.4"
+  }
+}
