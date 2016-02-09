@@ -10,6 +10,20 @@ Put the text cursor inside a comment (or select lines thereof) and press F1 (or 
 * If you select one or more lines within a comment block, only those lines will be processed.
 * You can also include multiple comment blocks within a selection, and they will all be processed. You can reformat the comments for a whole document in this way.
 
+### Comment width ###
+The column number to wrap comments at is chosen in this way:
+* If the ```"rewrap.wrappingColumn"``` setting is present in your user or workspace ```settings.json```, this value will be used (recommended, see below)
+* Otherwise, if your ```"editor.wrappingColumn"``` is set to something > 0 and <= 120, this value will be used (vscode default is 300).
+* Otherwise, a default value of 80 will be used.
+
+For example, to wrap comments at column 100, add the setting to your settings file (File -> Preferences -> User Settings):
+
+```
+{
+  "commentWrap.wrappingColumn": 80
+}
+```
+
 ### Keyboard shortcut ###
 The default keyboard shortcut (```Ctrl+K Ctrl+W```) is chosen to be in keeping with the already-existing comment-related commands in vscode:
 * Add line Comment: ```Ctrl+K Ctrl+C```
