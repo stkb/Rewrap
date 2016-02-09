@@ -3,7 +3,7 @@
   "displayName": "Rewrap",
   "description": "Re-wraps comments to a given column length",
   "keywords": ["wraps", "comments"],
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "stkb",
   "repository": {
     "type": "git",
