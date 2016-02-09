@@ -20,7 +20,7 @@ For example, to wrap comments at column 100, add the setting to your settings fi
 
 ```
 {
-  "commentWrap.wrappingColumn": 80
+  "rewrap.wrappingColumn": 80
 }
 ```
 
