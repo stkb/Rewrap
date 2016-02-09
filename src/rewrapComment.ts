@@ -17,7 +17,10 @@ export default function rewrapComment(editor: TextEditor) {
   /** A reference to the document we're working on */
   const doc = editor.document
     
-  /** Gets the ranges of all comments in the document. These will be cross-referenced with the selections made in the editor so we know what to work on */
+  /** Gets the ranges of all comments in the document. These will be 
+   * cross-referenced with the selections made in the editor so we know what to
+   * work on.
+   */ 
   const getDocumentCommentRanges = () : Range[] => {
     const text = doc.getText()
       , cCommentsRegex = 
@@ -60,7 +63,8 @@ export default function rewrapComment(editor: TextEditor) {
     }
   }
   
-  /** If a selection is found that is in the given comment range, fix that comment with regard to the selection */
+  /** If a selection is found that is in the given comment range, fix that 
+   * comment with regard to the selection */
   const fixCommentIfInASelection
     = (range: Range, selections: Selection[])
     : Thenable<boolean> =>
