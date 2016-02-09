@@ -21,7 +21,7 @@ export default function rewrapComment(editor: TextEditor) {
   const getDocumentCommentRanges = () : Range[] => {
     const text = doc.getText()
       , cCommentsRegex = 
-          /^[ \t]*\/\*[\s\S]*?\*\/|^[ \t]*\/\/[\s\S]+?$(?!\s*\/{2})/mg
+          /^[ \t]*\/\*[\s\S]*?\*\/|^[ \t]*\/\/[\s\S]+?$(?!\r?\n[ \t]*\/\/)/mg
       , ranges = []
     let match
     
@@ -39,7 +39,7 @@ export default function rewrapComment(editor: TextEditor) {
     = (ranges: Range[], selections: Selection[])
     : Thenable<void> => 
   {
-    // If no comments or selctions, do nothing
+    // If no comments or selections, do nothing
     if(ranges.length === 0 || selections.length === 0) {
        return
     }
@@ -115,6 +115,7 @@ export default function rewrapComment(editor: TextEditor) {
       selection = new Range(
         selection.start.line, 0, selection.end.line, Number.MAX_VALUE
       )
+      selection = selection.intersection(commentRange)
     }
     
     // Trim the range of lines that don't actually contain text. 
