@@ -150,7 +150,7 @@ export default function rewrapComment(editor: TextEditor) {
     }
     
     // Process the raw text to get the processed text
-    const rawText = lines.map(li => li.text).join(' ')
+    const rawText = lines.map(li => li.text).join(' ').trim()
       , wrappedWidth = getWrappingColumn() - lines[0].prefix.length
       , processedText = 
           wrap(rawText, { width: wrappedWidth })
