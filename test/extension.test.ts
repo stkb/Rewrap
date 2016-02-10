@@ -1,22 +1,84 @@
-// 
-// Note: This example test is leveraging the Mocha test framework.
-// Please refer to their documentation on https://mochajs.org/ for help.
-//
+import * as assert from 'assert'
+import { join } from 'path'
+import { readFile } from 'fs'
 
-// The module 'assert' provides assertion methods from node
-import * as assert from 'assert';
+import { commands, Position, Selection, TextDocument, TextEditor, Uri, window, workspace } from 'vscode'
+import rewrapComment from '../src/rewrapComment'
 
-// You can import and use all API from the 'vscode' module
-// as well as import your extension to test it
-import * as vscode from 'vscode';
-import * as myExtension from '../src/extension';
+suite("Wrapping", () => {
 
-// Defines a Mocha test suite to group tests of similar kind together
-suite("Extension Tests", () => {
-
-  // Defines a Mocha unit test
-  test("Something 1", () => {
-    assert.equal(-1, [1, 2, 3].indexOf(5));
-    assert.equal(-1, [1, 2, 3].indexOf(0));
-  });
+  ['c', 'js'].forEach(doTest)
 });
+
+function doTest(ext: string) {
+  test(ext, function() {
+    return getFileText('data.' + ext)
+      .then(extractSelectionOffsets)
+      .then(([text, offsets]) => {
+        const uri = Uri.parse('untitled:' + path('generated.' + ext))
+        return workspace.openTextDocument(uri)
+          .then(window.showTextDocument)
+          .then(editor =>
+              editor.edit(eb => eb.insert(new Position(0, 0), text))
+                .then(() => editor)
+          )
+          .then(applyEdits(offsets))
+      })
+      .then(doc => doc.getText())
+      .then(actual =>
+        getFileText('expected.80.' + ext)
+          .then(expected => [actual, expected])
+      )
+      .then(([actual, expected]) => {
+        assert.equal(actual, expected)
+      })
+  })
+}
+
+const applyEdits =
+  (offsets: number[]) =>
+  (editor: TextEditor) :
+  Thenable<TextDocument> =>
+{
+  if(offsets.length) {
+    editor.selections = offsetsToSelections(editor.document, offsets)
+    return rewrapComment(editor)
+      .then(() => editor.document)
+  }
+  else {
+    return Promise.resolve(editor.document)
+  }
+}
+
+const path = (file) => join(__dirname, '../../test/fixture', file)
+
+const getFileText = (name: string): Thenable<string> =>
+  new Promise((resolve, reject) =>
+    readFile(path(name), (err, data) =>
+      err 
+        ? reject(err) 
+        : resolve(
+            data.toString()
+              .replace(/\r?\n/g, process.platform === 'win32' ? '\r\n' : '\n')
+          )
+    )
+  )
+
+const extractSelectionOffsets =
+  (text: string) :
+  [string, number[]] =>
+{
+  const sections = text.split(/\^/), offsets = []
+  for(let i = 0, s = 0; i < sections.length - 1; i++) {
+    s += sections[i].length
+    offsets.push(s)
+  }
+  
+  return [sections.join(''), offsets]
+}
+
+const offsetsToSelections =
+  (doc: TextDocument, [fst, snd, ...offsets]: number[]) :
+  Selection[] =>
+    (offsets.length ? offsetsToSelections(doc, offsets): [])
+      .concat(new Selection(doc.positionAt(fst), doc.positionAt(snd)))
