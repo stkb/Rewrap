@@ -12,7 +12,7 @@ const getWrappingColumn = () => {
     || 80
 }
   
-export default function rewrapComment(editor: TextEditor) {
+export default function rewrapComment(editor: TextEditor): Thenable<void> {
   
   /** A reference to the document we're working on */
   const doc = editor.document
@@ -44,7 +44,7 @@ export default function rewrapComment(editor: TextEditor) {
   {
     // If no comments or selections, do nothing
     if(ranges.length === 0 || selections.length === 0) {
-       return
+       return Promise.resolve()
     }
     // Make sure ranges and selections are in reverse order.
     // Am assuming this is needed to stop the edits messing up existing ranges.
@@ -165,5 +165,5 @@ export default function rewrapComment(editor: TextEditor) {
   }
 
   // Start the work 
-  fixComments(getDocumentCommentRanges(), editor.selections)
+  return fixComments(getDocumentCommentRanges(), editor.selections)
 }
