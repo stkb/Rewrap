@@ -1,6 +1,6 @@
 'use strict';
 import { commands, ExtensionContext } from 'vscode'
-import rewrapComment from './rewrapComment'
+import rewrapComments from './rewrapComment'
 
 
 // Called when the extension is activated, the very first time the
@@ -9,7 +9,7 @@ export function activate(context: ExtensionContext) {
 
   context.subscriptions.push(
     commands.registerTextEditorCommand(
-      'rewrap.rewrapComment', rewrapComment)
+      'rewrap.rewrapComment', rewrapComments)
   )
 }
 

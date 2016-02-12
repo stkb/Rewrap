@@ -12,7 +12,7 @@ const getWrappingColumn = () => {
     || 80
 }
 
-export default function rewrapComment(editor: TextEditor): Thenable<void> {
+export default function rewrapComments(editor: TextEditor): Thenable<void> {
 
   /** A reference to the document we're working on */
   const doc = editor.document
