@@ -1,13 +1,20 @@
 import * as assert from 'assert'
 import { join } from 'path'
-import { readFile } from 'fs'
+import { readFile, readdirSync } from 'fs'
 
 import { commands, Position, Selection, TextDocument, TextEditor, Uri, window, workspace } from 'vscode'
 import rewrapComment from '../src/rewrapComment'
 
-suite("Wrapping", () => {
+const path = (file) => join(__dirname, '../../test/fixture', file)
 
-  ['c', 'js'].forEach(doTest)
+suite("Wrapping", () => {
+  
+  const dataFiles = readdirSync(path('.'))
+    .filter(name => name.startsWith('data.'))
+  
+  dataFiles
+    .map(name => name.split('.')[1])
+    .forEach(doTest)
 });
 
 function doTest(ext: string) {
@@ -49,8 +56,6 @@ const applyEdits =
     return Promise.resolve(editor.document)
   }
 }
-
-const path = (file) => join(__dirname, '../../test/fixture', file)
 
 const getFileText = (name: string): Thenable<string> =>
   new Promise((resolve, reject) =>
