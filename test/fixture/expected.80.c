@@ -11,3 +11,7 @@
 
 /* A multi-line comment on a single line. When this gets wrapped the next line
 is indented at the same level as the '/*' of the first line */
+
+/* This is a multi-line comment that has enough text to be wrapped but it won't be because it hasn't been selected */
+
+// This is a line comment that has enough text to be wrapped but it won't be because it hasn't been selected

@@ -31,6 +31,33 @@ const getCommentsRegex = (doc: TextDocument) => {
     case 'xsl':
       // Only multi-line: <!-- ... -->
       return /^[ \t]*<!--[^]+?-->/mg
+    case 'ruby':
+      // Single line: #... and multi-line: ^=begin ... ^=end
+      return /^=begin[^]+^=end|^[ \t]*#[^]+?$(?!\r?\n[ \t]*#)/mg
+  }
+}
+
+const getMiddleLinePrefix = 
+  (doc: TextDocument, prefix: string): 
+  string => 
+{
+  const singleLine = ['///', '//', '#']
+  const customPrefixes = 
+    { '/**': ' * '
+    }
+
+  const [_, leadingWhitespace, chars, trailingWhiteSpace] = 
+        prefix.match(/(\s*)(\S*)(\s*)/)
+        
+  if(singleLine.indexOf(chars) > -1) return prefix
+
+  else {
+    for(let pre of Object.keys(customPrefixes)) {
+      if(pre === chars) {
+        return leadingWhitespace + customPrefixes[pre] + trailingWhiteSpace
+      }
+    }
+    return leadingWhitespace
   }
 }
 
@@ -99,14 +126,6 @@ export default function rewrapComments(editor: TextEditor): Thenable<void> {
      text: string
   }
 
-  const getMiddleLinePrefix = (firstLinePrefix: string): string => {
-    // This is gonna be hacky
-    const leadingWhitespace = firstLinePrefix.match(/\s*/)[0]
-    if(firstLinePrefix.includes("/**")) return leadingWhitespace + " * "
-    if(firstLinePrefix.includes("//")) return leadingWhitespace + "// "
-    return leadingWhitespace
-  }
-
   /** Used to find characters in a line of a comment that are actual text */
   const textCharRegex = /[\w$]/
 
@@ -154,6 +173,7 @@ export default function rewrapComments(editor: TextEditor): Thenable<void> {
     }
 
     // Get prefix + text content for each line we're going to process
+    
     const lines: LineInfo[] =
         doc.getText(textRange)
           .split('\n') // \r gets trimmed off later
@@ -167,7 +187,7 @@ export default function rewrapComments(editor: TextEditor): Thenable<void> {
     // If the whole comment was only 1 line we need to create another
     // prefix for possible following lines
     if(lines.length === 1 && textRange.start.isEqual(commentRange.start)) {
-      lines.push({ prefix: getMiddleLinePrefix(lines[0].prefix), text: ''})
+      lines.push({ prefix: getMiddleLinePrefix(doc, lines[0].prefix), text: '' })
     }
 
     // Process the raw text to get the processed text
