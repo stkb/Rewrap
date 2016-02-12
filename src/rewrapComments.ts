@@ -24,10 +24,12 @@ const getCommentsRegex = (doc: TextDocument) => {
     case 'javascriptreact':
     case 'typescript':
     case 'typescriptreact':
+      // Single line: //... and multi-line: /*(*)...*/
       return /^[ \t]*\/\*[^]*?\*\/|^[ \t]*\/\/[^]+?$(?!\r?\n[ \t]*\/\/)/mg
     case 'html':
     case 'xml':
     case 'xsl':
+      // Only multi-line: <!-- ... -->
       return /^[ \t]*<!--[^]+?-->/mg
   }
 }
