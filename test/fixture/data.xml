@@ -1,0 +1,11 @@
+<!-- This is a comment^^ on one line -->
+
+<!-- This is a comment^^ that has enough text that it is enough to span over two lines -->
+
+    <!-- This is a comment^^ that's been indented -->
+
+<xml>
+<!-- This is a comment^^ that spans over two lines.
+     The second line is indented to the same level as the text of the first -->
+    Some text
+</xml>

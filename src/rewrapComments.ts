@@ -12,6 +12,26 @@ const getWrappingColumn = () => {
     || 80
 }
 
+const getCommentsRegex = (doc: TextDocument) => {
+  switch(doc.languageId) {
+    case 'c':
+    case 'cpp':
+    case 'csharp':
+    case 'css':
+    case 'go':
+    case 'java':
+    case 'javascript':
+    case 'javascriptreact':
+    case 'typescript':
+    case 'typescriptreact':
+      return /^[ \t]*\/\*[\s\S]*?\*\/|^[ \t]*\/\/[\s\S]+?$(?!\r?\n[ \t]*\/\/)/mg
+    case 'html':
+    case 'xml':
+    case 'xsl':
+      return /^[ \t]*<!--[^]+?-->/mg
+  }
+}
+
 export default function rewrapComments(editor: TextEditor): Thenable<void> {
 
   /** A reference to the document we're working on */
@@ -23,12 +43,11 @@ export default function rewrapComments(editor: TextEditor): Thenable<void> {
    */
   const getDocumentCommentRanges = () : Range[] => {
     const text = doc.getText()
-      , cCommentsRegex =
-          /^[ \t]*\/\*[\s\S]*?\*\/|^[ \t]*\/\/[\s\S]+?$(?!\r?\n[ \t]*\/\/)/mg
+      , commentsRegex = getCommentsRegex(doc)
       , ranges = []
     let match
 
-    while(match = cCommentsRegex.exec(text)) {
+    while(match = commentsRegex.exec(text)) {
       const start = doc.positionAt(match.index)
         , end = doc.positionAt(match.index + match[0].length)
       ranges.push(new Range(start, end))
