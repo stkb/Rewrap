@@ -156,6 +156,10 @@ export default function rewrapComment(editor: TextEditor): Thenable<void> {
           wrap(rawText, { width: wrappedWidth })
           .split('\n')
           .map((text, i) => lines[Math.min(i, lines.length - 1)].prefix + text)
+          // greedy-wrap doesn't trim spaces off the ends of lines after
+          // processing, but we're going to, to make the results more
+          // deterministic.
+          .map(s => s.replace(/\s+$/, ""))
           .join('\n') // vscode takes care of converting to \r\n if necessary
 
     // Do the edit
