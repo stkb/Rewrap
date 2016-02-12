@@ -24,7 +24,7 @@ const getCommentsRegex = (doc: TextDocument) => {
     case 'javascriptreact':
     case 'typescript':
     case 'typescriptreact':
-      return /^[ \t]*\/\*[\s\S]*?\*\/|^[ \t]*\/\/[\s\S]+?$(?!\r?\n[ \t]*\/\/)/mg
+      return /^[ \t]*\/\*[^]*?\*\/|^[ \t]*\/\/[^]+?$(?!\r?\n[ \t]*\/\/)/mg
     case 'html':
     case 'xml':
     case 'xsl':
