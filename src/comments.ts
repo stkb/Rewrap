@@ -1,5 +1,17 @@
 import { TextDocument } from 'vscode'
 
+const singleLine = (chars: string): string =>
+  chars && '^[ \\t]*' + chars + '[^]+?$(?!\\r?\\n[ \\t]*' + chars +')'
+
+const multiLine = ([start, end]: [string, string]): string =>
+  start && end && '^[ \\t]*' + start + '[^]+?' + end
+
+const regexp = (multi: [string, string], single: string) =>
+  new RegExp( [multiLine(multi), singleLine(single)].filter(s => !!s).join('|')
+            , 'mg'
+            )
+
+
 export function getCommentsRegex(doc: TextDocument) {
   switch(doc.languageId) {
     case 'c':
@@ -12,16 +24,13 @@ export function getCommentsRegex(doc: TextDocument) {
     case 'javascriptreact':
     case 'typescript':
     case 'typescriptreact':
-      // Single line: //... and multi-line: /*(*)...*/
-      return /^[ \t]*\/\*[^]*?\*\/|^[ \t]*\/\/[^]+?$(?!\r?\n[ \t]*\/\/)/mg
+      return regexp(['\\/\\*','\\*\\/'], '\\/\\/')
     case 'html':
     case 'xml':
     case 'xsl':
-      // Only multi-line: <!-- ... -->
-      return /^[ \t]*<!--[^]+?-->/mg
+      return regexp(['<!--', '-->'], null)
     case 'ruby':
-      // Single line: #... and multi-line: ^=begin ... ^=end
-      return /^=begin[^]+^=end|^[ \t]*#[^]+?$(?!\r?\n[ \t]*#)/mg
+      return regexp(['^=begin', '^=end'], '#')
   }
 }
 
