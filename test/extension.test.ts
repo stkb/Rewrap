@@ -3,7 +3,7 @@ import { join } from 'path'
 import { readFile, readdirSync } from 'fs'
 
 import { commands, Position, Selection, TextDocument, TextEditor, Uri, window, workspace } from 'vscode'
-import rewrapComment from '../src/rewrapComment'
+import rewrapComment from '../src/rewrapComments'
 
 const path = (file) => join(__dirname, '../../test/fixture', file)
 

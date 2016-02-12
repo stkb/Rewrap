@@ -1,6 +1,6 @@
 'use strict';
 import { commands, ExtensionContext } from 'vscode'
-import rewrapComments from './rewrapComment'
+import rewrapComments from './rewrapComments'
 
 
 // Called when the extension is activated, the very first time the
@@ -12,4 +12,3 @@ export function activate(context: ExtensionContext) {
       'rewrap.rewrapComment', rewrapComments)
   )
 }
-
