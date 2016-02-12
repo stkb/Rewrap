@@ -10,7 +10,8 @@
     "url": "https://github.com/stkb/vscode-rewrap.git"
   },
   "bugs": {
-    "url": "https://github.com/stkb/vscode-rewrap/issues"
+    "url": "https://github.com/stkb/vscode-rewrap/issues",
+    "email": "_steve_@outlook.com"
   },
   "license": "MIT",
   "engines": {
