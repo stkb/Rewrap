@@ -1,14 +1,41 @@
 # Rewrap
 
-Reformats code comments to a given line length. Supports many languages: C/C++, C#, CoffeeScript, F#, Javascript, Haskell, Java, PHP, PowerShell, Python, Ruby, Rust, Shell Script, TypeScript and more.
+Reformats single and multiline code comments to a given line length. Supports many languages: C/C++, C#, CoffeeScript, F#, Javascript, Haskell, Java, PHP, PowerShell, Python, Ruby, Rust, shell script, TypeScript and more.
+
+<style>
+  .example tr > :first-child,
+  .example tr > :last-child { 
+    background: #002451; color: #ffefae; overflow: hidden; padding: 0 1em 0 0;
+  }
+  .example tr > :first-child {
+    content: "f"
+  }
+  .example tr > :nth-child(2){
+     font-size: 1.3rem;
+  }
+  .example pre { 
+    margin: 0; margin-left: -0.5em; width: 21em; 
+    padding: 0.4em 0; border-right: solid 1px #888; 
+  }
+</style>
+
+<table class="example"><tr>
+  <td><pre>
+  
+  // A comment that's too long to fit on one line gets wrapped onto multiple lines
+  </pre></td>
+  <td>&#10132;</td> 
+  <td><pre>
+  // A comment that's too long to 
+  // fit on one line gets wrapped 
+  // onto multiple lines.</pre></td> 
+</tr></table>
 
 ## How to use ##
-Put the text cursor inside a comment (or select lines thereof) and press F1 (or Ctrl+Shift+P) and find the command "Rewrap Comments". Alternatively use the keyboard shortcut ```Ctrl+K Ctrl+W``` (press one after the other).
 
-### Selections ###
-* If you have an empty selection inside a comment block (just the text cursor), the whole comment block will be processed. 
-* If you select one or more lines within a comment block, only those lines will be processed.
-* You can also include multiple comment blocks within a selection, and they will all be processed. You can reformat the comments for a whole document in this way.
+**TL;DR:** Put your text cursor inside a comment line or block and press ```Ctrl+K Ctrl+W``` (one after the other) to wrap the comment to the preset column (default is 80). You can also select just a few lines of a comment block or multiple comments in one selection.
+
+You can also invoke the command ("Rewrap Comment") manually by first pressing ```F1``` (or ```Ctrl+Shift+P```) and searching for it.
 
 ### Comment width ###
 The column number to wrap comments at is chosen in this way:
@@ -20,9 +47,14 @@ For example, to wrap comments at column 100, add the setting to your settings fi
 
 ```
 {
-  "rewrap.wrappingColumn": 80
+  "rewrap.wrappingColumn": 100
 }
 ```
+
+### Selections ###
+* If you have an empty selection inside a comment block (just the text cursor), the whole comment block will be processed. 
+* If you select one or more lines within a comment block, only those lines will be processed.
+* You can also include multiple comment blocks within a selection, and they will all be processed. You can reformat the comments for a whole document in this way.
 
 ### Keyboard shortcut ###
 The default keyboard shortcut (```Ctrl+K Ctrl+W```) is chosen to be in keeping with the already-existing comment-related commands in vscode:
