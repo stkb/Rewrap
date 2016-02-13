@@ -4,34 +4,7 @@
 
 Reformats single and multiline code comments to a given line length. Supports many languages: C/C++, C#, CoffeeScript, F#, Javascript, Haskell, Java, PHP, PowerShell, Python, Ruby, Rust, shell script, TypeScript and more.
 
-<style>
-  .example tr > :first-child,
-  .example tr > :last-child { 
-    background: #002451; color: #ffefae; overflow: hidden; padding: 0 1em 0 0;
-  }
-  .example tr > :first-child {
-    content: "f"
-  }
-  .example tr > :nth-child(2){
-     font-size: 1.3rem;
-  }
-  .example pre { 
-    margin: 0; margin-left: -0.5em; width: 21em; 
-    padding: 0.4em 0; border-right: solid 1px #888; 
-  }
-</style>
-
-<table class="example"><tr>
-  <td><pre>
-  
-  // A comment that's too long to fit on one line gets wrapped onto multiple lines
-  </pre></td>
-  <td>&#10132;</td> 
-  <td><pre>
-  // A comment that's too long to 
-  // fit on one line gets wrapped 
-  // onto multiple lines.</pre></td> 
-</tr></table>
+![Example](http://stkb.github.io/vscode-rewrap/example.png)
 
 ## How to use ##
 
