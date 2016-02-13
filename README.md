@@ -39,9 +39,10 @@ For example if you want to use the shortcut ```Ctrl+Shift+Q``` instead:
 ```
 
 ## Todo ##
-* Add more languages.
 * Add support for documentation comments (jsdoc, xmldoc etc) so that they don't get messed up while reformatting the whole block.
 * Improve this readme.
+* Add more languages as necessary.
+* (Possibly) add support for other things, like long multi-line strings in code.
 
 Rewrap is a very new extension so please report any issues or suggestions you have in [issues](https://github.com/stkb/vscode-rewrap/issues)!
 
