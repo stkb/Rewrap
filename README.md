@@ -1,6 +1,6 @@
 # Rewrap
 
-Reformats code comments to a given line length. Currently only supports C-style comments (```//``` and ```/* ... */```).
+Reformats code comments to a given line length. Supports many languages: C/C++, C#, CoffeeScript, F#, Javascript, Haskell, Java, PHP, PowerShell, Python, Ruby, Rust, Shell Script, TypeScript and more.
 
 ## How to use ##
 Put the text cursor inside a comment (or select lines thereof) and press F1 (or Ctrl+Shift+P) and find the command "Rewrap Comments". Alternatively use the keyboard shortcut ```Ctrl+K Ctrl+W``` (press one after the other).
