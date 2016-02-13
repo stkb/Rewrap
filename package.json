@@ -3,7 +3,7 @@
   "displayName": "Rewrap",
   "description": "Re-wraps comments to a given line length. Supports many languages.",
   "keywords": ["wraps", "comments", "column", "line", "length"],
-  "version": "0.1.2",
+  "version": "0.1.3",
   "publisher": "stkb",
   "icon": "https://raw.githubusercontent.com/stkb/vscode-rewrap/gh-pages/logo.png",
   "repository": {
