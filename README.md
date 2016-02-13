@@ -1,5 +1,7 @@
 # Rewrap
 
+[![Build Status](https://travis-ci.org/stkb/vscode-rewrap.svg?branch=master)](https://travis-ci.org/stkb/vscode-rewrap)
+
 Reformats single and multiline code comments to a given line length. Supports many languages: C/C++, C#, CoffeeScript, F#, Javascript, Haskell, Java, PHP, PowerShell, Python, Ruby, Rust, shell script, TypeScript and more.
 
 <style>
