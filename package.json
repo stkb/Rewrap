@@ -5,7 +5,7 @@
   "keywords": ["wraps", "comments", "column", "line", "length"],
   "version": "0.1.2",
   "publisher": "stkb",
-  "icon": "https://stkb.github.io/vscode-rewrap/logo.svg",
+  "icon": "https://raw.githubusercontent.com/stkb/vscode-rewrap/gh-pages/logo.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/stkb/vscode-rewrap.git"
