@@ -18,4 +18,5 @@ install:
   - npm run vscode:prepublish
     
 script:
+  - export CODE_VERSION=0.10.6
   - npm test --silent
