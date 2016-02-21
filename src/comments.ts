@@ -1,4 +1,5 @@
 import { TextDocument } from 'vscode'
+import { extname } from 'path'
 
 const singleLine = (chars: string): string =>
   chars && '^[ \\t]*' + chars + '[^]+?$(?!\\r?\\n[ \\t]*' + chars +')'
@@ -15,6 +16,14 @@ const regexp = (multi: [string, string], single: string) =>
 
 
 export function getCommentsRegex(doc: TextDocument) {
+  
+  switch(extname(doc.fileName)) {
+    case '.hs':
+    case '.elm':
+    case '.purs':
+      return regexp(['{-', '-}'], '--')
+  }
+  
   switch(doc.languageId) {
     case 'bat':
       return regexp([null, null], '(?:rem|::)')
@@ -48,10 +57,6 @@ export function getCommentsRegex(doc: TextDocument) {
       return regexp(noMultiLine, '#')
     case 'fsharp':
       return regexp(['\\(\\*', '\\*\\)'], '\\/\\/')
-    case 'haskell':
-    case 'elm':
-    case 'purescript':
-      return regexp(['{-', '-}'], '--')
     case 'html':
     case 'xml':
     case 'xsl':
