@@ -20,9 +20,8 @@ export default function rewrapComments(editor: TextEditor): Thenable<void> {
   const doc = editor.document
 
   /** Gets the ranges of all comments in the document. These will be
-   * cross-referenced with the selections made in the editor so we know what to
-   * work on.
-   */
+   *  cross-referenced with the selections made in the editor so we know what to
+   *  work on. */
   const getDocumentCommentRanges = () : Range[] => {
     const text = doc.getText()
       , commentsRegex = getCommentsRegex(doc)
@@ -65,7 +64,7 @@ export default function rewrapComments(editor: TextEditor): Thenable<void> {
   }
 
   /** If a selection is found that is in the given comment range, fix that
-   * comment with regard to the selection */
+   *  comment with regard to the selection */
   const fixCommentIfInASelection =
     (range: Range, selections: Selection[]):
     Thenable<boolean> =>
@@ -83,7 +82,7 @@ export default function rewrapComments(editor: TextEditor): Thenable<void> {
   const textCharRegex = /[\w$]/
 
   /** Trims a range of lines that don't contain any actual text.
-   * Will throw an error of the whole range doesn't contain any text */
+   *  Will throw an error if the whole range doesn't contain any text */
   const trimRange = (range: Range): Range => {
     if(!textCharRegex.test(doc.lineAt(range.start).text)) {
       return trimRange(range.with(range.start.translate(1)))
@@ -115,7 +114,7 @@ export default function rewrapComments(editor: TextEditor): Thenable<void> {
       selection = selection.intersection(commentRange)
     }
 
-    // Trim the range of lines that don't actually contain text.
+    // Trim the range's start & end of lines that don't actually contain text.
     // We won't process those
     let textRange: Range
     try {
@@ -126,7 +125,6 @@ export default function rewrapComments(editor: TextEditor): Thenable<void> {
     }
 
     // Get prefix + text content for each line we're going to process
-    
     const lines: LineInfo[] =
         doc.getText(textRange)
           .split('\n') // \r gets trimmed off later
