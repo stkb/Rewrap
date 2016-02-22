@@ -2,7 +2,13 @@
   "name": "rewrap",
   "displayName": "Rewrap",
   "description": "Re-wraps comments to a given line length. Supports many languages.",
-  "keywords": ["wraps", "comments", "column", "line", "length"],
+  "keywords": [
+    "wraps",
+    "comments",
+    "column",
+    "line",
+    "length"
+  ],
   "version": "0.1.4",
   "publisher": "stkb",
   "icon": "images/logo.png",
@@ -58,6 +64,7 @@
     "test": "node ./node_modules/vscode/bin/test"
   },
   "devDependencies": {
+    "mocha-clean": "^1.0.0",
     "typescript": "^1.7.5",
     "vscode": "stkb/vscode-extension-vscode"
   },
