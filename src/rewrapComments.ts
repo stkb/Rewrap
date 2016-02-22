@@ -75,7 +75,8 @@ export default function rewrapComments(editor: TextEditor): Thenable<void> {
 
   interface LineInfo {
      prefix: string
-     text: string
+     text?: string
+     newLine?: boolean
   }
 
   /** Used to find characters in a line of a comment that are actual text */
@@ -95,6 +96,38 @@ export default function rewrapComments(editor: TextEditor): Thenable<void> {
     else {
       return range
     }
+  }
+
+  const alterLines =
+    (start: number, lines: LineInfo[], defaultLine: LineInfo):
+    Thenable<boolean> =>
+  {
+    // Process sections recursively, starting with the last.
+    // This code is a bit complicated because of the promises 
+    const split = lines.slice(1).findIndex(l => l.newLine) + 1
+    const promise = split > 0
+      ? alterLines(start + split, lines.slice(split), defaultLine).then(() => split)
+      : Promise.resolve(lines.length)
+
+    return promise.then((endIndex: number) => {
+        // Process the raw text to get the processed text
+        lines = lines.slice(0, endIndex)
+        const rawText = lines.map(li => li.text).join(' ').trim()
+          , wrappedWidth = getWrappingColumn() - lines[0].prefix.length
+          , processedText =
+              wrap(rawText, { width: wrappedWidth })
+              .split('\n')
+              .map((text, i) => (lines[i] || defaultLine).prefix + text)
+              // greedy-wrap doesn't trim spaces off the ends of lines after
+              // processing, but we're going to, to make the results more
+              // deterministic.
+              .map(s => s.replace(/\s+$/, ""))
+              .join('\n') // vscode takes care of converting to \r\n if necessary
+
+        // Do the edit
+        const range = new Range(start, 0, start + lines.length - 1, Number.MAX_VALUE)
+        return editor.edit(eb => eb.replace(range, processedText))
+      })
   }
 
   /** Edits the comment to rewrap the selected lines */
@@ -130,32 +163,20 @@ export default function rewrapComments(editor: TextEditor): Thenable<void> {
           .split('\n') // \r gets trimmed off later
           .map(line => {
             const splitPoint = line.match(textCharRegex).index
-            return { prefix: line.substr(0, splitPoint)
-                   , text: line.substr(splitPoint).trim()
-                   }
+              , newLine =
+                  splitPoint > 0 && "@<".includes(line.charAt(splitPoint - 1))
+              , splitPoint_ = newLine ? splitPoint - 1 : splitPoint
+              , prefix = line.substr(0, splitPoint_)
+              , text = line.substr(splitPoint_).trim()
+
+            return { prefix: prefix, text: text, newLine: newLine }
           })
 
-    // If the whole comment was only 1 line we need to create another
-    // prefix for possible following lines
-    if(lines.length === 1 && textRange.start.isEqual(commentRange.start)) {
-      lines.push({ prefix: getMiddleLinePrefix(doc, lines[0].prefix), text: '' })
-    }
-
-    // Process the raw text to get the processed text
-    const rawText = lines.map(li => li.text).join(' ').trim()
-      , wrappedWidth = getWrappingColumn() - lines[0].prefix.length
-      , processedText =
-          wrap(rawText, { width: wrappedWidth })
-          .split('\n')
-          .map((text, i) => lines[Math.min(i, lines.length - 1)].prefix + text)
-          // greedy-wrap doesn't trim spaces off the ends of lines after
-          // processing, but we're going to, to make the results more
-          // deterministic.
-          .map(s => s.replace(/\s+$/, ""))
-          .join('\n') // vscode takes care of converting to \r\n if necessary
-
-    // Do the edit
-    return editor.edit(eb => eb.replace(textRange, processedText))
+    const defaultLine =
+      lines.length === 1 && textRange.start.isEqual(commentRange.start)
+        ? { prefix: getMiddleLinePrefix(doc, lines[0].prefix) }
+        : lines[lines.length - 1]
+    return alterLines(textRange.start.line, lines, defaultLine)
   }
 
 
