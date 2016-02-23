@@ -1,1 +1,2 @@
--- require mocha-clean/brief
+--require mocha-clean/brief
+--bail
