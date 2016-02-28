@@ -5,6 +5,7 @@ import { languages, Position, Range, Selection, TextDocument, TextEditor, worksp
 import { getCommentsRegex, getLanguage } from './languageInfo'
 
 
+/** Function called by the rewrap.rewrapComment command */
 export default function rewrapComments(editor: TextEditor): Thenable<void> 
 {
   return fixComments(
@@ -82,7 +83,7 @@ function editComment
   }
   writeBuffer()
 
-  
+  // Do the actual edit
   if(startAt <= endAt) {
     const replacementRange = new Range(startAt, 0, endAt, Number.MAX_VALUE)
         , processedText = outputLines
@@ -298,11 +299,14 @@ function trimEnd(s: string) {
 
 
 interface CommentInfo {
+  /** The line to start processing the comment at. */
   startAt: number
+  /** The line to to end processing the comment on (inclusive). */
   endAt: number
+  /** Regex to use to separate a line's prefix from the rest of the text */
   lineRegex: RegExp
+  /** The standard template line prefix to when re-wrapping the comment */
   linePrefix: string
-  
   /** Prefix for the first line of a multi-line comment. Is only given if
    *  startAt is not modified */
   firstLinePrefix: string
