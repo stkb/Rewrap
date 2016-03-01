@@ -10,8 +10,9 @@ suite("Features", () => {
   featureTest('basic_multi.js')
   featureTest('blank_lines_single.js')
   featureTest('blank_lines_multi.js')
-  featureTest('text_indent_single.js')
-  featureTest('text_indent_multi.js')
+  featureTest('alignment_single.js')
+  featureTest('alignment_multi.js')
+  featureTest('jsdoc.js')
   featureTest('xmldoc.cs')
 })
 
