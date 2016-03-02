@@ -35,7 +35,7 @@
     "commands": [
       {
         "command": "rewrap.rewrapComment",
-        "title": "Rewrap Comment"
+        "title": "Rewrap Comment / Text"
       }
     ],
     "configuration": {
