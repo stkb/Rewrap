@@ -7,5 +7,5 @@
 <xml>
 <!-- This is a comment^^ that spans over two lines.
      The second line is indented to the same level as the text of the first -->
-    Some text
+    Some text that also needs wrapping, ^and will be because there's a selection in it.^
 </xml>

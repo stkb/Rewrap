@@ -18,6 +18,8 @@ const regexp = (multi: [string, string], single: string) =>
 
 export interface LanguageInfo { start?: string, end?: string, line?: string }
 
+export const plainText: LanguageInfo = { line: '(?=\\S)' }
+
 /** Map of languages to comment start/end/line patterns. Probably not the best
  *  way to do this but it works. Mostly uses the file extension to get the
  *  language but in some cases (eg dockerfile) the languageId has to be used
@@ -45,6 +47,8 @@ const languages: { [key: string]: LanguageInfo } =
       { line: '\\/\\/' }
   , '.lua.':
       { start: '--\\[\\[', end: '\\]\\]', line: '--' }
+  , '.md.txt.plaintext.':
+      plainText
   , '.p6.perl6.rb.':
       { start: '^=begin', end: '^=end', line: '#' }
   , '.php.':
@@ -61,7 +65,7 @@ const languages: { [key: string]: LanguageInfo } =
       { line: "'" }
   }
 
-export const getLanguage = (doc: TextDocument): LanguageInfo => {
+export const docLanguage = (doc: TextDocument): LanguageInfo => {
   for(let langs of Object.keys(languages)) {
     if(langs.includes(extname(doc.fileName) + '.')
       || langs.includes('.' + doc.languageId + '.')
@@ -73,10 +77,11 @@ export const getLanguage = (doc: TextDocument): LanguageInfo => {
   console.log(`Rewrap: No support for ${doc.languageId}`)
 }
 
-export function getCommentsRegex(doc: TextDocument) {
-  const lang = getLanguage(doc)
+
+export function rangesRegex(lang: LanguageInfo) {
   return regexp([lang.start, lang.end], lang.line)
 }
+
 
 export function getMiddleLinePrefix(doc: TextDocument, prefix: string): string
 {
@@ -105,7 +110,7 @@ export function getPrefixLength
   (doc: TextDocument, line: number, startLine: number) :
   number
 { 
-  const lang = getLanguage(doc)
+  const lang = docLanguage(doc)
   if(!lang) console.log(doc.fileName)
   const lineText = doc.lineAt(line).text
     , multiLineMatch = 

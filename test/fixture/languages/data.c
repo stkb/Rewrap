@@ -12,7 +12,7 @@
 
 /* This is a multi-line comment that has enough text to be wrapped but it won't be because it hasn't been selected */
 
-// This is a line comment that has enough text to be wrapped but it won't be because it hasn't been selected. Selections within code shouldn't matter either.
+// This is a line comment that has enough text to be wrapped but it won't be because it hasn't been selected.
 void DoNothingWithX(int x) {
     ^return x;^
 }
