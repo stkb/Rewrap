@@ -19,6 +19,7 @@ suite("Features", () => {
 
 function testFeature() 
 {
+  this.timeout(5000)
   const name = this.test.title
       , input = `features/${name.replace('.', '.input.')}`
       , expected = `features/${name.replace('.', '.expected.')}`
