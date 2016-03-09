@@ -80,7 +80,7 @@ function editTextRange
 
   const buffer = [] as string[]
       , outputLines = [] as string[]
-      , wrappingWidth = getWrappingColumn() - linePrefix.length
+      , wrappingWidth = getWrappingColumn() - getPrefixSize(editor, linePrefix)
   
   for(let index = startAt; index <= endAt; index++) {
     const line = doc.lineAt(index).text
@@ -309,6 +309,24 @@ function getDocumentRanges(doc: TextDocument, regex: RegExp): Range[]
   }
 
   return ranges
+}
+
+
+/** Gets the display size of a prefix, taking in to account the render width of
+ *  tabs for the current editor */
+function getPrefixSize(editor: TextEditor, prefix: string) 
+{
+  const tabSize = editor.options.tabSize
+  let size = 0;
+  for(let i = 0; i < prefix.length; i++) {
+    if(prefix.charAt(i) === '\t') {
+      size += tabSize - (size % tabSize)
+    }
+    else {
+      size++
+    }
+  }
+  return size
 }
 
 
