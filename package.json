@@ -1,7 +1,7 @@
 {
   "name": "rewrap",
   "displayName": "Rewrap",
-  "description": "Re-wraps comments to a given line length. Supports many languages.",
+  "description": "Re-wraps comments and other text to a given line length. Supports many languages.",
   "keywords": [
     "wraps",
     "comments",
@@ -9,7 +9,7 @@
     "line",
     "length"
   ],
-  "version": "0.3.1",
+  "version": "0.4.0",
   "publisher": "stkb",
   "icon": "images/logo.png",
   "repository": {
