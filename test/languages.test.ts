@@ -6,12 +6,14 @@ suite("Languages", () =>
 {
   const languageTest = makeTest(() => testExtension)
   
+  languageTest('abc')
   languageTest('c')
   languageTest('coffee')
   languageTest('cs')
   languageTest('elm')
   languageTest('go')
   languageTest('js')
+  languageTest('md')
   languageTest('rb')
   languageTest('xml')
 })

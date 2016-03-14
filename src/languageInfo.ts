@@ -45,8 +45,6 @@ const languages: { [key: string]: LanguageInfo } =
       { line: '\\/\\/' }
   , '.lua.':
       { start: '--\\[\\[', end: '\\]\\]', line: '--' }
-  , '.md.txt.plaintext.':
-      plainText
   , '.p6.perl6.rb.':
       { start: '^=begin', end: '^=end', line: '#' }
   , '.php.':
@@ -63,7 +61,8 @@ const languages: { [key: string]: LanguageInfo } =
       { line: "'" }
   }
 
-export const docLanguage = (doc: TextDocument): LanguageInfo => {
+export function docLanguage(doc: TextDocument): LanguageInfo
+{
   for(let langs of Object.keys(languages)) {
     if(langs.includes(extname(doc.fileName) + '.')
       || langs.includes('.' + doc.languageId + '.')
@@ -72,7 +71,7 @@ export const docLanguage = (doc: TextDocument): LanguageInfo => {
     }
   }
   
-  console.log(`Rewrap: No support for ${doc.languageId}`)
+  return plainText
 }
 
 
