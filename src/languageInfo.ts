@@ -8,8 +8,6 @@ const singleLine = (chars: string): string =>
 
 const multiLine = ([start, end]: [string, string]): string =>
   start && end && leadingWhitespace + start + '[^]+?' + end
-  
-const noMultiLine: [string, string] = [null, null]
 
 const regexp = (multi: [string, string], single: string) =>
   new RegExp( [multiLine(multi), singleLine(single)].filter(s => !!s).join('|')
@@ -80,59 +78,4 @@ export const docLanguage = (doc: TextDocument): LanguageInfo => {
 
 export function rangesRegex(lang: LanguageInfo) {
   return regexp([lang.start, lang.end], lang.line)
-}
-
-
-export function getMiddleLinePrefix(doc: TextDocument, prefix: string): string
-{
-  const singleLine = ['///', '//!', '//', '#', '--', "'''", "'", ';']
-  const customPrefixes = 
-    { '/**': ' * '
-    }
-
-  const [_, leadingWhitespace, chars, trailingWhiteSpace] = 
-        prefix.match(/(\s*)(\S*)(\s*)/)
-        
-  if(singleLine.indexOf(chars) > -1) return prefix
-
-  else {
-    for(let pre of Object.keys(customPrefixes)) {
-      if(pre === chars) {
-        return leadingWhitespace + customPrefixes[pre] + trailingWhiteSpace
-      }
-    }
-    return leadingWhitespace
-  }
-}
-
-
-export function getPrefixLength
-  (doc: TextDocument, line: number, startLine: number) :
-  number
-{ 
-  const lang = docLanguage(doc)
-  if(!lang) console.log(doc.fileName)
-  const lineText = doc.lineAt(line).text
-    , multiLineMatch = 
-        lang.start &&
-        doc.lineAt(startLine).text.match(leadingWhitespace + lang.start)
-  if(multiLineMatch) {
-    if(line === startLine) {
-      return multiLineMatch[0].length
-    }
-    // Hack for javadoc/jsdoc
-    else if(multiLineMatch[0].endsWith('/**')) {
-      return lineText.match(leadingWhitespace + '\\*?')[0].length
-    }
-    // Hack for coffeescript doc
-    else if(multiLineMatch[0].endsWith('###*')) {
-      return lineText.match(leadingWhitespace + '(?:\\#|\\*)?')[0].length
-    }
-    else {
-      return lineText.match(leadingWhitespace)[0].length
-    }
-  }
-  else {
-    return lineText.match(leadingWhitespace + lang.line)[0].length
-  }
 }
