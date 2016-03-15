@@ -4,7 +4,7 @@
  
 Reformats code comments and plain text to a given line length. Supports C/C++, C#, CoffeeScript, F#, Javascript, Haskell, HTML, Java, Markdown, PHP, PowerShell, Python, Ruby, Rust, TypeScript and more.
 
-<img alt="Example" src="http://stkb.github.io/vscode-rewrap/example.png" width="726" />
+![Example](http://stkb.github.io/vscode-rewrap/example.png)
 
 ## Installing ##
 Run the `Install Extension` command and search for `rewrap`. ([More info on installing extensions](https://code.visualstudio.com/docs/editor/extension-gallery).)
