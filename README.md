@@ -1,6 +1,6 @@
 # Rewrap
 
- **Latest version: 0.4.2 ([view changes](https://github.com/stkb/vscode-rewrap/releases))**
+ **Latest version: 0.4.3 ([view changes](https://github.com/stkb/vscode-rewrap/releases))**
  
 Reformats code comments and plain text to a given line length. Supports C/C++, C#, CoffeeScript, F#, Javascript, Haskell, HTML, Java, Markdown, PHP, PowerShell, Python, Ruby, Rust, TypeScript and more.
 
