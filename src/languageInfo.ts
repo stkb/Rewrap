@@ -18,7 +18,7 @@ export interface LanguageInfo { start?: string, end?: string, line?: string }
 
 export const markdown: LanguageInfo = { 
   start: '\\S', 
-  end: '(  \\r?$|(?=\\n[ \\t\\r]*$)|(?=\\n([-+*]|\\d+[.)])\\s))',
+  end: '(  \\r?$|(?=\\n[ \\t\\r]*$)|(?=\\n[ \\t]*([-+*]|\\d+[.)])\\s))',
 }
 
 export const plainText: LanguageInfo = { line: '(?=\\S)' }
