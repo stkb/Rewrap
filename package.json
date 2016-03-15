@@ -7,7 +7,9 @@
     "comments",
     "column",
     "line",
-    "length"
+    "length",
+    "fill",
+    "paragraph"
   ],
   "version": "0.4.1",
   "publisher": "stkb",
