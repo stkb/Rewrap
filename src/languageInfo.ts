@@ -16,7 +16,13 @@ const regexp = (multi: [string, string], single: string) =>
 
 export interface LanguageInfo { start?: string, end?: string, line?: string }
 
+export const markdown: LanguageInfo = { 
+  start: '\\S', 
+  end: '(  \\r?$|(?=\\n[ \\t\\r]*$)|(?=\\n([-+*]|\\d+[.)])\\s))',
+}
+
 export const plainText: LanguageInfo = { line: '(?=\\S)' }
+
 
 /** Map of languages to comment start/end/line patterns. Probably not the best
  *  way to do this but it works. Mostly uses the file extension to get the
@@ -46,7 +52,7 @@ const languages: { [key: string]: LanguageInfo } =
   , '.lua.':
       { start: '--\\[\\[', end: '\\]\\]', line: '--' }
   , '.markdown.md.':
-      { start: '\\S', end: '(?:  \\r?|\\n[ \\t\\r]*)$' }
+      markdown
   , '.p6.perl6.rb.':
       { start: '^=begin', end: '^=end', line: '#' }
   , '.php.':

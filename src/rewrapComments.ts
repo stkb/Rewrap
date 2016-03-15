@@ -1,8 +1,8 @@
 import wrap = require('greedy-wrap')
 
-import { languages, Position, Range, Selection, TextDocument, TextEditor, workspace } from 'vscode'
+import { languages, Position, Range, Selection, TextDocument, TextEditor, workspace, } from 'vscode'
 
-import { LanguageInfo, docLanguage, plainText, rangesRegex } from './languageInfo'
+import { docLanguage, LanguageInfo, markdown, plainText, rangesRegex, } from './languageInfo'
 
 
 /** Function called by the rewrap.rewrapComment command */
@@ -236,7 +236,19 @@ function getCommentInfo
         endAt = Math.max(endAt, line)
         
         if(line === startLine) {
-          firstLinePrefix = multiLineMatch[0]
+          if(lang === markdown) {
+            const listItemMatch = lineText.match(/^[ \\t]*([-+*]|\\d+[.)])\s+/)
+            if(listItemMatch) {
+              firstLinePrefix = listItemMatch[0] as String
+              linePrefix = ' '.repeat(firstLinePrefix.length)
+            }
+            else {
+              firstLinePrefix = multiLineMatch[0]
+            }
+          }
+          else {
+            firstLinePrefix = multiLineMatch[0]
+          }
         }
       }
       
