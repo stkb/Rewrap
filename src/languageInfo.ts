@@ -45,6 +45,8 @@ const languages: { [key: string]: LanguageInfo } =
       { line: '\\/\\/' }
   , '.lua.':
       { start: '--\\[\\[', end: '\\]\\]', line: '--' }
+  , '.markdown.md.':
+      { start: '\\S', end: '(?:  \\r?|\\n[ \\t\\r]*)$' }
   , '.p6.perl6.rb.':
       { start: '^=begin', end: '^=end', line: '#' }
   , '.php.':
@@ -75,6 +77,7 @@ export function docLanguage(doc: TextDocument): LanguageInfo
 }
 
 
-export function rangesRegex(lang: LanguageInfo) {
+export function rangesRegex(lang: LanguageInfo) 
+{
   return regexp([lang.start, lang.end], lang.line)
 }

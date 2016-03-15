@@ -298,7 +298,7 @@ function getCommentInfo
  *  work on. */
 function getDocumentRanges(doc: TextDocument, regex: RegExp): Range[] 
 {
-  const text = doc.getText()
+  const text = doc.getText() + '\n'
     , ranges = []
   let match
 
@@ -364,9 +364,18 @@ function sortRangesInReverseOrder(ranges: Range[]) {
   return ranges.sort((s1, s2) => s1.start.isAfter(s2.start) ? -1 : 1)
 }
 
-/** Trims whitespace from the end of a string */
+/** Trims non-significant whitespace from the end of a string. Non-significant
+ *  whitespace is defined as:
+ *    No more than 1 space, or
+ *    Any whitespace is the string is completely whitespace.
+ */
 function trimEnd(s: string) {
-  return s.replace(/\s+$/, "")
+  if(/\S {2,}$/.test(s)) {
+    return s;
+  }
+  else {
+    return s.replace(/\s+$/, "")
+  }
 }
 
 
