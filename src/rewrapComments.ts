@@ -1,12 +1,20 @@
 import wrap = require('greedy-wrap')
 
-import { languages, Position, Range, Selection, TextDocument, TextEditor, workspace, } from 'vscode'
+import { languages, Position, Range, Selection, TextDocument, workspace, } from 'vscode'
+import * as vscode from 'vscode'
 
 import { docLanguage, LanguageInfo, markdown, plainText, rangesRegex, } from './languageInfo'
 
+interface TextEditorLike {
+  document: TextDocument
+  edit(callback: (editBuilder: vscode.TextEditorEdit) => void): Thenable<boolean>
+  options: vscode.TextEditorOptions
+  selections: Selection[]
+}
+
 
 /** Function called by the rewrap.rewrapComment command */
-export default function rewrapComments(editor: TextEditor): Thenable<void> 
+export default function rewrapComments(editor: TextEditorLike): Thenable<void> 
 {
   const doc = editor.document
       , docLang = docLanguage(doc)
@@ -58,7 +66,7 @@ function containsActualText(lineText: string): boolean {
 
 /** Edits the comment to rewrap the selected lines */
 function editTextRange
-  ( editor: TextEditor, lang: LanguageInfo, textRange: Range, selection: Range
+  ( editor: TextEditorLike, lang: LanguageInfo, textRange: Range, selection: Range
   ): Thenable<boolean>
 {
   
@@ -150,7 +158,7 @@ function editTextRange
 
 /** Rewraps comments with given ranges & selections */
 function fixCommentsAndPlainText
-  ( editor: TextEditor
+  ( editor: TextEditorLike
   , commentRanges: Range[]
   , plainTextRanges: Range[]
   , selections: Range[]
@@ -186,7 +194,7 @@ function fixCommentsAndPlainText
 }
 
 function fixTextRangesForSelection
-  ( editor: TextEditor
+  ( editor: TextEditorLike
   , lang: LanguageInfo
   , selection: Range
   , textRanges: Range[]
@@ -311,12 +319,12 @@ function getCommentInfo
 function getDocumentRanges(doc: TextDocument, regex: RegExp): Range[] 
 {
   const text = doc.getText() + '\n'
-    , ranges = []
+      , ranges = []
   let match
 
   while(match = regex.exec(text)) {
     const start = doc.positionAt(match.index)
-      , end = doc.positionAt(match.index + match[0].length)
+        , end = doc.positionAt(match.index + match[0].length)
     ranges.push(new Range(start, end))
   }
 
@@ -326,7 +334,7 @@ function getDocumentRanges(doc: TextDocument, regex: RegExp): Range[]
 
 /** Gets the display size of a prefix, taking in to account the render width of
  *  tabs for the current editor */
-function getPrefixSize(editor: TextEditor, prefix: string) 
+function getPrefixSize(editor: TextEditorLike, prefix: string) 
 {
   const tabSize = editor.options.tabSize
   let size = 0;

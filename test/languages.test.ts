@@ -21,7 +21,6 @@ suite("Languages", () =>
 
 function testExtension() 
 {
-  this.timeout(5000)
   const ext = this.test.title
   
   return fileTest('languages/data.' + ext, 'languages/expected.80.' + ext)

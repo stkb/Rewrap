@@ -1,38 +1,33 @@
 import * as assert from 'assert'
 import { extname, join } from 'path'
-import { readFile } from 'fs'
+import { readFile } from 'mz/fs'
 
-import { Position, Selection, TextDocument, TextEditor, Uri, window, workspace } from 'vscode'
+import { Position, Selection, Uri, window, workspace } from 'vscode'
+import { TextEditor, TextDocument } from './mocks'
 
 import rewrapComment from '../src/rewrapComments'
 
-
 export default fileTest
 
-function fileTest(input: string, expected: string) 
-{
-  const generated = input + '.generated' + extname(input)
 
-  return getFileText(input)
+function fileTest(inputPath: string, expectedPath: string) 
+{
+  return getFileText(inputPath)
     .then(extractSelectionOffsets)
     .then(([text, offsets]) => {
-      const uri = Uri.parse('untitled:' + path(generated))
+      const editor = new TextEditor(new TextDocument(text, inputPath))
       
-      return workspace.openTextDocument(uri)
-        .then(window.showTextDocument)
-        .then(editor =>
-            editor.edit(eb => eb.insert(new Position(0, 0), text))
-              .then(() => editor)
-        )
-        .then(applyEdits(offsets))
+      return applyEdits(offsets)(editor)
     })
-    .then(doc => doc.getText())
-    .then(actual =>
-      getFileText(expected)
-        .then(expected => [actual, expected])
-    )
-    .then(([actual, expected]) => {
-      assert.equal(actual, expected)
+    .then(document => {
+      const actualText = document.getText()
+      
+      return getFileText(expectedPath)
+        .then(expectedText => {
+          expectedText = expectedText.split(/\r?\n/).join(document.eol)
+          
+          assert.equal(actualText, expectedText)
+        })
     })
 }
 
@@ -44,9 +39,6 @@ function applyEdits
   return function(editor) {
     if(offsets.length) {
       editor.selections = offsetsToSelections(editor.document, offsets)
-    }
-    else {
-      editor.selection = new Selection(0, 0, Number.MAX_VALUE, Number.MAX_VALUE)
     }
     return rewrapComment(editor)
       .then(() => editor.document)
@@ -69,16 +61,7 @@ function extractSelectionOffsets(text: string): [string, number[]]
 
 
 function getFileText(name: string): Thenable<string> {
-  return new Promise((resolve, reject) =>
-    readFile(path(name), (err, data) =>
-      err ?
-        reject(err) :
-        resolve(
-          data.toString()
-            .replace(/\r?\n/g, process.platform === 'win32' ? '\r\n' : '\n')
-        )
-    )
-  )
+  return readFile(path(name)).then(data => data.toString())
 }
 
 
