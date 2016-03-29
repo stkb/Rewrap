@@ -6,9 +6,6 @@ Reformats code comments and plain text to a given line length. Supports C/C++, C
 
 ![Example](http://stkb.github.io/vscode-rewrap/example.png)
 
-## Installing ##
-Run the `Install Extension` command and search for `rewrap`. ([More info on installing extensions](https://code.visualstudio.com/docs/editor/extension-gallery).)
-
 ## Using ##
 
 Put the text cursor inside a comment line, block or plain text paragraph and press ```Ctrl+K Ctrl+W``` (one after the other) to wrap the comment to the preset column (default is 80). You can also select just a few lines, or multiple comments in one selection.
