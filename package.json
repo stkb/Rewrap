@@ -32,7 +32,7 @@
   "activationEvents": [
     "onCommand:rewrap.rewrapComment"
   ],
-  "main": "./out/src/extension",
+  "main": "./out/src/main",
   "contributes": {
     "commands": [
       {
@@ -72,6 +72,7 @@
     "vscode": "^0.11.4"
   },
   "dependencies": {
-    "greedy-wrap": "^0.1.4"
+    "greedy-wrap": "^0.1.4",
+    "markdown-to-ast": "^3.2.3"
   }
 }

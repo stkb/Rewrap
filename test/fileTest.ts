@@ -5,7 +5,7 @@ import { readFile } from 'mz/fs'
 import { Position, Selection, Uri, window, workspace } from 'vscode'
 import { TextEditor, TextDocument } from './mocks'
 
-import rewrapComment from '../src/rewrapComments'
+import { wrapSomething } from '../src/Main'
 
 export default fileTest
 
@@ -40,7 +40,7 @@ function applyEdits
     if(offsets.length) {
       editor.selections = offsetsToSelections(editor.document, offsets)
     }
-    return rewrapComment(editor)
+    return wrapSomething(editor)
       .then(() => editor.document)
   }
 }
@@ -49,7 +49,7 @@ function applyEdits
 function extractSelectionOffsets(text: string): [string, number[]] 
 {
   const 
-    sections = text.split(/\^/), offsets = []
+    sections = text.split(/\^/), offsets = [] as number[]
     
   for(let i = 0, s = 0; i < sections.length - 1; i++) {
     s += sections[i].length
@@ -75,6 +75,6 @@ function offsetsToSelections
 }
 
 
-function path(file) {
+function path(file: string) {
   return join(__dirname, '../../test/fixture', file) 
 }
