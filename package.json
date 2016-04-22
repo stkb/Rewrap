@@ -24,7 +24,7 @@
   },
   "license": "MIT",
   "engines": {
-    "vscode": "^0.10.6"
+    "vscode": "^0.10.8"
   },
   "categories": [
     "Other"
@@ -68,8 +68,8 @@
   "devDependencies": {
     "mocha-clean": "^1.0.0",
     "mz": "^2.4.0",
-    "typescript": "^1.8.7",
-    "vscode": "^0.11.4"
+    "typescript": "^1.8.10",
+    "vscode": "^0.11.10"
   },
   "dependencies": {
     "greedy-wrap": "^0.1.4",
