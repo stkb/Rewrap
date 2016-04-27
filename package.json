@@ -1,15 +1,13 @@
 {
   "name": "rewrap",
   "displayName": "Rewrap",
-  "description": "Re-wraps comments and other text to a given line length. Supports many languages.",
+  "description": "Re-wraps comments and other text to a given line length.",
   "keywords": [
     "wraps",
     "comments",
     "column",
-    "line",
     "length",
-    "fill",
-    "paragraph"
+    "fill"
   ],
   "version": "0.4.3",
   "publisher": "stkb",
