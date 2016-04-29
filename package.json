@@ -30,7 +30,7 @@
   "activationEvents": [
     "onCommand:rewrap.rewrapComment"
   ],
-  "main": "./out/src/main",
+  "main": "./out/src/Main",
   "contributes": {
     "commands": [
       {
