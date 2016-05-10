@@ -1,6 +1,6 @@
 # Rewrap
 
-**Latest version: 0.5.1 ([view changes](https://github.com/stkb/vscode-rewrap/releases))**
+**Latest version: 0.5.2 ([view changes](https://github.com/stkb/vscode-rewrap/releases))**
  
 Reformats code comments and other text to a given line length.
 
