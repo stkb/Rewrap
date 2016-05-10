@@ -13,14 +13,17 @@ import Section from './Section'
 export function activate(context: ExtensionContext) 
 {
   context.subscriptions.push(
-    commands.registerTextEditorCommand('rewrap.rewrapComment', wrapSomething)
+    commands.registerTextEditorCommand(
+      'rewrap.rewrapComment', 
+      editor => wrapSomething(editor)
+    )
   )
 }
 
 
 /** Finds the processor for the document and does the wrapping */
 export function wrapSomething
-  ( editor: TextEditorLike, _?: TextEditorEdit, wrappingColumn?: number
+  ( editor: TextEditorLike, wrappingColumn?: number
   ): Thenable<void>
 {
   const handler = wrappingHandler(editor.document)
@@ -45,12 +48,14 @@ export function wrapSomething
   return (
     editor
       .edit(builder => 
-        edits.forEach(e => 
-          builder.replace(
-            new Range(e.startLine, 0, e.endLine, Number.MAX_VALUE),
-            e.lines.join('\n')
-          )
-        )
+        edits.forEach(e => {
+          const range = 
+                  editor.document.validateRange(
+                    new Range(e.startLine, 0, e.endLine, Number.MAX_VALUE)
+                  )
+              , text = e.lines.join('\n')
+          builder.replace(range, text)
+        })
       )
       .then(() => restoreSelections(editor, oldSelections))
   )
