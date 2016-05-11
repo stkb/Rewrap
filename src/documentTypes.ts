@@ -9,7 +9,7 @@ import Sgml from './Sgml'
 /** Gets a DocumentProcessor for a document, taken from its file type */
 export default function wrappingHandler(doc: TextDocument): DocumentProcessor
 {
-  const extPattern = extname(doc.fileName) + '.'
+  const extPattern = extname(doc.fileName) ? extname(doc.fileName) + '.' : null
       , langIdPattern = '.' + doc.languageId + '.'
       
   for(let langs of Object.keys(languages)) {
