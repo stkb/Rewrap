@@ -77,7 +77,7 @@ const languages: { [key: string]: DocumentProcessor } =
   , '.sql.':
       new BasicLanguage({ start: '\\/\\*', end: '\\*\\/', line: '--' })
       
-  , 'vb.':
+  , '.vb.':
       new BasicLanguage({ line: "'" })
       
   }
