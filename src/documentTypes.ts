@@ -9,75 +9,153 @@ import Sgml from './Sgml'
 /** Gets a DocumentProcessor for a document, taken from its file type */
 export default function wrappingHandler(doc: TextDocument): DocumentProcessor
 {
-  const extPattern = extname(doc.fileName) ? extname(doc.fileName) + '.' : null
-      , langIdPattern = '.' + doc.languageId + '.'
-      
-  for(let langs of Object.keys(languages)) {
-    if(langs.includes(extPattern) || langs.includes(langIdPattern)) {
-      return languages[langs]
-    }
+  return fromLanguage(doc.languageId)
+    || fromExtension(extname(doc.fileName))
+    || new Markdown()
+}
+
+/** Gets a DocumentProcessor for a given language id. Returns null if the id is
+ *  not known */
+function fromLanguage(id: string): DocumentProcessor
+{
+  switch(id) 
+  {
+    case 'bat':
+      return new BasicLanguage({ line: '(?:rem|::)' })
+
+    // There can be slight differences in all of these but they're all basically
+    // the same
+    case 'c':
+    case 'csharp':
+    case 'cpp':
+    case 'css':
+    case 'go':
+    case 'groovy':
+    case 'java':
+    case 'javascript':
+    case 'javascriptreact':
+    case 'json':
+    case 'less':
+    case 'objective-c':
+    case 'scss':
+    case 'shaderlab':
+    case 'swift':
+    case 'typescript':
+    case 'typescriptreact':
+      return new BasicLanguage({ start: '\\/\\*\\*?', end: '\\*\\/', line: '\\/{2,3}' })
+
+    case 'clojure':
+      // todo
+      return null
+
+    case 'coffeescript':
+      return new BasicLanguage({ start: '###\\*?', end: '###', line: '#' })
+
+    case 'diff':
+      // Not sure what this is
+      return null
+
+    case 'dockerfile':
+    case 'makefile':
+    case 'perl':
+    case 'r':
+    case 'shellscript':
+    case 'yaml':
+      // These all seem not to have standard multi-line comments
+      return new BasicLanguage({ line: '#' })
+
+    // These not provided by vscode
+    case 'elm':
+    case 'haskell':
+    case 'purescript':
+      return new BasicLanguage({ start: '{-', end: '-}', line: '--' })
+
+    case 'fsharp':
+      return new BasicLanguage({ start: '\\(\\*', end: '\\*\\)', line: '\\/\\/' })
+
+    case 'git-commit':
+    case 'git-rebase':
+      // These are plain text
+      return null
+
+
+    case 'handlebars':
+      // Todo: handlebars template comments:  
+      // {{!-- --}} and {{! }}
+      return new Sgml()
+
+    case 'html':
+    case 'xml':
+    case 'xsl':
+      return new Sgml()
+
+    case 'ini':
+      return new BasicLanguage({ line: ';' })
+
+    case 'jade':
+      // Jade block comments are a bit different and might need some more thought
+      return new BasicLanguage({ line: '\\/\\/' })
+
+    case 'lua':
+      return new BasicLanguage({ start: '--\\[\\[', end: '\\]\\]', line: '--' })
+
+    case 'markdown':
+      return new Markdown()
+    
+    case 'perl6':
+    case 'ruby':
+      // Todo: multi-line comments in Perl 6
+      // https://docs.perl6.org/language/syntax#Comments
+      return new BasicLanguage({ start: '^=begin', end: '^=end', line: '#' })
+
+    case 'php':
+      return new BasicLanguage({ start: '\\/\\*', end: '\\*\\/', line: '(?:\\/\\/|#)' })
+
+    case 'powershell':
+      return new BasicLanguage({ start: '<#', end: '#>', line: '#' })
+
+    case 'python':
+      return new BasicLanguage({ start: "'''", end: "'''", line: '#' })
+
+    case 'razor':
+      // todo
+      return null
+
+    case 'rust':
+      return new BasicLanguage({ line: '\\/{2}(?:\\/|\\!)?' })
+
+    case 'sql':
+      return new BasicLanguage({ start: '\\/\\*', end: '\\*\\/', line: '--' })
+
+    case 'vb':
+      return new BasicLanguage({ line: "'" })
+
+    default:
+      return null;
   }
-  
-  return new Markdown()
 }
 
 
-/** Map of languages to comment start/end/line patterns. Mostly uses the file
- *  extension to get the language but in some cases (eg dockerfile) the
- *  languageId has to be used instead. */
-const languages: { [key: string]: DocumentProcessor } = 
+/** Gets a DocumentProcessor for a given file extension (with period). Return
+ *  null if the extension is not known. */
+function fromExtension(extension: string): DocumentProcessor
+{
+  switch(extension) 
+  {
+    case '.elm':
+      return fromLanguage('elm')
+    case '.purs':
+      return fromLanguage('purescript')
+    case '.hs':
+      return fromLanguage('haskell')
 
-  { '.bat.':
-      new BasicLanguage({ line: '(?:rem|::)' })
-      
-  , '.c.cpp.cs.css.go.groovy.hpp.h.java.js.jsx.less.m.sass.shader.swift.ts.tsx.': 
-      new BasicLanguage({ start: '\\/\\*\\*?', end: '\\*\\/', line: '\\/{2,3}' })
-      
-  , '.coffee.':
-      new BasicLanguage({ start: '###\\*?', end: '###', line: '#' })
-      
-  , '.dockerfile.makefile.perl.r.shellscript.yaml.':
-      // These all seem not to have standard multi-line comments
-      new BasicLanguage({ line: '#' })
-      
-  , '.elm.hs.purs.':
-      new BasicLanguage({ start: '{-', end: '-}', line: '--' })
-      
-  , '.fs.':
-      new BasicLanguage({ start: '\\(\\*', end: '\\*\\)', line: '\\/\\/' })
-      
-  , '.html.xml.xsl.':
-      new Sgml()
-      
-  , '.ini.':
-      new BasicLanguage({ line: ';' })
-      
-  , '.jade.':
-      // Jade block comments are a bit different and might need some more thought
-      new BasicLanguage({ line: '\\/\\/' })
-      
-  , '.lua.':
-      new BasicLanguage({ start: '--\\[\\[', end: '\\]\\]', line: '--' })
-      
-  , '.p6.perl6.rb.':
-      new BasicLanguage({ start: '^=begin', end: '^=end', line: '#' })
-      
-  , '.php.':
-      new BasicLanguage({ start: '\\/\\*', end: '\\*\\/', line: '(?:\\/\\/|#)' })
-      
-  , '.powershell.ps1.':
-      new BasicLanguage({ start: '<#', end: '#>', line: '#' })
-      
-  , '.py.python.': 
-      new BasicLanguage({ start: "'''", end: "'''", line: '#' })
-      
-  , '.rust.': 
-      new BasicLanguage({ line: '\\/{2}(?:\\/|\\!)?' })
-      
-  , '.sql.':
-      new BasicLanguage({ start: '\\/\\*', end: '\\*\\/', line: '--' })
-      
-  , '.vb.':
-      new BasicLanguage({ line: "'" })
-      
+    case '.sass':
+      // Pretend .sass comments are the same as .scss for basic support.
+      // Actually they're slightly different.
+      // http://sass-lang.com/documentation/file.INDENTED_SYNTAX.html
+      return fromLanguage('scss')
+
+    default:
+      return null
   }
+}

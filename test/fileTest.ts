@@ -12,10 +12,26 @@ export default fileTest
 
 function fileTest(inputPath: string, expectedPath: string) 
 {
+  // Need this mapp of file extensions, until these test run in vscode again
+  const languages: { [key: string]: string } = { 
+          '.c': 'c',
+          '.coffee': 'coffeescript',
+          '.cs': 'csharp',
+          '.go': 'go',
+          '.html': 'html',
+          '.js': 'javascript',
+          '.md': 'markdown',
+          '.rb': 'ruby',
+          '.xml': 'xml',
+        }
+
   return getFileText(inputPath)
     .then(extractSelectionOffsets)
     .then(([text, offsets]) => {
-      const editor = new TextEditor(new TextDocument(text, inputPath))
+      const editor = 
+              new TextEditor(
+                new TextDocument(text, inputPath, languages[extname(inputPath)])
+              )
       
       return applyEdits(offsets)(editor)
     })
