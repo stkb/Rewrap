@@ -67,10 +67,10 @@
     "mocha-clean": "^1.0.0",
     "mz": "^2.4.0",
     "typescript": "^1.8.10",
-    "vscode": "^0.11.10"
+    "vscode": "^0.11.17"
   },
   "dependencies": {
-    "greedy-wrap": "^0.1.4",
-    "markdown-to-ast": "^3.2.3"
+    "greedy-wrap": "^0.1.6",
+    "markdown-to-ast": "^3.4.0"
   }
 }
