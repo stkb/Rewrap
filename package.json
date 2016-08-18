@@ -51,6 +51,11 @@
     "keybindings": [
       {
         "command": "rewrap.rewrapComment",
+        "key": "alt+q",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "rewrap.rewrapComment",
         "key": "ctrl+k ctrl+w",
         "mac": "cmd+k cmd+w",
         "when": "editorTextFocus"
