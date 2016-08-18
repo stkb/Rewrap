@@ -51,7 +51,9 @@ export default class BasicLanguage extends DocumentProcessor
     while(match = combinedRegex.exec(text)) {
       const sectionText = match[0]
           , startAt = doc.positionAt(match.index).line
-          , endAt = doc.positionAt(match.index + sectionText.length).line
+          , endAt = 
+              getEndLine(doc, startAt, match.index + sectionText.length, end)
+
 
       if(multiLinePrefixRegex && sectionText.match(multiLinePrefixRegex)) {
         primarySections.push(
@@ -76,7 +78,8 @@ export default class BasicLanguage extends DocumentProcessor
     return { primary: primarySections, secondary: secondarySections }
   }
   
-  /** Edits the comment to rewrap the selected lines. If no edit needs doing, return null */
+  /** Edits the comment to rewrap the selected lines. If no edit needs doing,
+   *  return null */
   editSection
     ( wrappingColumn: number
     , tabSize: number
@@ -85,16 +88,6 @@ export default class BasicLanguage extends DocumentProcessor
   {
     const edit = 
             super.editSection(wrappingColumn, tabSize, { section, selection })
-            
-    // Final tweak for jsdoc/coffeedoc comments: ignore the last line
-    if(edit.lines.length > 1) {
-      const lastLine = edit.lines[edit.lines.length - 1].trim()
-      if(lastLine.match(/^\*\s+\//) || lastLine.match(/^[#\*]\s+##/)) {
-        edit.endLine--
-        edit.lines.pop()
-      }
-    }
-    
     return edit
   }
 }
@@ -102,7 +95,30 @@ export default class BasicLanguage extends DocumentProcessor
 
 type CommentMarkers = { start?: string, end?: string, line?: string }
 
-
+/** Gets the end line index of a section. Excludes the last line if it's just an
+ *  end-comment marker with no text before it. */
+function getEndLine
+  ( doc: TextDocument
+  , startLine: number
+  , pos: number
+  , endPattern: string
+  ): number
+{
+  const line = doc.positionAt(pos).line
+  // We can't have a section less than 1 line
+  if(line === startLine) {
+    return line
+  }
+  else {
+    const lineText = doc.lineAt(line).text
+        , match = lineText.match(endPattern)
+    if(match && !containsActualText(lineText.substr(0, match.index)))
+    {
+      return line - 1
+    }
+    else return line
+  }
+}
 
 /** Gets a line prefix maker function for multiline comments. Handles the
  *  special cases of javadoc and coffeedoc */
