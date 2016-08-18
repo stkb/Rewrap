@@ -6,6 +6,7 @@ suite("Languages", () =>
 {
   const languageTest = makeTest(() => testExtension)
   
+  languageTest('ahk')
   languageTest('abc')
   languageTest('c')
   languageTest('coffee')

@@ -12,7 +12,7 @@ export default fileTest
 
 function fileTest(inputPath: string, expectedPath: string) 
 {
-  // Need this mapp of file extensions, until these test run in vscode again
+  // Need this map of file extensions, until these test run in vscode again
   const languages: { [key: string]: string } = { 
           '.c': 'c',
           '.coffee': 'coffeescript',

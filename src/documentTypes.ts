@@ -20,6 +20,9 @@ function fromLanguage(id: string): DocumentProcessor
 {
   switch(id) 
   {
+    case 'ahk':
+      return new BasicLanguage({ start: '\\/\\*', end: '\\*\\/', line: ';' })
+
     case 'bat':
       return new BasicLanguage({ line: '(?:rem|::)' })
 
@@ -142,6 +145,9 @@ function fromExtension(extension: string): DocumentProcessor
 {
   switch(extension) 
   {
+    case '.ahk':
+      return fromLanguage('ahk')
+
     case '.elm':
       return fromLanguage('elm')
     case '.purs':
