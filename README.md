@@ -18,7 +18,7 @@ Similar to wrap/fill paragraph in Sublime (alt+q) Emacs (M-q) or Vim (gq); but m
 
 ## Using ##
 
-Rewrap adds one command to vscode: **Rewrap Comment / Text**, by default bound to ```Ctrl+K Ctrl+W``` (press one after the other).
+Rewrap adds one command to vscode: **Rewrap Comment / Text**, by default bound to ```Alt+Q```.
 
 Put the text cursor inside a comment line, block or plain text paragraph and invoke the command to wrap to the preset column (default is 80). You can also select just a few lines, or multiple comments in one selection.
 
@@ -52,7 +52,7 @@ For example if you want to use the shortcut ```Ctrl+Shift+Q``` instead:
 
 The full list of types currently supported is: 
 
-Bash/shell script, Batch file, C, C#, C++, CoffeeScript, CSS, Docker file, Elm, F#, Go, Groovy, Haskell, Html, Ini, Jade, Java, JavaScript, Less, Lua, Makefile, Markdown, Objective-C, Perl, PHP, PowerShell, PureScript, Python, R, Ruby, Rust, Sass, SQL, Swift, TypeScript, Visual Basic, Xml, Xsl, Yaml.
+AutoHotKey, Bash/shell script, Batch file, C, C#, C++, CoffeeScript, CSS, Docker file, Elm, F#, Go, Groovy, Haskell, Html, Ini, Jade, Java, JavaScript, Less, Lua, Makefile, Markdown, Objective-C, Perl, PHP, PowerShell, PureScript, Python, R, Ruby, Rust, Sass, SQL, Swift, TypeScript, Visual Basic, Xml, Xsl, Yaml.
 
 For any other type of file, plain-text paragraph wrapping is still supported.
 
