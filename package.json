@@ -63,14 +63,18 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "node ./node_modules/vscode/bin/compile && node ./node_modules/vscode/bin/test",
-    "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
     "postinstall": "node ./node_modules/vscode/bin/install",
-    "test": "node ./node_modules/vscode/bin/test"
+    "compile": "node ./node_modules/vscode/bin/compile",
+    "dev": "node ./node_modules/vscode/bin/compile -watch -p ./",
+    "test-cleanup": "rimraf .vscode-test",
+    "test": "node ./node_modules/vscode/bin/test && npm run test-cleanup",
+    "clean": "rimraf out && npm run test-cleanup",
+    "vscode:prepublish": "npm run clean && npm run compile && npm test"
   },
   "devDependencies": {
     "mocha-clean": "^1.0.0",
     "mz": "^2.4.0",
+    "rimraf": "^2.5.4",
     "typescript": "^1.8.10",
     "vscode": "^0.11.17"
   },
