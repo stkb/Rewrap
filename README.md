@@ -10,7 +10,7 @@ Similar to wrap/fill paragraph in Sublime (alt+q) Emacs (M-q) or Vim (gq); but m
 
 ## Features ##
 
-* Re-wrap single & multiline comment blocks [in many languages](Readme.md#supported-languages).
+* Re-wrap single & multiline comment blocks [in many languages](README.md#supported-languages).
 * [Smart handling of contents, including java/js/xmldoc tags and code examples.](docs/Examples.md#doc-comments)
 * [Can select multiple comments/paragraphs at once (even the whole document) and wrap them all in one go.](docs/Examples.md#selections)
 * Re-wrap any sort of plain-text paragraph too.
