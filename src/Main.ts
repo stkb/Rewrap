@@ -27,7 +27,7 @@ export function wrapSomething
   ): Thenable<void>
 {
   const handler = wrappingHandler(editor.document)
-      , tabSize = editor.options.tabSize
+      , tabSize = editor.options.tabSize as number
   wrappingColumn = wrappingColumn || getWrappingColumn()
   
   const sections = handler.findSections(editor.document)  

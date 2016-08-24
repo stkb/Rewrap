@@ -1,4 +1,4 @@
-import { Position, Range, Selection, TextLine, Uri } from 'vscode'
+import { EndOfLine, Position, Range, Selection, TextLine, Uri } from 'vscode'
 import * as vscode from 'vscode'
 
 export { TextDocument, TextEditor }
@@ -162,21 +162,26 @@ class TextEditor
     // Functions as insert, delete or replace
     const doEdit = (location: Location, value: string = "") =>
     {
-        const rangeToReplace = location instanceof Position ?
-            new Range(location, location) : location
-        , rangeBefore = new Range(maxRange.start, rangeToReplace.start)
-        , rangeAfter = new Range(rangeToReplace.end, maxRange.end)
-        , textBefore = this.document.getText(rangeBefore)
-        , textAfter = this.document.getText(rangeAfter)
-        , textToInsert = value.split(/\r?\n/g).join(this.document.eol)
-        , newDocumentText = textBefore + textToInsert + textAfter
+      const rangeToReplace = location instanceof Position ?
+          new Range(location, location) : location
+      , rangeBefore = new Range(maxRange.start, rangeToReplace.start)
+      , rangeAfter = new Range(rangeToReplace.end, maxRange.end)
+      , textBefore = this.document.getText(rangeBefore)
+      , textAfter = this.document.getText(rangeAfter)
+      , textToInsert = value.split(/\r?\n/g).join(this.document.eol)
+      , newDocumentText = textBefore + textToInsert + textAfter
         
       this.document = new TextDocument(
         newDocumentText, this.document.fileName, this.document.languageId
       )
     }
 
-    callback(new TextEditorEdit(doEdit, doEdit, doEdit))
+    const setEndOfLine = (endOfLine: EndOfLine) => 
+    {
+      throw new Error("Mock setEndOfLine not implemented")
+    }
+
+    callback(new TextEditorEdit(doEdit, doEdit, doEdit, setEndOfLine))
     
     return Promise.resolve(true)
   }
@@ -194,7 +199,8 @@ class TextEditorEdit
     ( public replace: (location: Location, value: string) => void
     , public insert: (location: Position, value: string) => void
     // `delete` variable name not allowed here
-    , public _delete: (location: Range | Selection) => void
+    , private _delete: (location: Range | Selection) => void
+    , public setEndOfLine: (endOfLine: EndOfLine) => void
     ) { }
   
   public get delete() {
