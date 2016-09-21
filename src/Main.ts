@@ -15,7 +15,26 @@ export function activate(context: ExtensionContext)
   context.subscriptions.push(
     commands.registerTextEditorCommand(
       'rewrap.rewrapComment', 
-      editor => wrapSomething(editor)
+      editor => {
+        // Tried doing this as wrapSomething().then(undefined, errback) but it
+        // didn't catch errors.
+        try {
+          return wrapSomething(editor)
+        }
+        catch (err) {
+          console.error("Rewrap: Something happened.")
+          console.log(err)
+          console.error(
+            "Rewrap: Please report this (with a screenshot of this log) at " +
+            "https://github.com/stkb/vscode-rewrap/issues"
+          )       
+          vscode.window.showInformationMessage(
+            "Sorry, there was an error in Rewrap. " +
+            "Go to: Help -> Toggle Developer Tools -> Console " +
+            "for more information."
+          )
+        }
+      }
     )
   )
 }
