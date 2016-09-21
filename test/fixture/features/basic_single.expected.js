@@ -10,3 +10,8 @@
 
 		// This comment has been indented with 2 tabs 1 2 3 4 5 6 7 8 9 0 1 2 3
 		// 4 5 6 7 8 9 0
+
+// This comment has a long url:
+// https://marketplace.visualstudio.com/search?term=tag%3Awraps&target=VSCode&sortBy=Relevance
+// The url goes past the wrapping column but the rest of the text is wrapped as
+// expected

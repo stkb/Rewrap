@@ -1,4 +1,4 @@
-import wrap = require('greedy-wrap')
+import wrap = require('word-wrap')
 import { containsActualText, trimInsignificantEnd } from './Strings'
 
 export { LineType, lineType, wrapText, wrapLinesDetectingTypes }
@@ -59,7 +59,7 @@ function lineType(text: string): LineType
 function wrapText(wrappingWidth: number, text: string): string[]
 {
   return (
-    wrap(text, {width: wrappingWidth})
+    wrap(text, { width: wrappingWidth, indent: '' })
       .split('\n')
       .map(trimInsignificantEnd) // trim off extra whitespace left by greedy-wrap
   )

@@ -11,3 +11,6 @@ It already has two lines, and when re-wrapped will probably still have two. */
 
 	/* A multi-line comment with two lines. The first line is intended by one tab.
 	   The second line is indented by one tab and three spaces. */
+
+/* This comment has a long url: https://marketplace.visualstudio.com/search?term=tag%3Awraps&target=VSCode&sortBy=Relevance
+   The url goes past the wrapping column but the rest of the text is wrapped as expected */

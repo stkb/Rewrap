@@ -44,7 +44,6 @@ suite("Wrapping", () =>
     test("1 short line", "a", ["a"])
     test("1 long line", "abc def", ["abc", "def"])
     test("trim 1 space", "a ", ["a"])
-    test("1 space on end", "abc \nd", ["abc", "d"])
     test("leave 2 spaces", "a  ", ["a  "])
     test("leave 3 spaces", "a   ", ["a   "])
   })
