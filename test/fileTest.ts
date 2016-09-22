@@ -22,6 +22,7 @@ function fileTest(inputPath: string, expectedPath: string)
           '.js': 'javascript',
           '.md': 'markdown',
           '.rb': 'ruby',
+          '.sh': 'shellscript',
           '.xml': 'xml',
         }
 

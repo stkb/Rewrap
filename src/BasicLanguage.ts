@@ -50,28 +50,32 @@ export default class BasicLanguage extends DocumentProcessor
 
     while(match = combinedRegex.exec(text)) {
       const sectionText = match[0]
-          , startAt = doc.positionAt(match.index).line
-          , endAt = 
-              getEndLine(doc, startAt, match.index + sectionText.length, end)
+          , startLine = doc.positionAt(match.index).line
+      let endLine = doc.positionAt(match.index + sectionText.length).line
 
-
+      // Multi-line comments (/* .. */)
       if(multiLinePrefixRegex && sectionText.match(multiLinePrefixRegex)) {
+        endLine = adjustMultiLineCommentEndLine(doc, startLine, endLine, end)
         primarySections.push(
           new Section(
-            doc, startAt, endAt, 
+            doc, startLine, endLine, 
             /^[ \t]*[#*]?[ \t]*/,
             selectLinePrefixMaker(sectionText),
             new RegExp('^[ \\t]*' + start + '[ \\t]*')
           )
         )
       }
+      // Single-line comments (//)
       else if(linePrefixRegex && sectionText.match(linePrefixRegex)) {
         primarySections.push(
-          new Section(doc, startAt, endAt, new RegExp(leadingWS + line + ws))
+          new Section(
+            doc, startLine, endLine, new RegExp(leadingWS + line + ws)
+          )
         )
       }
+      // Other text
       else {
-        secondarySections.push(new Section(doc, startAt, endAt))
+        secondarySections.push(new Section(doc, startLine, endLine))
       }
     }
 
@@ -95,28 +99,27 @@ export default class BasicLanguage extends DocumentProcessor
 
 type CommentMarkers = { start?: string, end?: string, line?: string }
 
-/** Gets the end line index of a section. Excludes the last line if it's just an
- *  end-comment marker with no text before it. */
-function getEndLine
+/** Adjusts the end line index of a multi-line comment section. Excludes the 
+ *  last line if it's just an end-comment marker with no text before it. */
+function adjustMultiLineCommentEndLine
   ( doc: TextDocument
   , startLine: number
-  , pos: number
+  , endLine: number
   , endPattern: string
   ): number
 {
-  const line = doc.positionAt(pos).line
   // We can't have a section less than 1 line
-  if(line === startLine) {
-    return line
+  if(endLine === startLine) {
+    return endLine
   }
   else {
-    const lineText = doc.lineAt(line).text
+    const lineText = doc.lineAt(endLine).text
         , match = lineText.match(endPattern)
     if(match && !containsActualText(lineText.substr(0, match.index)))
     {
-      return line - 1
+      return endLine - 1
     }
-    else return line
+    else return endLine
   }
 }
 

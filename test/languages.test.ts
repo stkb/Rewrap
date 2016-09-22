@@ -16,6 +16,7 @@ suite("Languages", () =>
   languageTest('js')
   languageTest('md')
   languageTest('rb')
+  languageTest('sh')
   languageTest('xml')
 })
 
