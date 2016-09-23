@@ -19,6 +19,7 @@ function fileTest(inputPath: string, expectedPath: string)
           '.cs': 'csharp',
           '.go': 'go',
           '.html': 'html',
+          '.ini': 'ini',
           '.js': 'javascript',
           '.md': 'markdown',
           '.rb': 'ruby',

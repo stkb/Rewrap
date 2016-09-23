@@ -13,6 +13,7 @@ suite("Languages", () =>
   languageTest('cs')
   languageTest('elm')
   languageTest('go')
+  languageTest('ini')
   languageTest('js')
   languageTest('md')
   languageTest('rb')

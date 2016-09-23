@@ -93,7 +93,7 @@ function fromLanguage(id: string): DocumentProcessor
       return new Sgml()
 
     case 'ini':
-      return new BasicLanguage({ line: ';' })
+      return new BasicLanguage({ line: '[#;]' })
 
     case 'jade':
       // Jade block comments are a bit different and might need some more thought
