@@ -62,4 +62,4 @@ Please report any issues, suggestions or feature requests you have in [issues](h
 
 Uses [textlint/markdown-to-ast](https://github.com/textlint/markdown-to-ast) for markdown support.
 
-Actual wrapping done with [danilosampaio/greedy-wrap](https://github.com/danilosampaio/greedy-wrap)
+Actual wrapping done with [jonschlinkert/word-wrap](https://github.com/jonschlinkert/word-wrap)
