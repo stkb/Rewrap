@@ -45,10 +45,10 @@ export function wrapSomething
   ( editor: TextEditorLike, wrappingColumn?: number
   ): Thenable<void>
 {
-  const handler = wrappingHandler(editor.document)
-      , tabSize = editor.options.tabSize as number
   wrappingColumn = wrappingColumn || getWrappingColumn()
-  
+  const handler = wrappingHandler(editor.document)
+      , tabSize = getTabSize(editor, wrappingColumn)
+
   const sections = handler.findSections(editor.document)  
       , sectionsToEdit = 
           Section.sectionsInSelections(
@@ -91,14 +91,51 @@ export interface TextEditorLike {
 }
 
 
-/** Gets the wrapping column (eg 80) from the user's setting */
-function getWrappingColumn() {
+/** Gets the tab size from the editor, according to the user's settings.
+ *  Sanitizes the input. */
+function getTabSize(editor: TextEditorLike, wrappingColumn: number): number 
+{
+  let tabSize = editor.options.tabSize as number
+  
+  if(!Number.isInteger(tabSize) || tabSize < 1) {
+    console.warn(
+      "Rewrap: tabSize is an invalid value (%o). " +
+      "Using the default of (4) instead.", tabSize
+    )
+    tabSize = 4
+  }
+  
+  if(tabSize > wrappingColumn / 2) {
+    console.warn(
+      "Rewrap: tabSize is (%d) and wrappingColumn is (%d). " +
+      "Unexpected results may occur.", tabSize, wrappingColumn
+    )
+  }
+
+  return tabSize
+}
+
+
+/** Gets the wrapping column (eg 80) from the user's settings.  
+ *  Sanitizes the input. */
+function getWrappingColumn(): number {
   const editorColumn =
         workspace.getConfiguration('editor').get<number>('wrappingColumn')
     , extensionColumn =
         workspace.getConfiguration('rewrap').get<number>('wrappingColumn')
 
-  return extensionColumn
-    || (0 < editorColumn && editorColumn <= 120) && editorColumn
-    || 80
+  let wrappingColumn =
+        extensionColumn
+        || (0 < editorColumn && editorColumn <= 120) && editorColumn
+        || 80
+  
+  if(!Number.isInteger(wrappingColumn) || wrappingColumn < 1) {
+    console.warn(
+      "Rewrap: wrappingColumn is an invalid value (%o). " +
+      "Using the default of (80) instead.", wrappingColumn
+    )
+    wrappingColumn = 80
+  }
+
+  return wrappingColumn
 }
