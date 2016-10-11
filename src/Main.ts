@@ -33,6 +33,7 @@ export function activate(context: ExtensionContext)
             "Go to: Help -> Toggle Developer Tools -> Console " +
             "for more information."
           )
+          return null
         }
       }
     )
