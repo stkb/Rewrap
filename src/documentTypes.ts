@@ -118,7 +118,7 @@ function fromLanguage(id: string): DocumentProcessor
       return new BasicLanguage({ start: '<#', end: '#>', line: '#' })
 
     case 'python':
-      return new BasicLanguage({ start: "'''", end: "'''", line: '#' })
+      return new BasicLanguage({ start: "('''|\"\"\")", end: "('''|\"\"\")", line: '#' })
 
     case 'razor':
       // todo
