@@ -31,7 +31,7 @@ export default class BasicLanguage extends DocumentProcessor
               leadingWS + start + '[^]+?' + end
         , singleLinePattern = 
             line &&
-              leadingWS + line + '[^]+?$(?!\\r?\\n' + leadingWS + line +')'
+              leadingWS + line + '[^]*?$(?!\\r?\\n' + leadingWS + line +')'
         , combinedPattern = 
             [plainPattern, multiLinePattern, singleLinePattern]
               .filter(p => !!p)
