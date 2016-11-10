@@ -1,7 +1,11 @@
 import * as vscode from 'vscode'
-import { commands, ExtensionContext, workspace, Range, TextEditorEdit } from 'vscode'
+import { 
+  ExtensionContext,  Range, TextDocument, TextEditor, TextEditorEdit,
+  commands, workspace,
+} from 'vscode'
 require('./extensions')
 
+import { Edit } from './DocumentProcessor'
 import BasicLanguage from './BasicLanguage'
 import wrappingHandler from './documentTypes'
 import { saveSelections, restoreSelections } from './FixSelections'
@@ -42,9 +46,9 @@ export function activate(context: ExtensionContext)
 
 
 /** Finds the processor for the document and does the wrapping */
-export function wrapSomething
+export async function wrapSomething
   ( editor: TextEditorLike, wrappingColumn?: number
-  ): Thenable<void>
+  )
 {
   wrappingColumn = wrappingColumn || getWrappingColumn()
   const handler = wrappingHandler(editor.document)
@@ -65,20 +69,21 @@ export function wrapSomething
   
   const oldSelections = saveSelections(editor)
   
-  return (
-    editor
-      .edit(builder => 
-        edits.forEach(e => {
-          const range = 
-                  editor.document.validateRange(
-                    new Range(e.startLine, 0, e.endLine, Number.MAX_VALUE)
-                  )
-              , text = e.lines.join('\n')
-          builder.replace(range, text)
-        })
-      )
-      .then(() => restoreSelections(editor, oldSelections))
-  )
+  const success = await editor.edit(eb => applyEdits(edits, editor.document, eb))
+  restoreSelections(editor, oldSelections)
+}
+
+
+function applyEdits(edits: Edit[], document: TextDocument, builder: TextEditorEdit)
+{
+  edits.forEach(e => {
+    const range = 
+            document.validateRange(
+              new Range(e.startLine, 0, e.endLine, Number.MAX_VALUE)
+            )
+        , text = e.lines.join('\n')
+    builder.replace(range, text)
+  })
 }
 
 

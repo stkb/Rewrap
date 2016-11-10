@@ -2,68 +2,65 @@ import * as assert from 'assert'
 import { extname, join } from 'path'
 import { readFile } from 'mz/fs'
 
-import { Position, Selection, Uri, window, workspace } from 'vscode'
-import { TextEditor, TextDocument } from './mocks'
+import { 
+  Position, Selection, TextDocument, TextEditor, Uri,
+  commands, window, workspace
+} from 'vscode'
 
 import { wrapSomething } from '../src/Main'
 
 export default fileTest
 
 
-function fileTest(inputPath: string, expectedPath: string) 
+/** Takes text from an input file and puts it in an editor and wraps it.
+ *  Compares it with the contents of another file */
+async function fileTest(inputPath: string, expectedPath: string) 
 {
-  // Need this map of file extensions, until these test run in vscode again
-  const languages: { [key: string]: string } = { 
-          '.c': 'c',
-          '.coffee': 'coffeescript',
-          '.cs': 'csharp',
-          '.go': 'go',
-          '.html': 'html',
-          '.ini': 'ini',
-          '.js': 'javascript',
-          '.md': 'markdown',
-          '.rb': 'ruby',
-          '.sh': 'shellscript',
-          '.xml': 'xml',
-        }
+  const generatedPath = inputPath + '.generated' + extname(inputPath)
+      , uri = Uri.parse('untitled:' + path(generatedPath))
 
-  return getFileText(inputPath)
-    .then(extractSelectionOffsets)
-    .then(([text, offsets]) => {
-      const editor = 
-              new TextEditor(
-                new TextDocument(text, inputPath, languages[extname(inputPath)])
-              )
-      
-      return applyEdits(offsets)(editor)
-    })
-    .then(document => {
-      const actualText = document.getText()
-      
-      return getFileText(expectedPath)
-        .then(expectedText => {
-          expectedText = expectedText.split(/\r?\n/).join(document.eol)
-          
-          assert.equal(actualText, expectedText)
-        })
-    })
+  // Get input text from file and extract selection offsets (marked with '^'
+  // characters)
+  const inputTextWithSelectionMarkers = await getFileText(inputPath)
+      , [inputText, selectionOffsets] = 
+          extractSelectionOffsets(inputTextWithSelectionMarkers)
+
+  // Open new editor and paste in input text      
+  const doc = await workspace.openTextDocument(uri)
+      , editor = await window.showTextDocument(doc)
+  await editor.edit(eb => eb.insert(new Position(0, 0), inputText))
+
+  // Set selections and perform Rewrap
+  applySelections(editor, selectionOffsets)
+  await wrapSomething(editor, 80)
+
+  // Compare wrapped text to expected
+  const actualText = normalizeLineEndings(doc.getText())
+      , expectedText = normalizeLineEndings(await getFileText(expectedPath))
+  assert.equal(actualText, expectedText)
 }
 
 
-function applyEdits
-  ( offsets: number[]
-  ): (editor: TextEditor) => Thenable<TextDocument>
+/** Takes an array of selection offsets and sets the selections of an editor
+ *  from them. */
+function applySelections(editor: TextEditor, offsets: number[])
 {
-  return function(editor) {
-    if(offsets.length) {
-      editor.selections = offsetsToSelections(editor.document, offsets)
-    }
-    return wrapSomething(editor)
-      .then(() => editor.document)
+  if(offsets.length) {
+    editor.selections = offsetsToSelections(editor.document, offsets)
+  }
+  else {
+    editor.selection = 
+      new Selection
+        ( new Position ( 0, 0 )
+        , editor.document.validatePosition
+            ( new Position ( Number.MAX_VALUE, Number.MAX_VALUE ) )
+        )
   }
 }
 
 
+/** Extracts selection offsets from the given text. The selection starts and
+ *  ends are marked by the '^' in the text. */
 function extractSelectionOffsets(text: string): [string, number[]] 
 {
   const 
@@ -83,6 +80,7 @@ function getFileText(name: string): Thenable<string> {
 }
 
 
+/** Converts a list of offsets for a document into a list of selections */
 function offsetsToSelections
   ( doc: TextDocument
   , [fst, snd, ...offsets]: number[]
@@ -93,6 +91,14 @@ function offsetsToSelections
 }
 
 
+/** Normalizes line endings of a string to \n */
+function normalizeLineEndings(text: string) 
+{
+  return text.split(/\r?\n/).join('\n')
+}
+
+
+/** Makes a full path from the given file name. */
 function path(file: string) {
   return join(__dirname, '../../test/fixture', file) 
 }

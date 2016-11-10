@@ -1,14 +1,17 @@
 import fileTest from './fileTest'
 import makeTest from './makeTest'
 
-
-suite("Languages", () => 
+/**
+ * The language files are listed here instead of iterating though a directory,
+ * to enable skipping/singling-out of each language test.
+ */
+suite("Languages", async () => 
 {
   const languageTest = makeTest(() => testExtension)
-  
-  languageTest('ahk')
+
   languageTest('abc')
-  languageTest('c')
+  languageTest('ahk')
+  languageTest.skip('c')
   languageTest('coffee')
   languageTest('cs')
   languageTest('elm')
@@ -22,9 +25,9 @@ suite("Languages", () =>
 })
 
 
-function testExtension() 
+async function testExtension()
 {
+  this.test.timeout(5000)
   const ext = this.test.title
-  
   return fileTest('languages/data.' + ext, 'languages/expected.80.' + ext)
 }
