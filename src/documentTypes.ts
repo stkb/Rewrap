@@ -148,6 +148,9 @@ function fromExtension(extension: string): DocumentProcessor
     case '.ahk':
       return fromLanguage('ahk')
 
+    case '.cs':
+      return fromLanguage('csharp')
+
     case '.elm':
       return fromLanguage('elm')
     case '.purs':
