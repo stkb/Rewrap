@@ -19,6 +19,7 @@ suite("Languages", async () =>
   languageTest('ini')
   languageTest('js')
   languageTest('md')
+  languageTest('py')
   languageTest('rb')
   languageTest('sh')
   languageTest('xml')
