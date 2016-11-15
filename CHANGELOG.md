@@ -1,6 +1,20 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases)
 
 
+### 0.6.4
+
+This doesn't affect comments, only other plain text within a file (eg. in YAML files).
+Now blocks of plain text with differing indents are treated as separate paragraphs. Previously a blank line was needed to separate paragraphs.
+
+Eg: this text was treated as one paragraph but now as two.
+```
+Some text
+    Some more text
+```
+
+Also doesn't affect markdown files, or .txt files, which are currently treated the same as markdown.
+
+
 ### 0.6.3
 
 - Added """-comments for Python (previously only supported ''') (#15)
