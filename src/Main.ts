@@ -54,7 +54,7 @@ export async function wrapSomething
   const handler = wrappingHandler(editor.document)
       , tabSize = getTabSize(editor, wrappingColumn)
 
-  const sections = handler.findSections(editor.document)  
+  const sections = handler.findSections(editor.document, tabSize)  
       , sectionsToEdit = 
           Section.sectionsInSelections(
             sections.primary, sections.secondary, editor.selections

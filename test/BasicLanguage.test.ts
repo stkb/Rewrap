@@ -11,7 +11,7 @@ suite("BasicLanguage", () => {
   test("// \n ", function() {
     const doc = new TextDocument(this.test.title, "test", "javascript")
         , handler = wrappingHandler(doc)
-        , sections = handler.findSections(doc)
+        , sections = handler.findSections(doc, 4)
 
     assert.equal(sections.secondary.length, 0)
     assert.equal(sections.primary.length, 1)
@@ -23,7 +23,7 @@ suite("BasicLanguage", () => {
   test("  //\n  a", function() {
     const doc = new TextDocument(this.test.title, "test", "javascript")
         , handler = wrappingHandler(doc)
-        , sections = handler.findSections(doc)
+        , sections = handler.findSections(doc, 4)
 
     assert.equal(sections.secondary.length, 1)
     assert.equal(sections.primary.length, 1)

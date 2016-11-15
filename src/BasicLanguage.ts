@@ -15,7 +15,7 @@ export default class BasicLanguage extends DocumentProcessor
     super()
   }
   
-  findSections(doc: TextDocument)
+  findSections(doc: TextDocument, tabSize: number)
     : { primary: Section[], secondary: Section[] }
   {
     const ws = '[ \\t]*'
@@ -75,7 +75,8 @@ export default class BasicLanguage extends DocumentProcessor
       }
       // Other text
       else {
-        secondarySections.push(new Section(doc, startLine, endLine))
+        plainSectionsFromLines(doc, startLine, endLine, tabSize)
+          .forEach(s => secondarySections.push(s))
       }
     }
 
@@ -135,4 +136,35 @@ function selectLinePrefixMaker(sectionText: string)
   else {
     return (fpl => fpl.match(/^[ \t]*/)[0])
   }
+}
+
+
+/** Separates a plain text section, further into multiple sections,
+ *  distinguished by line indent. */
+function plainSectionsFromLines
+  ( doc: TextDocument, startLine: number, endLine: number, tabSize: number
+  ) : Section[]
+{
+  const sections = [] as Section[]
+
+  for(var i = startLine + 1; i <= endLine; i++) {
+    if(normalizedIndent(doc, i, tabSize) !== normalizedIndent(doc, startLine, tabSize)) {
+      sections.push(new Section(doc, startLine, i - 1))
+      startLine = i
+    }
+  }
+
+  sections.push(new Section(doc, startLine, endLine))
+  return sections
+}
+
+
+/** Indents of 0 or 1 space are counted as the same indent level, also 2-3
+ *  spaces, 4-5 spaces etc. Tab render width is taken into account. */
+function normalizedIndent(doc: TextDocument, lineIndex: number, tabSize: number) 
+{
+  const line = doc.lineAt(lineIndex)
+      , indentChars = line.text.substr(0, line.firstNonWhitespaceCharacterIndex)
+      , indentSize = prefixSize(tabSize, indentChars)
+  return Math.floor(indentSize / 2)
 }

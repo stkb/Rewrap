@@ -14,7 +14,7 @@ suite("Features", () => {
   featureTest('alignment_multi.js')
   featureTest('jsdoc.js')
   featureTest('xmldoc.cs')
-  featureTest('normalText.html')
+  featureTest('normalText.rb')
 })
 
 function testFeature() 

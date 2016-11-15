@@ -6,7 +6,7 @@ import { wrapLinesDetectingTypes } from './Wrapping'
 /** Base class for different sorts of document handlers */ 
 abstract class DocumentProcessor 
 {
-  abstract findSections(doc: TextDocument)
+  abstract findSections(doc: TextDocument, tabSize: number)
     : { primary: Section[], secondary: Section[] }
     
   editSection
