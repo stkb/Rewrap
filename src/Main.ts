@@ -5,7 +5,7 @@ import {
 } from 'vscode'
 require('./extensions')
 
-import { Edit } from './DocumentProcessor'
+import { Edit, WrappingOptions } from './DocumentProcessor'
 import BasicLanguage from './BasicLanguage'
 import wrappingHandler from './documentTypes'
 import { saveSelections, restoreSelections } from './FixSelections'
@@ -23,7 +23,8 @@ export function activate(context: ExtensionContext)
         // Tried doing this as wrapSomething().then(undefined, errback) but it
         // didn't catch errors.
         try {
-          return wrapSomething(editor)
+          const options = getOptionsFromEnvironment(editor)
+          return wrapSomething(editor, options)
         }
         catch (err) {
           console.error("Rewrap: Something happened.")
@@ -47,23 +48,19 @@ export function activate(context: ExtensionContext)
 
 /** Finds the processor for the document and does the wrapping */
 export async function wrapSomething
-  ( editor: TextEditorLike, wrappingColumn?: number
+  ( editor: TextEditorLike, options: WrappingOptions
   )
 {
-  wrappingColumn = wrappingColumn || getWrappingColumn()
   const handler = wrappingHandler(editor.document)
-      , tabSize = getTabSize(editor, wrappingColumn)
 
-  const sections = handler.findSections(editor.document, tabSize)  
+  const sections = handler.findSections(editor.document, options.tabSize)  
       , sectionsToEdit = 
           Section.sectionsInSelections(
             sections.primary, sections.secondary, editor.selections
           )
   const edits = 
     sectionsToEdit
-    .map(sectionToEdit => 
-      handler.editSection(wrappingColumn, tabSize, sectionToEdit)
-     )
+    .map(sectionToEdit => handler.editSection(options, sectionToEdit))
     // sort edits in reverse range order
     .sort((e1, e2) => e1.startLine > e2.startLine ? -1 : 1)
   
@@ -94,6 +91,18 @@ export interface TextEditorLike {
   edit(callback: (editBuilder: TextEditorEdit) => void): Thenable<boolean>
   options: vscode.TextEditorOptions
   selections: vscode.Selection[]
+}
+
+
+function getOptionsFromEnvironment
+  ( editor: TextEditorLike
+  ) : WrappingOptions 
+{
+  const wrappingColumn = getWrappingColumn()
+      , tabSize = getTabSize(editor, wrappingColumn)
+      , doubleSentenceSpacing = 
+          workspace.getConfiguration('rewrap').get<boolean>('doubleSentenceSpacing')
+  return { wrappingColumn, tabSize, doubleSentenceSpacing }
 }
 
 

@@ -10,19 +10,19 @@ abstract class DocumentProcessor
     : { primary: Section[], secondary: Section[] }
     
   editSection
-    ( wrappingColumn: number
-    , tabSize: number
+    ( options: WrappingOptions
     , sectionToEdit: SectionToEdit
     ): Edit
   {
-    const { section, selection } = sectionToEdit
+    const { wrappingColumn, tabSize, doubleSentenceSpacing } = options
+        , { section, selection } = sectionToEdit
         , wrappingWidth = 
             wrappingColumn - prefixSize(tabSize, section.linePrefix)
 
     const lines =
       linesToWrap(section, selection)
         .map(trimInsignificantEnd)
-        .apply(ls => wrapLinesDetectingTypes(wrappingWidth, ls))
+        .apply(ls => wrapLinesDetectingTypes(wrappingWidth, doubleSentenceSpacing, ls))
         .map((line, i) => {
           const prefix = 
             selection.start.line + i === section.startAt
@@ -41,6 +41,14 @@ abstract class DocumentProcessor
 }
 
 export default DocumentProcessor
+
+
+/** Represents wrapping options */
+export interface WrappingOptions { 
+  wrappingColumn: number, 
+  tabSize: number,
+  doubleSentenceSpacing: boolean,
+}
 
 
 /** Represents an edit to be made to a document */

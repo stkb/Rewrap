@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import { Range, TextDocument } from 'vscode'
-import DocumentProcessor, { Edit } from './DocumentProcessor'
+import DocumentProcessor, { Edit, WrappingOptions } from './DocumentProcessor'
 import { 
   containsActualText, prefixSize, textAfterPrefix, trimEnd, trimInsignificantEnd 
 } from './Strings'
@@ -86,13 +86,12 @@ export default class BasicLanguage extends DocumentProcessor
   /** Edits the comment to rewrap the selected lines. If no edit needs doing,
    *  return null */
   editSection
-    ( wrappingColumn: number
-    , tabSize: number
+    ( options: WrappingOptions
     , { section, selection }: SectionToEdit
     ): Edit
   {
     const edit = 
-            super.editSection(wrappingColumn, tabSize, { section, selection })
+            super.editSection(options, { section, selection })
     return edit
   }
 }

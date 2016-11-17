@@ -32,7 +32,8 @@ async function fileTest(inputPath: string, expectedPath: string)
 
   // Set selections and perform Rewrap
   applySelections(editor, selectionOffsets)
-  await wrapSomething(editor, 80)
+  const options = { wrappingColumn: 80, tabSize: 4, doubleSentenceSpacing: false }
+  await wrapSomething(editor, options)
 
   // Compare wrapped text to expected
   const actualText = normalizeLineEndings(doc.getText())

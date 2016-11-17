@@ -6,15 +6,28 @@ export default exports
 
 
 /** The main function that takes text and wraps it. */
-function wrapLinesDetectingTypes(wrappingWidth: number, lines: string[])
-  : string[]
+function wrapLinesDetectingTypes
+  ( wrappingWidth: number, doubleSentenceSpacing: boolean, lines: string[]
+  ) : string[]
 {
   return (
     lines
       .map(text => ({ text, type: lineType(text) }))
+      .map(({text, type}) => {
+          if(doubleSentenceSpacing) text = addSpaceToLinesEndingInAPeriod(text)
+          return { text, type }
+        })
       .apply(groupLinesWithTypes)
-      .flatMap(({text, wrap}) =>  wrap ? wrapText(wrappingWidth, text) : [text])
+      .flatMap(({text, wrap}) => wrap ? wrapText(wrappingWidth, text) : [text])
   )
+}
+
+
+/** If a line ends in a period, add an extra space on the end. This will then
+ *  become a double space between sentences when the text is wrapped. */
+function addSpaceToLinesEndingInAPeriod(line: string): string
+{
+  return /\.$/.test(line) ? line + ' ' : line
 }
 
 
@@ -56,12 +69,14 @@ function lineType(text: string): LineType
 }
 
 
+/** Calls an external js library to wrap a text string. Then splits the string
+ *  into lines. */
 function wrapText(wrappingWidth: number, text: string): string[]
 {
   return (
     wrap(text, { width: wrappingWidth, indent: '' })
       .split('\n')
-      .map(trimInsignificantEnd) // trim off extra whitespace left by greedy-wrap
+      .map(trimInsignificantEnd) // trim off extra whitespace left after wrapping
   )
 }
 

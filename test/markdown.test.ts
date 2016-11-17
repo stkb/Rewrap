@@ -67,7 +67,8 @@ function testWrap(wrappingColumn: number, tabSize: number)
           , editor = new TextEditor(doc)
       editor.options.tabSize = tabSize
       
-      return wrapSomething(editor, wrappingColumn)
+      const options = { wrappingColumn, tabSize, doubleSentenceSpacing: false }
+      return wrapSomething(editor, options)
         .then(() => {
           assert.equal(editor.document.getText(), expected)
          })

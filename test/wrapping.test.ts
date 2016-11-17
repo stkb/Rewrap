@@ -5,9 +5,10 @@ import { LineType, lineType, wrapText, wrapLinesDetectingTypes } from '../src/Wr
 
 suite("Wrapping", () => 
 {
-  suite("wrapLinesDetectingTypes", () => {
+  suite("wrapLinesDetectingTypes", () => 
+  {
     const test = makeTest((input: string[], expected: string[]) => () => {
-      assert.deepEqual(wrapLinesDetectingTypes(4, input), expected)
+      assert.deepEqual(wrapLinesDetectingTypes(4, false, input), expected)
     })
       
     test("1 short line", ["a"], ["a"])
@@ -17,6 +18,17 @@ suite("Wrapping", () =>
     test("leave 2 spaces", ["a  "], ["a  "])
     test("leave 3 spaces", ["a   "], ["a   "])
     test("Code", ["a", "  bcde"], ["a", "  bcde"])
+
+    suite("Double spacing", () => 
+    {
+      const test = makeTest((input: string[], expected: string[]) => () => {
+        assert.deepEqual(wrapLinesDetectingTypes(6, true, input), expected)
+      })
+      
+      test("Double space sentences 1", ["a.", "b."], ["a.  b."])
+      test("Double space sentences 2", ["a. ", "b."], ["a.  b."])
+      test("Double space sentences 3", ["a.  ", "b."], ["a.  ", "b."])
+    })
   })
 
   suite("lineType", () => 
