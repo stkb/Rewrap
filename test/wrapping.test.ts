@@ -25,9 +25,11 @@ suite("Wrapping", () =>
         assert.deepEqual(wrapLinesDetectingTypes(6, true, input), expected)
       })
       
-      test("Double space sentences 1", ["a.", "b."], ["a.  b."])
-      test("Double space sentences 2", ["a. ", "b."], ["a.  b."])
-      test("Double space sentences 3", ["a.  ", "b."], ["a.  ", "b."])
+      test("Ends with .", ["a.", "b."], ["a.  b."])
+      test("Ends with .-space", ["a. ", "b."], ["a.  b."])
+      test("Ends with .-2spaces", ["a.  ", "b."], ["a.  ", "b."])
+      test("Ends with ?", ["a?", "b."], ["a?  b."])
+      test("Ends with !", ["a!", "b."], ["a!  b."])
     })
   })
 

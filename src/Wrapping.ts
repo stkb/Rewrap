@@ -14,7 +14,7 @@ function wrapLinesDetectingTypes
     lines
       .map(text => ({ text, type: lineType(text) }))
       .map(({text, type}) => {
-          if(doubleSentenceSpacing) text = addSpaceToLinesEndingInAPeriod(text)
+          if(doubleSentenceSpacing) text = addSpaceToLinesEndingASentence(text)
           return { text, type }
         })
       .apply(groupLinesWithTypes)
@@ -23,11 +23,11 @@ function wrapLinesDetectingTypes
 }
 
 
-/** If a line ends in a period, add an extra space on the end. This will then
+/** If a line ends in . ? or !, add an extra space on the end. This will then
  *  become a double space between sentences when the text is wrapped. */
-function addSpaceToLinesEndingInAPeriod(line: string): string
+function addSpaceToLinesEndingASentence(line: string): string
 {
-  return /\.$/.test(line) ? line + ' ' : line
+  return /[.?!]$/.test(line) ? line + ' ' : line
 }
 
 
