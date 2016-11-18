@@ -14,10 +14,8 @@ suite("Wrapping", () =>
     test("1 short line", ["a"], ["a"])
     test("2 short lines", ["a", "b"], ["a b"])
     test("1 long line", ["abc def"], ["abc", "def"])
-    test("trim 1 space", ["a "], ["a"])
-    test("leave 2 spaces", ["a  "], ["a  "])
-    test("leave 3 spaces", ["a   "], ["a   "])
     test("Code", ["a", "  bcde"], ["a", "  bcde"])
+    test("Double space in-between", ["aa  b"], ["aa", "b"])
 
     suite("Double spacing", () => 
     {
@@ -57,8 +55,5 @@ suite("Wrapping", () =>
       
     test("1 short line", "a", ["a"])
     test("1 long line", "abc def", ["abc", "def"])
-    test("trim 1 space", "a ", ["a"])
-    test("leave 2 spaces", "a  ", ["a  "])
-    test("leave 3 spaces", "a   ", ["a   "])
   })
 })

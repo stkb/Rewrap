@@ -13,21 +13,33 @@ function wrapLinesDetectingTypes
   return (
     lines
       .map(text => ({ text, type: lineType(text) }))
-      .map(({text, type}) => {
-          if(doubleSentenceSpacing) text = addSpaceToLinesEndingASentence(text)
-          return { text, type }
-        })
+      .apply(ls => addSpaceToLinesEndingASentence(doubleSentenceSpacing, ls))
       .apply(groupLinesWithTypes)
       .flatMap(({text, wrap}) => wrap ? wrapText(wrappingWidth, text) : [text])
   )
 }
 
 
-/** If a line ends in . ? or !, add an extra space on the end. This will then
- *  become a double space between sentences when the text is wrapped. */
-function addSpaceToLinesEndingASentence(line: string): string
+/** Iterate though a list of lines. If a line ends in . ? or !, add an extra
+ *  space on the end. This will then become a double space between sentences
+ *  when the text is wrapped. This isn't done to the last line since it's not
+ *  needed.
+ *  @param doubleSentenceSpacing If this is false, this function is a no-op.
+ */
+function addSpaceToLinesEndingASentence
+  ( doubleSentenceSpacing: boolean
+  , lines: { text: string, type: LineType }[]
+  ) : { text: string, type: LineType }[]
 {
-  return /[.?!]$/.test(line) ? line + ' ' : line
+  lines =
+    lines
+      .map(({text, type}, i) => {
+          if(doubleSentenceSpacing && i < lines.length - 1 && /[.?!]$/.test(text)) {
+            text += ' '
+          } 
+          return { text, type }
+        })
+  return lines
 }
 
 
@@ -73,11 +85,7 @@ function lineType(text: string): LineType
  *  into lines. */
 function wrapText(wrappingWidth: number, text: string): string[]
 {
-  return (
-    wrap(text, { width: wrappingWidth, indent: '' })
-      .split('\n')
-      .map(trimInsignificantEnd) // trim off extra whitespace left after wrapping
-  )
+  return wrap(text, { width: wrappingWidth, indent: '' }).split(/\s*\n/)
 }
 
 
