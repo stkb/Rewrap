@@ -8,7 +8,7 @@ require('./extensions')
 import { Edit, WrappingOptions } from './DocumentProcessor'
 import BasicLanguage from './BasicLanguage'
 import wrappingHandler from './documentTypes'
-import { saveSelections, restoreSelections } from './FixSelections'
+import adjustSelections from './FixSelections'
 import Section from './Section'
 
 
@@ -53,21 +53,29 @@ export async function wrapSomething
 {
   const handler = wrappingHandler(editor.document)
 
+  // Trying to reduce the dependency on TextDocument in other modules.
+  // adjustSelections uses a string array instead and would like findSections to
+  // as well.
+  const lines = getDocumentLines(editor.document)
+
   const sections = handler.findSections(editor.document, options.tabSize)  
       , sectionsToEdit = 
           Section.sectionsInSelections(
             sections.primary, sections.secondary, editor.selections
           )
+
+  // Edits should be kept in ascending order, for `adjustSelections`. For
+  // applying the edits with `editor.edit` it doesn't matter.
   const edits = 
     sectionsToEdit
     .map(sectionToEdit => handler.editSection(options, sectionToEdit))
-    // sort edits in reverse range order
-    .sort((e1, e2) => e1.startLine > e2.startLine ? -1 : 1)
+
+  // Get the adjusted selections to apply after the edits are done
+  const adjustedSelections = adjustSelections(lines, editor.selections, edits)
   
-  const oldSelections = saveSelections(editor)
-  
-  const success = await editor.edit(eb => applyEdits(edits, editor.document, eb))
-  restoreSelections(editor, oldSelections)
+  await editor.edit(eb => applyEdits(edits, editor.document, eb))
+
+  editor.selections = adjustedSelections
 }
 
 
@@ -153,4 +161,10 @@ function getWrappingColumn(): number {
   }
 
   return wrappingColumn
+}
+
+/** Gets a string array of lines form a TextDocument */
+function getDocumentLines(document: TextDocument) : string[]
+{
+  return Array.range(0, document.lineCount).map(i => document.lineAt(i).text)
 }

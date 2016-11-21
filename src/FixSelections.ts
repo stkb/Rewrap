@@ -1,85 +1,97 @@
-import { Position, Selection, TextDocument } from 'vscode'
+import { Position, Range, Selection } from 'vscode'
+const fd = require('fast-diff')
+type Diff = [number, string][]
 
-/** After wrapping is performed to the document in an editor, vscode sometimes
- *  does something strange to the selection(s) from before the edit.  
- *  (https://github.com/stkb/vscode-rewrap/issues/4)  
- *  The selection gets expanded to the whole of the last line, plus the line
- *  break before it. This only happens if the selection was within the text that
- *  ends up on the last line of the section, after wrapping.
- *
- *  We don't fix this completely here but take care of the 90% case, which is
- *  when the text selection is empty (just a cursor), to avoid the overwriting
- *  problem described in issue 4. We do it by creating a list of all the empty
- *  selections before the edits, along with how far they are from the end of the
- *  line they're on. We can then look at the same selections after editing, and
- *  if they have been messed with by vscode (no longer empty), restore them to
- *  being empty again, and at the same position they were from the end of the
- *  line.
- */
-export { saveSelections, restoreSelections }
+import { Edit } from './DocumentProcessor'
 
 
-/** Returns an object that contains selections that might need fixing later */
-function saveSelections
-  ( editor: Editor
-  ): Selections
+export default adjustSelections
+
+
+function adjustSelections
+  ( lines: string[], selections: Selection[], edits: Edit[]
+  ) : Selection[]
 {
-  const map = new Map<number, number>()
-      , document = editor.document
-  
-  editor.selections.forEach((s, i) => {
-    if(s.isEmpty) map.set(i, distanceFromLineEnd(s, document))
-  })
-  
-  return map
+  let runningLineGrowth = 0
+
+  for(var i = 0; i < edits.length; i++) {
+    const edit = edits[i]
+        , { startLine, endLine } = edit
+        , newStartLine = startLine + runningLineGrowth
+        , oldLines = lines.slice(startLine, endLine + 1)
+        , diff = fd(oldLines.join('\n'), edit.lines.join('\n'))
+        , oldLineCount = endLine - startLine + 1
+        , newLineCount = edit.lines.length
+        , rangeLineGrowth = newLineCount - oldLineCount
+
+    selections = selections.map(s => {
+      const points = [s.anchor, s.active]
+        .map(p => {
+          // For selection points in the edit range, adjust from the diff
+          if(p.line >= newStartLine && p.line <= endLine + runningLineGrowth) {
+            const oldOffset = offsetAt(oldLines, p.translate(-newStartLine))
+                , newOffset = newOffsetFromOld(oldOffset, diff)
+            p = positionAt(edit.lines, newOffset).translate(newStartLine)
+          }
+          // For selection points after the range, adjust with rangeLineGrowth
+          else if(p.line > endLine + runningLineGrowth) {
+            p = p.translate(rangeLineGrowth)
+          }
+          return p
+        })
+      return new Selection(points[0], points[1])
+    })
+
+    runningLineGrowth += rangeLineGrowth
+  }
+
+  return selections
 }
 
 
-/** Modifies an editor's selections, given a set of old selections, to fix the
- *  ones that have were empty but no longer are */
-function restoreSelections
-  ( editor: Editor, oldSelections: Selections
-  ): void
+// function getText
+//   ( lines: string[], startLine: number, endLine: number
+//   ) : string
+// {
+//   return lines.slice(startLine, endLine + 1).join('\n')
+// }
+
+
+function offsetAt(lines: string[], position: Position) : number
 {
-  const document = editor.document
-  
-  const newSelections = 
-         editor.selections
-          .map((ns, i) => {
-            if(oldSelections.has(i) && !ns.isEmpty) {
-              return restoreSelection(document, ns, oldSelections.get(i))
-            }
-            else return ns
-          })
-  editor.selections = newSelections
+  return (
+    lines
+      .slice(0, position.line)
+      .reduce((sum, s) => sum + s.length + 1, 0) 
+      + position.character
+  )
 }
 
 
-/** Map of the index that a selection was at, in an editor's list of selections,
- *  together with how far it was from the end of the line */
-type Selections = Map<number, number>
-type Editor = { document: TextDocument, selections: Selection[] }
-
-
-function distanceFromLineEnd
-  ( selection : Selection, document: TextDocument
-  ): number
+function positionAt(lines: string[], offset: number) : Position
 {
-  const line = document.lineAt(selection.end)
-  return line.text.length - selection.end.character
+  for(let i = 0; i < lines.length; i++) {
+    const lineLength = lines[i].length + 1
+    if(offset < lineLength) return new Position(i, offset)
+    else offset -= lineLength
+  }
+  throw "Something went wrong with determining a position."
 }
 
 
-/** Returns an empty selection at a specified point from the line's end */
-function restoreSelection
-  ( document: TextDocument, selection: Selection, fromLineEnd: number
-  ): Selection
+function newOffsetFromOld(offset: number, diff: Diff) : number 
 {
-  // The selection only gets modified by vscode if its end ends up on the last
-  // line of the text after wrapping. So we don't need to worry about if
-  const endPos = selection.end
-      , line = document.lineAt(endPos)
-      , newPos = new Position(endPos.line, line.text.length - fromLineEnd)
-      
-  return new Selection(newPos, newPos)
+  let count = 0, delta = 0
+  for(var i = 0; i < diff.length; i++) {
+    let [operation, text] = diff[i]
+
+    if(operation !== 1) {
+      if(count + text.length > offset) break
+      count += text.length
+    }
+
+    delta += operation * text.length
+  }
+
+  return offset + delta
 }
