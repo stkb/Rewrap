@@ -142,13 +142,16 @@ function getTabSize(editor: TextEditorLike, wrappingColumn: number): number
 /** Gets the wrapping column (eg 80) from the user's settings.  
  *  Sanitizes the input. */
 function getWrappingColumn(): number {
-  const editorColumn =
-        workspace.getConfiguration('editor').get<number>('wrappingColumn')
-    , extensionColumn =
-        workspace.getConfiguration('rewrap').get<number>('wrappingColumn')
+  const extensionColumn =
+          workspace.getConfiguration('rewrap').get<number>('wrappingColumn')
+      , rulers =
+          workspace.getConfiguration('editor').get<number[]>('rulers')
+      , editorColumn =
+          workspace.getConfiguration('editor').get<number>('wrappingColumn')
 
   let wrappingColumn =
         extensionColumn
+        || rulers[0]
         || (0 < editorColumn && editorColumn <= 120) && editorColumn
         || 80
   
