@@ -1,4 +1,4 @@
-import { Range, TextDocument } from 'vscode'
+import { Range } from 'vscode'
 import Section, { SectionToEdit } from './Section'
 import { prefixSize, trimEnd, trimInsignificantEnd } from './Strings'
 import { wrapLinesDetectingTypes } from './Wrapping'
@@ -6,8 +6,9 @@ import { wrapLinesDetectingTypes } from './Wrapping'
 /** Base class for different sorts of document handlers */ 
 abstract class DocumentProcessor 
 {
-  abstract findSections(doc: TextDocument, tabSize: number)
-    : { primary: Section[], secondary: Section[] }
+  abstract findSections
+    ( docLines: string[], tabSize: number
+    ) : { primary: Section[], secondary: Section[] }
     
   editSection
     ( options: WrappingOptions

@@ -1,4 +1,4 @@
-import { Position, Range, TextDocument } from 'vscode'
+import { Position, Range } from 'vscode'
 import { containsActualText, textAfterPrefix } from './Strings'
 
 
@@ -8,15 +8,14 @@ export { SectionToEdit }
 export default class Section
 {
   constructor
-    ( public document: TextDocument
+    ( public documentLines: string[]
     , public startAt: number
     , public endAt: number
     , lineRegex = /^[ \t]*/
     , defaultLinePrefix = (flp: string) => flp
     , firstLineRegex = lineRegex )
   {
-    const rawLines = 
-            Array.range(startAt, endAt + 1).map(i => document.lineAt(i).text)
+    const rawLines = documentLines.slice(startAt, endAt + 1)
     let linePrefix: string, firstLinePrefix: string
 
     // Get firstLinePrefix from first line

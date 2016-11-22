@@ -1,4 +1,3 @@
-import { TextDocument, TextLine } from 'vscode'
 import DocumentProcessor from './DocumentProcessor'
 import Section from './Section'
 
@@ -17,24 +16,24 @@ type LineState = InComment | InParagraph | InWhitespace
 /** Processor for xml & html files */
 export default class Sgml extends DocumentProcessor
 {
-  findSections(doc: TextDocument)
-    : { primary: Section[], secondary: Section[] } 
+  findSections
+    ( docLines: string[]
+    ) : { primary: Section[], secondary: Section[] } 
   {
     let state : LineState = new InWhitespace()
       , row: number
     const sections = [] as Section[]
     
-    for(row = 0; row < doc.lineCount; row++) {
-      const line = doc.lineAt(row)
-          , lineIndent = line.firstNonWhitespaceCharacterIndex
+    for(row = 0; row < docLines.length; row++) {
+      
 
-      state = getStateFromLineBegin(doc, row, line, lineIndent, state, sections)
+      state = getStateFromLineBegin(docLines, row, state, sections)
 
-      state = checkIfCommentEndsOnThisLine(doc, row, line, state, sections)
+      state = checkIfCommentEndsOnThisLine(docLines, row, state, sections)
     }
     
     if(state instanceof InParagraph) {
-      sections.push(new Section(doc, state.start, row - 1))
+      sections.push(new Section(docLines, state.start, row - 1))
     }
 
     return { primary: sections, secondary: []}
@@ -43,17 +42,16 @@ export default class Sgml extends DocumentProcessor
 
 
 function checkIfCommentEndsOnThisLine
-  ( doc: TextDocument
+  ( docLines: string[]
   , row: number
-  , line: TextLine
   , state: LineState
   , sections: Section[]
   ): LineState 
 {
-  if(state instanceof InComment && line.text.match(/-->/)) {
+  if(state instanceof InComment && docLines[row].match(/-->/)) {
     sections.push(
       new Section(
-        doc, state.start, row, 
+        docLines, state.start, row, 
         /^[ \t]*/, 
         flp => flp.match(/^[ \t]*/)[0],
         /^[ \t]*<!--[ \t]*/ 
@@ -65,33 +63,34 @@ function checkIfCommentEndsOnThisLine
 }
 
 function getStateFromLineBegin
-  ( doc: TextDocument
+  ( docLines: string[]
   , row: number
-  , line: TextLine
-  , lineIndent: number
   , prevState: LineState
   , sections: Section[]
   ): LineState 
 {
+  const lineText = docLines[row]
+      , lineIndent = lineText.match(/^\s*/)[0].length
+
   if(prevState instanceof InWhitespace) {
-    if(line.text.match(/^[ \t]*<!--/)) {
+    if(lineText.match(/^[ \t]*<!--/)) {
       return new InComment(row)
     }
-    else if(!line.isEmptyOrWhitespace) {
+    else if(lineText.trim() !== '') {
       return new InParagraph(row, lineIndent)
     }
   }
   else if(prevState instanceof InParagraph) {
-    if(line.text.match(/^[ \t]*<!--/)) {
-      sections.push(new Section(doc, prevState.start, row - 1))
+    if(lineText.match(/^[ \t]*<!--/)) {
+      sections.push(new Section(docLines, prevState.start, row - 1))
       return new InComment(row)
     }
-    else if(line.isEmptyOrWhitespace) {
-      sections.push(new Section(doc, prevState.start, row - 1))
+    else if(lineText.trim() === '') {
+      sections.push(new Section(docLines, prevState.start, row - 1))
       return new InWhitespace()
     }
     else if(Math.abs(prevState.indent - lineIndent) >= 2) {
-      sections.push(new Section(doc, prevState.start, row - 1))
+      sections.push(new Section(docLines, prevState.start, row - 1))
       return new InParagraph(row, lineIndent)
     }
   }

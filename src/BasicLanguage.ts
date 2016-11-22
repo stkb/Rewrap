@@ -1,11 +1,14 @@
 import * as vscode from 'vscode'
-import { Range, TextDocument } from 'vscode'
+
 import DocumentProcessor, { Edit, WrappingOptions } from './DocumentProcessor'
+import { positionAt, offsetAt } from './Position'
 import { 
   containsActualText, prefixSize, textAfterPrefix, trimEnd, trimInsignificantEnd 
 } from './Strings'
 import Section, { SectionToEdit } from './Section'
 import { wrapLinesDetectingTypes } from './Wrapping'
+
+type CommentMarkers = { start?: string, end?: string, line?: string }
 
 
 export default class BasicLanguage extends DocumentProcessor
@@ -15,8 +18,9 @@ export default class BasicLanguage extends DocumentProcessor
     super()
   }
   
-  findSections(doc: TextDocument, tabSize: number)
-    : { primary: Section[], secondary: Section[] }
+  findSections
+    ( docLines: string[], tabSize: number
+    ) : { primary: Section[], secondary: Section[] }
   {
     const ws = '[ \\t]*'
         , leadingWS = '^' + ws
@@ -45,20 +49,24 @@ export default class BasicLanguage extends DocumentProcessor
         
     const primarySections = [] as Section[]
         , secondarySections = [] as Section[]
-        , text = doc.getText() + '\n'
+        , docText = docLines.join('\n') + '\n'
     let match: RegExpExecArray
 
-    while(match = combinedRegex.exec(text)) {
+    while(match = combinedRegex.exec(docText)) {
       const sectionText = match[0]
-          , startLine = doc.positionAt(match.index).line
-      let endLine = doc.positionAt(match.index + sectionText.length).line
+          , startLine = positionAt(docLines, match.index).line
+      let endLine = positionAt(docLines, match.index + sectionText.length).line
 
       // Multi-line comments (/* .. */)
-      if(multiLinePrefixRegex && sectionText.match(multiLinePrefixRegex)) {
-        endLine = adjustMultiLineCommentEndLine(doc, startLine, endLine, end)
+      if(multiLinePrefixRegex && sectionText.match(multiLinePrefixRegex)) 
+      {
+        endLine = 
+          adjustMultiLineCommentEndLine
+            ( startLine, endLine, docLines[endLine], end )
+
         primarySections.push(
           new Section(
-            doc, startLine, endLine, 
+            docLines, startLine, endLine, 
             /^[ \t]*[#*]?[ \t]*/,
             selectLinePrefixMaker(sectionText),
             new RegExp('^[ \\t]*' + start + '[ \\t]*')
@@ -69,13 +77,13 @@ export default class BasicLanguage extends DocumentProcessor
       else if(linePrefixRegex && sectionText.match(linePrefixRegex)) {
         primarySections.push(
           new Section(
-            doc, startLine, endLine, new RegExp(leadingWS + line + ws)
+            docLines, startLine, endLine, new RegExp(leadingWS + line + ws)
           )
         )
       }
       // Other text
       else {
-        plainSectionsFromLines(doc, startLine, endLine, tabSize)
+        plainSectionsFromLines(docLines, startLine, endLine, tabSize)
           .forEach(s => secondarySections.push(s))
       }
     }
@@ -97,14 +105,13 @@ export default class BasicLanguage extends DocumentProcessor
 }
 
 
-type CommentMarkers = { start?: string, end?: string, line?: string }
 
 /** Adjusts the end line index of a multi-line comment section. Excludes the 
  *  last line if it's just an end-comment marker with no text before it. */
 function adjustMultiLineCommentEndLine
-  ( doc: TextDocument
-  , startLine: number
+  ( startLine: number
   , endLine: number
+  , endLineText: string
   , endPattern: string
   ): number
 {
@@ -113,9 +120,8 @@ function adjustMultiLineCommentEndLine
     return endLine
   }
   else {
-    const lineText = doc.lineAt(endLine).text
-        , match = lineText.match(endPattern)
-    if(match && !containsActualText(lineText.substr(0, match.index)))
+    const match = endLineText.match(endPattern)
+    if(match && !containsActualText(endLineText.substr(0, match.index)))
     {
       return endLine - 1
     }
@@ -125,8 +131,9 @@ function adjustMultiLineCommentEndLine
 
 /** Gets a line prefix maker function for multiline comments. Handles the
  *  special cases of javadoc and coffeedoc */
-function selectLinePrefixMaker(sectionText: string)
-  : (flp: string) => string
+function selectLinePrefixMaker
+  ( sectionText: string
+  ) : (flp: string) => string
 {
   const trimmedText = sectionText.trim()
   if(trimmedText.startsWith('/**') || trimmedText.startsWith('###*')) {
@@ -141,29 +148,30 @@ function selectLinePrefixMaker(sectionText: string)
 /** Separates a plain text section, further into multiple sections,
  *  distinguished by line indent. */
 function plainSectionsFromLines
-  ( doc: TextDocument, startLine: number, endLine: number, tabSize: number
+  ( docLines: string[], startLine: number, endLine: number, tabSize: number
   ) : Section[]
 {
   const sections = [] as Section[]
 
   for(var i = startLine + 1; i <= endLine; i++) {
-    if(normalizedIndent(doc, i, tabSize) !== normalizedIndent(doc, startLine, tabSize)) {
-      sections.push(new Section(doc, startLine, i - 1))
+    if( normalizedIndent(docLines[i], tabSize) 
+        !== normalizedIndent(docLines[startLine], tabSize) )
+    {
+      sections.push(new Section(docLines, startLine, i - 1))
       startLine = i
     }
   }
 
-  sections.push(new Section(doc, startLine, endLine))
+  sections.push(new Section(docLines, startLine, endLine))
   return sections
 }
 
 
 /** Indents of 0 or 1 space are counted as the same indent level, also 2-3
  *  spaces, 4-5 spaces etc. Tab render width is taken into account. */
-function normalizedIndent(doc: TextDocument, lineIndex: number, tabSize: number) 
+function normalizedIndent(lineText: string, tabSize: number) 
 {
-  const line = doc.lineAt(lineIndex)
-      , indentChars = line.text.substr(0, line.firstNonWhitespaceCharacterIndex)
+  const indentChars = lineText.match(/^\s*/)[0]
       , indentSize = prefixSize(tabSize, indentChars)
   return Math.floor(indentSize / 2)
 }

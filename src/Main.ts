@@ -58,7 +58,7 @@ export async function wrapSomething
   // as well.
   const lines = getDocumentLines(editor.document)
 
-  const sections = handler.findSections(editor.document, options.tabSize)  
+  const sections = handler.findSections(lines, options.tabSize)  
       , sectionsToEdit = 
           Section.sectionsInSelections(
             sections.primary, sections.secondary, editor.selections
