@@ -152,15 +152,22 @@ function getWrappingColumn(): number {
   let wrappingColumn =
         extensionColumn
         || rulers[0]
-        || (0 < editorColumn && editorColumn <= 120) && editorColumn
+        // 300 is the default for 'editor.wrappingColumn' so we check it's not
+        // that. If that default changes in vscode this will break.
+        || (0 < editorColumn && editorColumn < 300) && editorColumn
         || 80
   
   if(!Number.isInteger(wrappingColumn) || wrappingColumn < 1) {
     console.warn(
-      "Rewrap: wrappingColumn is an invalid value (%o). " +
+      "Rewrap: wrapping column is an invalid value (%o). " +
       "Using the default of (80) instead.", wrappingColumn
     )
     wrappingColumn = 80
+  }
+  else if(wrappingColumn > 120) {
+    console.warn(
+      "Rewrap: wrapping column is a rather large value (%d).", wrappingColumn
+    )
   }
 
   return wrappingColumn
