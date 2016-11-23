@@ -6,8 +6,11 @@ import Markdown from './Markdown'
 import Sgml from './Sgml'
 
 
+export { fromDocument, fromLanguage, fromExtension }
+
+
 /** Gets a DocumentProcessor for a document, taken from its file type */
-export default function wrappingHandler(doc: TextDocument): DocumentProcessor
+function fromDocument(doc: TextDocument): DocumentProcessor
 {
   return fromLanguage(doc.languageId)
     || fromExtension(extname(doc.fileName))

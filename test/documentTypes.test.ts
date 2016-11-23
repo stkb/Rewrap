@@ -4,7 +4,7 @@ import { TextDocument } from './mocks'
 import BasicLanguage from '../src/BasicLanguage'
 import Markdown from '../src/Markdown'
 
-import wrappingHandler from '../src/documentTypes'
+import { fromDocument } from '../src/documentTypes'
 
 suite("Document Types", () => {
 
@@ -17,14 +17,14 @@ suite("Document Types", () => {
 
     test("With no extension", () => {
       const doc = new TextDocument("", 'untitled', 'javascript')
-          , handler = wrappingHandler(doc)
+          , handler = fromDocument(doc)
       
       assert.deepEqual(handler, expected)
     })
 
     test("With .md extension", () => {
       const doc = new TextDocument("", 'test.md', 'javascript')
-          , handler = wrappingHandler(doc)
+          , handler = fromDocument(doc)
       
       assert.deepEqual(handler, expected)    
     })
@@ -34,7 +34,7 @@ suite("Document Types", () => {
 
     const expected = new BasicLanguage({ start: '{-', end: '-}', line: '--' })
         , doc = new TextDocument("", 'test.hs', 'plaintext')
-        , handler = wrappingHandler(doc)
+        , handler = fromDocument(doc)
 
     assert.deepEqual(handler, expected)
   })
@@ -42,7 +42,7 @@ suite("Document Types", () => {
   test("Return Markdown processor for unknown language and extension", () => {
 
     const doc = new TextDocument("", 'test.abc', 'plaintext')
-        , handler = wrappingHandler(doc)
+        , handler = fromDocument(doc)
 
     assert.ok(handler instanceof Markdown)
   })

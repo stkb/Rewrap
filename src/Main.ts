@@ -1,20 +1,23 @@
 import * as vscode from 'vscode'
 import { 
-  ExtensionContext,  Range, TextDocument, TextEditor, TextEditorEdit,
+  ExtensionContext, Range, Selection, TextDocument, TextEditor, TextEditorEdit,
   commands, workspace,
 } from 'vscode'
 require('./extensions')
 
-import { Edit, WrappingOptions } from './DocumentProcessor'
+import DocumentProcessor, { Edit, WrappingOptions } from './DocumentProcessor'
 import BasicLanguage from './BasicLanguage'
-import wrappingHandler from './documentTypes'
+import { fromDocument } from './documentTypes'
 import adjustSelections from './FixSelections'
 import Section from './Section'
 
 
+export { activate, getEditsAndSelections, wrapSomething }
+
+
 /** Is called when the extension is activated, the very first time the
  *  command is executed */
-export function activate(context: ExtensionContext) 
+function activate(context: ExtensionContext) 
 {
   context.subscriptions.push(
     commands.registerTextEditorCommand(
@@ -47,35 +50,23 @@ export function activate(context: ExtensionContext)
 
 
 /** Finds the processor for the document and does the wrapping */
-export async function wrapSomething
+async function wrapSomething
   ( editor: TextEditorLike, options: WrappingOptions
   )
 {
-  const handler = wrappingHandler(editor.document)
+  const documentProcessor = fromDocument(editor.document)
+      , documentLines = 
+          Array.range(0, editor.document.lineCount)
+            .map(i => editor.document.lineAt(i).text)
 
-  // Trying to reduce the dependency on TextDocument in other modules.
-  // adjustSelections uses a string array instead and would like findSections to
-  // as well.
-  const lines = getDocumentLines(editor.document)
-
-  const sections = handler.findSections(lines, options.tabSize)  
-      , sectionsToEdit = 
-          Section.sectionsInSelections(
-            sections.primary, sections.secondary, editor.selections
-          )
-
-  // Edits should be kept in ascending order, for `adjustSelections`. For
-  // applying the edits with `editor.edit` it doesn't matter.
-  const edits = 
-    sectionsToEdit
-    .map(sectionToEdit => handler.editSection(options, sectionToEdit))
-
-  // Get the adjusted selections to apply after the edits are done
-  const adjustedSelections = adjustSelections(lines, editor.selections, edits)
+  const [edits, newSelections] = 
+          getEditsAndSelections
+            ( documentProcessor, documentLines, editor.selections, options
+            )
   
   await editor.edit(eb => applyEdits(edits, editor.document, eb))
 
-  editor.selections = adjustedSelections
+  editor.selections = newSelections
 }
 
 
@@ -89,6 +80,38 @@ function applyEdits(edits: Edit[], document: TextDocument, builder: TextEditorEd
         , text = e.lines.join('\n')
     builder.replace(range, text)
   })
+}
+
+
+/** Gets the edits to be made to a document and the positions the selections
+ *  should be in afterwards. */
+function getEditsAndSelections
+  ( documentProcessor: DocumentProcessor
+  , documentLines: string[]
+  , selections: Selection[]
+  , options: WrappingOptions
+  ) : [ Edit[], Selection[] ]
+{
+  const sections = 
+          documentProcessor.findSections(documentLines, options.tabSize)  
+      , sectionsToEdit = 
+          Section.sectionsInSelections
+            ( sections.primary, sections.secondary, selections
+            )
+
+  // Edits should be kept in ascending order, for `adjustSelections`. For
+  // applying the edits with `editor.edit` it doesn't matter.
+  const edits = 
+          sectionsToEdit
+            .map(sectionToEdit => 
+                  documentProcessor.editSection(options, sectionToEdit))
+
+  // Get the adjusted selections to apply after the edits are done
+  const adjustedSelections = 
+          adjustSelections(documentLines, selections, edits)
+
+
+  return [ edits, adjustedSelections ]
 }
 
 
@@ -171,10 +194,4 @@ function getWrappingColumn(): number {
   }
 
   return wrappingColumn
-}
-
-/** Gets a string array of lines form a TextDocument */
-function getDocumentLines(document: TextDocument) : string[]
-{
-  return Array.range(0, document.lineCount).map(i => document.lineAt(i).text)
 }

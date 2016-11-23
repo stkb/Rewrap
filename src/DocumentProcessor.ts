@@ -3,6 +3,19 @@ import Section, { SectionToEdit } from './Section'
 import { prefixSize, trimEnd, trimInsignificantEnd } from './Strings'
 import { wrapLinesDetectingTypes } from './Wrapping'
 
+
+/** Represents wrapping options */
+export interface WrappingOptions { 
+  wrappingColumn: number, 
+  tabSize: number,
+  doubleSentenceSpacing: boolean,
+}
+
+
+/** Represents an edit to be made to a document */
+export interface Edit { startLine: number, endLine: number, lines: string[] }
+
+
 /** Base class for different sorts of document handlers */ 
 abstract class DocumentProcessor 
 {
@@ -44,16 +57,7 @@ abstract class DocumentProcessor
 export default DocumentProcessor
 
 
-/** Represents wrapping options */
-export interface WrappingOptions { 
-  wrappingColumn: number, 
-  tabSize: number,
-  doubleSentenceSpacing: boolean,
-}
 
-
-/** Represents an edit to be made to a document */
-export interface Edit { startLine: number, endLine: number, lines: string[] }
 
 
 /** Gets the lines that need wrapping, given a section and selection range */
