@@ -31,7 +31,7 @@ Add these settings to your [user or workspace settings file](https://code.visual
 ### Wrapping width ###
 
 You can set the column to wrap at directly with the `rewrap.wrappingColumn` setting. This takes precedence over other options.
-```json
+``` json5
 {
   // Wraps after 72 characters
   "rewrap.wrappingColumn": 72
@@ -39,7 +39,7 @@ You can set the column to wrap at directly with the `rewrap.wrappingColumn` sett
 ```
 
 However maybe you already have rulers set up in vscode. In this case you don't need the above setting; rewrap will use the first value in the list of rulers.
-```json
+``` json5
 {
   // Also wraps after 72 characters
   "editor.rulers": [72, 80]
@@ -54,7 +54,7 @@ Finally, a default value of `80` is used if no other settings are found.
 
 The wrap/fill commands in Vim and Emacs have another feature, where if lines end with a period (or ? or !), two spaces will be added after that sentence when the paragraph is rewrapped. This is not enabled by default in rewrap, but you can enable it with a setting.
 
-``` json
+``` json5
 {
   "rewrap.doubleSentenceSpacing": true
 }
@@ -65,7 +65,7 @@ If you want to use another shortcut instead, you can do so by [adding a custom k
 
 For example if you want to use the shortcut ```Ctrl+Shift+Q``` instead:
 
-```
+``` json5
 [ { "key": "ctrl+shift+q", "command": "rewrap.rewrapComment" }	
 ]
 ```
