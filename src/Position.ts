@@ -21,5 +21,5 @@ function positionAt(lines: string[], offset: number) : Position
     if(offset < lineLength) return new Position(i, offset)
     else offset -= lineLength
   }
-  throw "Something went wrong with determining a position."
+  throw new Error("Offset greater than text length.")
 }

@@ -1,7 +1,7 @@
 export { makeTestFunction }
 
 import * as assert from 'assert'
-import { Selection } from 'vscode'
+import { Position, Selection } from 'vscode'
 
 import DocumentProcessor, { Edit, WrappingOptions } from '../src/DocumentProcessor'
 import { getEditsAndSelections } from '../src/Main'
@@ -83,12 +83,34 @@ function extractSelections
   ( lines: string[] 
   ) : { lines: string[], selections: Selection[] }
 {
-  return {
-    lines,
-    selections: 
+  const anchors = [] as Position[]
+      , actives = [] as Position[]
+
+  lines = 
+    lines.map
+      ( (line, i) => {
+          let match: RegExpMatchArray
+          while(match = line.match(/«|»/)) {
+            const list = match[0] == '«' ? anchors : actives
+            list.push(new Position(i, match.index))
+            line = line.substr(0, match.index) + line.substr(match.index + 1)
+          }
+          return line
+        }
+      )
+
+  let selections: Selection[]
+  if(anchors.length) {
+    selections = []
+    anchors.forEach((anc, i) => selections.push(new Selection(anc, actives[i])))
+  }
+  else {
+    selections =
       [ new Selection
         ( 0, 0, lines.length - 1, lines[lines.length - 1].length
         ) 
       ]
   }
+
+  return { lines, selections }
 }
