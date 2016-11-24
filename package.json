@@ -44,7 +44,12 @@
         "rewrap.wrappingColumn": {
           "type": "number",
           "default": 0,
-          "description": "Controls after how many characters comments are wrapped."
+          "description": "Controls after how many characters text is wrapped."
+        },
+        "rewrap.doubleSentenceSpacing": {
+          "type": "boolean",
+          "default": false,
+          "description": "When wrapping lines that end in a period, adds two spaces after that sentence in the wrapped text."
         }
       }
     },
