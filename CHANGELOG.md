@@ -1,6 +1,18 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases)
 
 
+## 1.0.0
+
+Bumping up to version 1.0.0 since it was about time.
+
+Two new features; see the README for details.
+- Added a feature from Vim `gq` and Emacs `fill-paragraph`: when lines ending in a period are wrapped, two spaces will be added after the period in the wrapped text. To turn this feature on, add `rewrap.doubleSentenceSpacing: true` to your settings.json. (#17)
+- If you use rulers, Rewrap can now take the wrapping column from the first value in the `editor.rulers` setting. `rewrap.wrappingColumn` is then no longer needed. (#19)
+
+Bug fixes:
+- Cursor/selection position after wrapping has been fixed. Now the text cursor should always stay next to the same word it was at before wrapping, allowing you to keep typing from where you left off. (#18)
+
+
 ### 0.6.4
 
 This doesn't affect comments, only other plain text within a file (eg. in YAML files).
