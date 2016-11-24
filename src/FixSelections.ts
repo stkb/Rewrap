@@ -1,23 +1,37 @@
+export { adjustSelections }
+
+// When we replace lines of text in the editor with new text that's been
+// wrapped, the original cursor position/selections can get messed up; ie. the
+// cursor isn't by the word it used to be.
+//
+// This module does a diff of the old and new text (using the js module
+// fast-diff), and uses it to calculate where the selections should be after
+// wrapping, so they can be re-applied in the editor after the edit(s) have been
+// done.
+
 import { Position, Range, Selection } from 'vscode'
 const fd = require('fast-diff')
+
+/** An array of operation-string tuples. Operation is -1 for removed, 1 for
+ *  added and 0 for unchanged text. */
 type Diff = [number, string][]
 
 import { Edit } from './DocumentProcessor'
 import { offsetAt, positionAt } from './Position'
 
 
-export default adjustSelections
-
-
+/** Given lines of original text, a set of selections and a set of edits,
+ *  returns the positions of the selections for after the edits have been
+ *  applied. */
 function adjustSelections
   ( lines: string[], selections: Selection[], edits: Edit[]
   ) : Selection[]
 {
   let runningLineGrowth = 0
 
-  for(var i = 0; i < edits.length; i++) {
-    const edit = edits[i]
-        , { startLine, endLine } = edit
+  for(let edit of edits) 
+  {
+    const { startLine, endLine } = edit
         , newStartLine = startLine + runningLineGrowth
         , oldLines = lines.slice(startLine, endLine + 1)
         , diff = fd(oldLines.join('\n'), edit.lines.join('\n'))
@@ -50,23 +64,18 @@ function adjustSelections
 }
 
 
-// function getText
-//   ( lines: string[], startLine: number, endLine: number
-//   ) : string
-// {
-//   return lines.slice(startLine, endLine + 1).join('\n')
-// }
-
-
+/** Gets the new offset of a position, given and old offset and a diff between
+ *  old and new text. */
 function newOffsetFromOld(offset: number, diff: Diff) : number 
 {
-  let count = 0, delta = 0
-  for(var i = 0; i < diff.length; i++) {
-    let [operation, text] = diff[i]
-
+  // Count up chars from parts of the diff until we get to the original offset.
+  // Keep count of the delta between old & new text from added & removed chars.
+  let runningOffset = 0, delta = 0
+  for(let [operation, text] of diff) 
+  {
     if(operation !== 1) {
-      if(count + text.length > offset) break
-      count += text.length
+      if(runningOffset + text.length > offset) break
+      runningOffset += text.length
     }
 
     delta += operation * text.length
