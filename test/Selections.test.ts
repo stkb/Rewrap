@@ -1,5 +1,5 @@
 import { makeTestFunction } from './Tests'
-import { fromLanguage } from '../src/documentTypes'
+import { fromLanguage } from '../src/DocumentTypes'
 
 suite("Selections:", () =>
 {

@@ -4,7 +4,7 @@ import { TextDocument } from './mocks'
 import BasicLanguage from '../src/BasicLanguage'
 import Markdown from '../src/Markdown'
 
-import { fromDocument } from '../src/documentTypes'
+import { fromDocument } from '../src/DocumentTypes'
 
 suite("Document Types", () => {
 
