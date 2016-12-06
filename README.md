@@ -4,7 +4,7 @@
  
 Reformats code comments and other text to a given line length.
 
-![Example](http://stkb.github.io/vscode-rewrap/example.png)
+![Example](https://stkb.github.io/vscode-rewrap/example.png)
 
 Similar to wrap/fill paragraph in Sublime (alt+q) Emacs (M-q) or Vim (gq); but more powerful.
 
