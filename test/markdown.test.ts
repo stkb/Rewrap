@@ -2,7 +2,7 @@ import * as assert from 'assert'
 import * as Tests from './Tests'
 
 import { WrappingOptions } from '../src/DocumentProcessor'
-import MarkdownProcessor from '../src/Markdown'
+import MarkdownProcessor from '../src/Parsers/Markdown'
 import { getEditsAndSelections } from '../src/Main'
 
 

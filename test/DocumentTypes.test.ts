@@ -1,8 +1,8 @@
 import * as assert from 'assert'
 import makeTest from './makeTest'
 import { TextDocument } from './mocks'
-import BasicLanguage from '../src/BasicLanguage'
-import Markdown from '../src/Markdown'
+import Standard from '../src/Parsers/Standard'
+import Markdown from '../src/Parsers/Markdown'
 
 import { fromDocument } from '../src/DocumentTypes'
 
@@ -12,7 +12,7 @@ suite("Document Types", () => {
   // as part of the language integration tests
   suite("Return javascript processor for `javascript` language id", () => {
 
-    const expected = new BasicLanguage(
+    const expected = new Standard(
             { start: '\\/\\*\\*?', end: '\\*\\/', line: '\\/{2,3}' })
 
     test("With no extension", () => {
@@ -32,7 +32,7 @@ suite("Document Types", () => {
 
   test("Return Haskell processor for `plaintext` language id and 'hs' extension", () => {
 
-    const expected = new BasicLanguage({ start: '{-', end: '-}', line: '--' })
+    const expected = new Standard({ start: '{-', end: '-}', line: '--' })
         , doc = new TextDocument("", 'test.hs', 'plaintext')
         , handler = fromDocument(doc)
 

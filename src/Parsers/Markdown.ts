@@ -1,9 +1,9 @@
 const parse = require("markdown-to-ast").parse;
-import DocumentProcessor from './DocumentProcessor'
+import DocumentProcessor from '../DocumentProcessor'
 import { Position, Range } from 'vscode'
-import Section, { SectionToEdit } from './Section'
-import { wrapLinesDetectingTypes } from './Wrapping'
-import { prefixSize, textAfterPrefix, trimInsignificantEnd } from './Strings'
+import Section, { SectionToEdit } from '../Section'
+import { wrapLinesDetectingTypes } from '../Wrapping'
+import { prefixSize, textAfterPrefix, trimInsignificantEnd } from '../Strings'
 
 
 export default class Markdown extends DocumentProcessor

@@ -1,9 +1,9 @@
 import { TextDocument } from 'vscode'
 import { extname } from 'path'
 import DocumentProcessor from './DocumentProcessor'
-import BasicLanguage from './BasicLanguage'
-import Markdown from './Markdown'
-import Sgml from './Sgml'
+import Standard from './Parsers/Standard'
+import Markdown from './Parsers/Markdown'
+import Xml from './Parsers/Xml'
 
 
 export { fromDocument, fromLanguage, fromExtension }
@@ -24,10 +24,10 @@ function fromLanguage(id: string): DocumentProcessor
   switch(id) 
   {
     case 'ahk':
-      return new BasicLanguage({ start: '\\/\\*', end: '\\*\\/', line: ';' })
+      return new Standard({ start: '\\/\\*', end: '\\*\\/', line: ';' })
 
     case 'bat':
-      return new BasicLanguage({ line: '(?:rem|::)' })
+      return new Standard({ line: '(?:rem|::)' })
 
     // There can be slight differences in all of these but they're all basically
     // the same
@@ -48,14 +48,14 @@ function fromLanguage(id: string): DocumentProcessor
     case 'swift':
     case 'typescript':
     case 'typescriptreact':
-      return new BasicLanguage({ start: '\\/\\*\\*?', end: '\\*\\/', line: '\\/{2,3}' })
+      return new Standard({ start: '\\/\\*\\*?', end: '\\*\\/', line: '\\/{2,3}' })
 
     case 'clojure':
       // todo
       return null
 
     case 'coffeescript':
-      return new BasicLanguage({ start: '###\\*?', end: '###', line: '#' })
+      return new Standard({ start: '###\\*?', end: '###', line: '#' })
 
     case 'diff':
       // Not sure what this is
@@ -68,16 +68,16 @@ function fromLanguage(id: string): DocumentProcessor
     case 'shellscript':
     case 'yaml':
       // These all seem not to have standard multi-line comments
-      return new BasicLanguage({ line: '#' })
+      return new Standard({ line: '#' })
 
     // These not provided by vscode
     case 'elm':
     case 'haskell':
     case 'purescript':
-      return new BasicLanguage({ start: '{-', end: '-}', line: '--' })
+      return new Standard({ start: '{-', end: '-}', line: '--' })
 
     case 'fsharp':
-      return new BasicLanguage({ start: '\\(\\*', end: '\\*\\)', line: '\\/\\/' })
+      return new Standard({ start: '\\(\\*', end: '\\*\\)', line: '\\/\\/' })
 
     case 'git-commit':
     case 'git-rebase':
@@ -88,22 +88,22 @@ function fromLanguage(id: string): DocumentProcessor
     case 'handlebars':
       // Todo: handlebars template comments:  
       // {{!-- --}} and {{! }}
-      return new Sgml()
+      return new Xml()
 
     case 'html':
     case 'xml':
     case 'xsl':
-      return new Sgml()
+      return new Xml()
 
     case 'ini':
-      return new BasicLanguage({ line: '[#;]' })
+      return new Standard({ line: '[#;]' })
 
     case 'jade':
       // Jade block comments are a bit different and might need some more thought
-      return new BasicLanguage({ line: '\\/\\/' })
+      return new Standard({ line: '\\/\\/' })
 
     case 'lua':
-      return new BasicLanguage({ start: '--\\[\\[', end: '\\]\\]', line: '--' })
+      return new Standard({ start: '--\\[\\[', end: '\\]\\]', line: '--' })
 
     case 'markdown':
       return new Markdown()
@@ -112,29 +112,29 @@ function fromLanguage(id: string): DocumentProcessor
     case 'ruby':
       // Todo: multi-line comments in Perl 6
       // https://docs.perl6.org/language/syntax#Comments
-      return new BasicLanguage({ start: '^=begin', end: '^=end', line: '#' })
+      return new Standard({ start: '^=begin', end: '^=end', line: '#' })
 
     case 'php':
-      return new BasicLanguage({ start: '\\/\\*', end: '\\*\\/', line: '(?:\\/\\/|#)' })
+      return new Standard({ start: '\\/\\*', end: '\\*\\/', line: '(?:\\/\\/|#)' })
 
     case 'powershell':
-      return new BasicLanguage({ start: '<#', end: '#>', line: '#' })
+      return new Standard({ start: '<#', end: '#>', line: '#' })
 
     case 'python':
-      return new BasicLanguage({ start: "('''|\"\"\")", end: "('''|\"\"\")", line: '#' })
+      return new Standard({ start: "('''|\"\"\")", end: "('''|\"\"\")", line: '#' })
 
     case 'razor':
       // todo
       return null
 
     case 'rust':
-      return new BasicLanguage({ line: '\\/{2}(?:\\/|\\!)?' })
+      return new Standard({ line: '\\/{2}(?:\\/|\\!)?' })
 
     case 'sql':
-      return new BasicLanguage({ start: '\\/\\*', end: '\\*\\/', line: '--' })
+      return new Standard({ start: '\\/\\*', end: '\\*\\/', line: '--' })
 
     case 'vb':
-      return new BasicLanguage({ line: "'" })
+      return new Standard({ line: "'" })
 
     default:
       return null;

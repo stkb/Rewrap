@@ -1,17 +1,17 @@
 import * as vscode from 'vscode'
 
-import DocumentProcessor, { Edit, WrappingOptions } from './DocumentProcessor'
-import { positionAt, offsetAt } from './Position'
+import DocumentProcessor, { Edit, WrappingOptions } from '../DocumentProcessor'
+import { positionAt, offsetAt } from '../Position'
 import { 
   containsActualText, prefixSize, textAfterPrefix, trimEnd, trimInsignificantEnd 
-} from './Strings'
-import Section, { SectionToEdit } from './Section'
-import { wrapLinesDetectingTypes } from './Wrapping'
+} from '../Strings'
+import Section, { SectionToEdit } from '../Section'
+import { wrapLinesDetectingTypes } from '../Wrapping'
 
 type CommentMarkers = { start?: string, end?: string, line?: string }
 
 
-export default class BasicLanguage extends DocumentProcessor
+export default class Standard extends DocumentProcessor
 {
   constructor(public commentMarkers: CommentMarkers) 
   {

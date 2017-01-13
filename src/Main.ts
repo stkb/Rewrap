@@ -6,7 +6,6 @@ import {
 require('./extensions')
 
 import DocumentProcessor, { Edit, WrappingOptions } from './DocumentProcessor'
-import BasicLanguage from './BasicLanguage'
 import { fromDocument } from './DocumentTypes'
 import { adjustSelections } from './FixSelections'
 import Section from './Section'

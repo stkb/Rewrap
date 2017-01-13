@@ -1,5 +1,5 @@
-import DocumentProcessor from './DocumentProcessor'
-import Section from './Section'
+import DocumentProcessor from '../DocumentProcessor'
+import Section from '../Section'
 
 class InComment { 
   constructor(public start: number) {}
@@ -14,7 +14,7 @@ class InWhitespace {
 type LineState = InComment | InParagraph | InWhitespace
 
 /** Processor for xml & html files */
-export default class Sgml extends DocumentProcessor
+export default class Xml extends DocumentProcessor
 {
   findSections
     ( docLines: string[]
