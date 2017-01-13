@@ -54,19 +54,17 @@ export default class Standard extends DocumentProcessor
 
     while(match = combinedRegex.exec(docText)) {
       const sectionText = match[0]
-          , startLine = positionAt(docLines, match.index).line
-      let endLine = positionAt(docLines, match.index + sectionText.length).line
+          , sectionStart = positionAt(docLines, match.index).line
+          , sectionEnd = positionAt(docLines, match.index + sectionText.length).line
+          , sectionLines = docLines.slice(sectionStart, sectionEnd + 1)
 
       // Multi-line comments (/* .. */)
       if(multiLinePrefixRegex && sectionText.match(multiLinePrefixRegex)) 
       {
-        endLine = 
-          adjustMultiLineCommentEndLine
-            ( startLine, endLine, docLines[endLine], end )
-
         primarySections.push(
           new Section(
-            docLines, startLine, endLine, 
+            adjustMultiLineCommentEndLine(sectionLines, end),
+            sectionStart, 
             /^[ \t]*[#*]?[ \t]*/,
             selectLinePrefixMaker(sectionText),
             new RegExp('^[ \\t]*' + start + '[ \\t]*')
@@ -77,13 +75,13 @@ export default class Standard extends DocumentProcessor
       else if(linePrefixRegex && sectionText.match(linePrefixRegex)) {
         primarySections.push(
           new Section(
-            docLines, startLine, endLine, new RegExp(leadingWS + line + ws)
+            sectionLines, sectionStart, new RegExp(leadingWS + line + ws)
           )
         )
       }
       // Other text
       else {
-        plainSectionsFromLines(docLines, startLine, endLine, tabSize)
+        plainSectionsFromLines(sectionLines, sectionStart, tabSize)
           .forEach(s => secondarySections.push(s))
       }
     }
@@ -109,23 +107,22 @@ export default class Standard extends DocumentProcessor
 /** Adjusts the end line index of a multi-line comment section. Excludes the 
  *  last line if it's just an end-comment marker with no text before it. */
 function adjustMultiLineCommentEndLine
-  ( startLine: number
-  , endLine: number
-  , endLineText: string
+  ( lines: string[]
   , endPattern: string
-  ): number
+  ): string[]
 {
   // We can't have a section less than 1 line
-  if(endLine === startLine) {
-    return endLine
+  if(lines.length == 1) {
+    return lines
   }
   else {
-    const match = endLineText.match(endPattern)
+    const endLineText = lines[lines.length - 1]
+        , match = endLineText.match(endPattern)
     if(match && !containsActualText(endLineText.substr(0, match.index)))
     {
-      return endLine - 1
+      return lines.slice(0, -1)
     }
-    else return endLine
+    else return lines
   }
 }
 
@@ -148,21 +145,22 @@ function selectLinePrefixMaker
 /** Separates a plain text section, further into multiple sections,
  *  distinguished by line indent. */
 function plainSectionsFromLines
-  ( docLines: string[], startLine: number, endLine: number, tabSize: number
+  ( lines: string[], startLine: number, tabSize: number
   ) : Section[]
 {
   const sections = [] as Section[]
+  let subSectionStart = 0
 
-  for(var i = startLine + 1; i <= endLine; i++) {
-    if( normalizedIndent(docLines[i], tabSize) 
-        !== normalizedIndent(docLines[startLine], tabSize) )
+  for(var i = 1; i < lines.length; i++) {
+    if( normalizedIndent(lines[i], tabSize) 
+        != normalizedIndent(lines[subSectionStart], tabSize) )
     {
-      sections.push(new Section(docLines, startLine, i - 1))
-      startLine = i
+      sections.push(new Section(lines.slice(subSectionStart, i), subSectionStart + startLine))
+      subSectionStart = i
     }
   }
 
-  sections.push(new Section(docLines, startLine, endLine))
+  sections.push(new Section(lines.slice(subSectionStart, i), subSectionStart + startLine))
   return sections
 }
 

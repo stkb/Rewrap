@@ -8,14 +8,13 @@ export { SectionToEdit }
 export default class Section
 {
   constructor
-    ( public documentLines: string[]
+    ( lines: string[]
     , public startAt: number
-    , public endAt: number
     , lineRegex = /^[ \t]*/
     , defaultLinePrefix = (flp: string) => flp
     , firstLineRegex = lineRegex )
   {
-    const rawLines = documentLines.slice(startAt, endAt + 1)
+    const rawLines = lines
     let linePrefix: string, firstLinePrefix: string
 
     // Get firstLinePrefix from first line
@@ -105,12 +104,12 @@ function sectionAndSelectionIntersection(selection: Range, section: Section)
 {
   const intersection = {
     start: Math.max(section.startAt, selection.start.line),
-    end: Math.min(section.endAt, selection.end.line),
+    end: Math.min(section.startAt + section.lines.length - 1, selection.end.line),
   }
   
   if(intersection.start <= intersection.end) {
     const range = selection.isEmpty 
-      ? new Range(section.startAt, 0, section.endAt, Number.MAX_VALUE)
+      ? new Range(section.startAt, 0, section.startAt + section.lines.length - 1, Number.MAX_VALUE)
       : new Range(intersection.start, 0, intersection.end, Number.MAX_VALUE)
     return { section, selection: range }
   }

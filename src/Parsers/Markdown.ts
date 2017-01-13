@@ -9,7 +9,7 @@ import { prefixSize, textAfterPrefix, trimInsignificantEnd } from '../Strings'
 export default class Markdown extends DocumentProcessor
 {
   findSections
-    ( docLines: string[]
+    ( docLines: string[], tabSize: number
     ) : { primary: Section[], secondary: Section[] }
   {
     const text = docLines.join('\n')
@@ -48,19 +48,20 @@ class SecondarySection extends Section {}
 
 function codeBlock(docLines: string[], node: AstNode): Section 
 {
-  return new SecondarySection(
-    docLines,
-    node.loc.start.line - 1,
-    node.loc.end.line - 1
-  )
+  const start = node.loc.start.line - 1
+      , end = node.loc.end.line
+
+  return new SecondarySection(docLines.slice(start, end), start)
 }
 
 function paragraph(docLines: string[], node: AstNode): Section 
 {
+  const start = node.loc.start.line - 1
+      , end = node.loc.end.line
+  
   return new Section(
-    docLines,
-    node.loc.start.line - 1,
-    node.loc.end.line - 1,
+    docLines.slice(start, end),
+    start,
     /^[\t ]*(([-*+]|\d+[.)]|>)[\t ]+)*/,
     flp => flp.replace(/[^\t >]/g, " ")
   )
