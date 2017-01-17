@@ -82,7 +82,8 @@ export default class Standard extends DocumentProcessor
       // Other text
       else {
         const plainSections = 
-                plainSectionsFromLines(sectionLines, sectionStart, tabSize)
+                plainSectionsFromLines(sectionLines, tabSize)
+                  .map(s => ({...s, startAt: s.startAt + sectionStart}))
         sections.splice(sections.length, 0, ...plainSections)
       }
     }
@@ -134,7 +135,7 @@ function selectLinePrefixMaker
 /** Separates a plain text section, further into multiple sections,
  *  distinguished by line indent. */
 function plainSectionsFromLines
-  ( lines: string[], startLine: number, tabSize: number
+  ( lines: string[], tabSize: number
   ) : Section[]
 {
   const sections = [] as Section[]
@@ -144,12 +145,12 @@ function plainSectionsFromLines
     if( normalizedIndent(lines[i], tabSize) 
         != normalizedIndent(lines[subSectionStart], tabSize) )
     {
-      sections.push(section(lines.slice(subSectionStart, i), subSectionStart + startLine, true))
+      sections.push(section(lines.slice(subSectionStart, i), subSectionStart, true))
       subSectionStart = i
     }
   }
 
-  sections.push(section(lines.slice(subSectionStart, i), subSectionStart + startLine, true))
+  sections.push(section(lines.slice(subSectionStart, i), subSectionStart, true))
   return sections
 }
 
