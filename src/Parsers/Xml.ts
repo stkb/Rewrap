@@ -41,7 +41,7 @@ export default class Xml extends DocumentProcessor
         const contentType = scriptOrCssStartsOnThisLine(docLines[row])
         if(contentType) {
           sections.push(Section.fromDocument(docLines, state.start, row, false))
-          row += parseEmbeddedLanguage(tabSize, contentType, row + 1, docLines.slice(row + 1), sections) - 1
+          row += parseEmbeddedLanguage(tabSize, contentType, row + 1, docLines.slice(row + 1), sections)
           state = new InWhitespace()
         }
       }    

@@ -16,6 +16,7 @@ suite("Languages", async () =>
   languageTest('cs')
   languageTest('elm')
   languageTest('go')
+  languageTest('html')
   languageTest('ini')
   languageTest('js')
   languageTest('md')
