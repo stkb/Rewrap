@@ -33,7 +33,7 @@ export default class Xml extends DocumentProcessor
     }
     
     if(state instanceof InParagraph) {
-      sections.push(new Section(docLines.slice(state.start, row), state.start))
+      sections.push(Section.fromDocument(docLines, state.start, row - 1, false))
     }
 
     return { primary: sections, secondary: []}
@@ -50,9 +50,11 @@ function checkIfCommentEndsOnThisLine
 {
   if(state instanceof InComment && docLines[row].match(/-->/)) {
     sections.push(
-      new Section(
-        docLines.slice(state.start, row + 1),
-        state.start, 
+      Section.fromDocument(
+        docLines,
+        state.start,
+        row,
+        false,
         /^[ \t]*/, 
         flp => flp.match(/^[ \t]*/)[0],
         /^[ \t]*<!--[ \t]*/ 
@@ -83,15 +85,15 @@ function getStateFromLineBegin
   }
   else if(prevState instanceof InParagraph) {
     if(lineText.match(/^[ \t]*<!--/)) {
-      sections.push(new Section(docLines.slice(prevState.start, row), prevState.start))
+      sections.push(Section.fromDocument(docLines, prevState.start, row - 1, false))
       return new InComment(row)
     }
     else if(lineText.trim() === '') {
-      sections.push(new Section(docLines.slice(prevState.start, row), prevState.start))
+      sections.push(Section.fromDocument(docLines, prevState.start, row - 1, false))
       return new InWhitespace()
     }
     else if(Math.abs(prevState.indent - lineIndent) >= 2) {
-      sections.push(new Section(docLines.slice(prevState.start, row), prevState.start))
+      sections.push(Section.fromDocument(docLines, prevState.start, row - 1, false))
       return new InParagraph(row, lineIndent)
     }
   }

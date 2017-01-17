@@ -1,7 +1,7 @@
 const parse = require("markdown-to-ast").parse;
 import DocumentProcessor from '../DocumentProcessor'
 import { Position, Range } from 'vscode'
-import Section, { SectionToEdit } from '../Section'
+import Section from '../Section'
 import { wrapLinesDetectingTypes } from '../Wrapping'
 import { prefixSize, textAfterPrefix, trimInsignificantEnd } from '../Strings'
 
@@ -20,8 +20,8 @@ export default class Markdown extends DocumentProcessor
         .flatMap(c => processNode(docLines, c))
 
     return { 
-      primary: sections.filter(s => !(s instanceof SecondarySection)),
-      secondary: sections.filter(s => s instanceof SecondarySection),
+      primary: sections.filter(s => !s.isSecondary),
+      secondary: sections.filter(s => s.isSecondary),
     }
   }
 }
@@ -43,28 +43,25 @@ function processNode(docLines: string[], node: AstNode) : Section[] {
 }
 
 
-class SecondarySection extends Section {}
-
-
 function codeBlock(docLines: string[], node: AstNode): Section 
 {
-  const start = node.loc.start.line - 1
-      , end = node.loc.end.line
-
-  return new SecondarySection(docLines.slice(start, end), start)
+  return Section.fromDocument
+    ( docLines
+    , node.loc.start.line - 1
+    , node.loc.end.line - 1
+    , true)
 }
 
-function paragraph(docLines: string[], node: AstNode): Section 
+function paragraph(docLines: string[], node: AstNode): Section
 {
-  const start = node.loc.start.line - 1
-      , end = node.loc.end.line
-  
-  return new Section(
-    docLines.slice(start, end),
-    start,
-    /^[\t ]*(([-*+]|\d+[.)]|>)[\t ]+)*/,
-    flp => flp.replace(/[^\t >]/g, " ")
-  )
+  return Section.fromDocument
+    ( docLines
+    , node.loc.start.line - 1
+    , node.loc.end.line - 1
+    , false
+    , /^[\t ]*(([-*+]|\d+[.)]|>)[\t ]+)*/
+    , flp => flp.replace(/[^\t >]/g, " ")
+    )
 }
 
 

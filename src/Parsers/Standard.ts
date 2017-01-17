@@ -5,7 +5,7 @@ import { positionAt, offsetAt } from '../Position'
 import { 
   containsActualText, prefixSize, textAfterPrefix, trimEnd, trimInsignificantEnd 
 } from '../Strings'
-import Section, { SectionToEdit } from '../Section'
+import Section, { section } from '../Section'
 import { wrapLinesDetectingTypes } from '../Wrapping'
 
 type CommentMarkers = { start?: string, end?: string, line?: string }
@@ -62,9 +62,10 @@ export default class Standard extends DocumentProcessor
       if(multiLinePrefixRegex && sectionText.match(multiLinePrefixRegex)) 
       {
         primarySections.push(
-          new Section(
+          section(
             adjustMultiLineCommentEndLine(sectionLines, end),
-            sectionStart, 
+            sectionStart,
+            false,
             /^[ \t]*[#*]?[ \t]*/,
             selectLinePrefixMaker(sectionText),
             new RegExp('^[ \\t]*' + start + '[ \\t]*')
@@ -74,8 +75,8 @@ export default class Standard extends DocumentProcessor
       // Single-line comments (//)
       else if(linePrefixRegex && sectionText.match(linePrefixRegex)) {
         primarySections.push(
-          new Section(
-            sectionLines, sectionStart, new RegExp(leadingWS + line + ws)
+          section(
+            sectionLines, sectionStart, false, new RegExp(leadingWS + line + ws)
           )
         )
       }
@@ -87,18 +88,6 @@ export default class Standard extends DocumentProcessor
     }
 
     return { primary: primarySections, secondary: secondarySections }
-  }
-  
-  /** Edits the comment to rewrap the selected lines. If no edit needs doing,
-   *  return null */
-  editSection
-    ( options: WrappingOptions
-    , { section, selection }: SectionToEdit
-    ): Edit
-  {
-    const edit = 
-            super.editSection(options, { section, selection })
-    return edit
   }
 }
 
@@ -155,12 +144,12 @@ function plainSectionsFromLines
     if( normalizedIndent(lines[i], tabSize) 
         != normalizedIndent(lines[subSectionStart], tabSize) )
     {
-      sections.push(new Section(lines.slice(subSectionStart, i), subSectionStart + startLine))
+      sections.push(section(lines.slice(subSectionStart, i), subSectionStart + startLine, true))
       subSectionStart = i
     }
   }
 
-  sections.push(new Section(lines.slice(subSectionStart, i), subSectionStart + startLine))
+  sections.push(section(lines.slice(subSectionStart, i), subSectionStart + startLine, true))
   return sections
 }
 
