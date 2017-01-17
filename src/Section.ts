@@ -2,11 +2,11 @@ import { Position, Range } from 'vscode'
 import { containsActualText, textAfterPrefix } from './Strings'
 
 interface Section {
-  startAt: number
-  lines: string[]
-  isSecondary: boolean
-  linePrefix: string
-  firstLinePrefix?: string
+  readonly startAt: number
+  readonly lines: string[]
+  readonly isSecondary: boolean
+  readonly linePrefix: string
+  readonly firstLinePrefix?: string
 }
 
 abstract class Section
@@ -90,8 +90,8 @@ export function fromDocument
 /** Set of data needed to do a wrapping edit; namely the section and the
  *  selection range */
 export interface SectionToEdit {
-  section: Section
-  selection: Range
+  readonly section: Section
+  readonly selection: Range
 }
 
 
