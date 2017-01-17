@@ -88,12 +88,10 @@ function fromLanguage(id: string): DocumentProcessor
     case 'handlebars':
       // Todo: handlebars template comments:  
       // {{!-- --}} and {{! }}
-      return new Xml()
+      return new Xml(true)
 
     case 'html':
-    case 'xml':
-    case 'xsl':
-      return new Xml()
+      return new Xml(true)
 
     case 'ini':
       return new Standard({ line: '[#;]' })
@@ -135,6 +133,10 @@ function fromLanguage(id: string): DocumentProcessor
 
     case 'vb':
       return new Standard({ line: "'" })
+
+    case 'xml':
+    case 'xsl':
+      return new Xml(false)
 
     default:
       return null;
