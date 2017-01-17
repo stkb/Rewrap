@@ -21,7 +21,7 @@ abstract class DocumentProcessor
 {
   abstract findSections
     ( docLines: string[], tabSize: number
-    ) : { primary: Section[], secondary: Section[] }
+    ): Section[]
     
   editSection
     ( options: WrappingOptions

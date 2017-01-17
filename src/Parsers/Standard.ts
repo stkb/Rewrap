@@ -20,7 +20,7 @@ export default class Standard extends DocumentProcessor
   
   findSections
     ( docLines: string[], tabSize: number
-    ) : { primary: Section[], secondary: Section[] }
+    ): Section[]
   {
     const ws = '[ \\t]*'
         , leadingWS = '^' + ws
@@ -47,8 +47,7 @@ export default class Standard extends DocumentProcessor
         , linePrefixRegex =
             line && new RegExp(leadingWS + line)
         
-    const primarySections = [] as Section[]
-        , secondarySections = [] as Section[]
+    const sections = [] as Section[]
         , docText = docLines.join('\n') + '\n'
     let match: RegExpExecArray
 
@@ -61,7 +60,7 @@ export default class Standard extends DocumentProcessor
       // Multi-line comments (/* .. */)
       if(multiLinePrefixRegex && sectionText.match(multiLinePrefixRegex)) 
       {
-        primarySections.push(
+        sections.push(
           section(
             adjustMultiLineCommentEndLine(sectionLines, end),
             sectionStart,
@@ -74,7 +73,7 @@ export default class Standard extends DocumentProcessor
       }
       // Single-line comments (//)
       else if(linePrefixRegex && sectionText.match(linePrefixRegex)) {
-        primarySections.push(
+        sections.push(
           section(
             sectionLines, sectionStart, false, new RegExp(leadingWS + line + ws)
           )
@@ -82,12 +81,13 @@ export default class Standard extends DocumentProcessor
       }
       // Other text
       else {
-        plainSectionsFromLines(sectionLines, sectionStart, tabSize)
-          .forEach(s => secondarySections.push(s))
+        const plainSections = 
+                plainSectionsFromLines(sectionLines, sectionStart, tabSize)
+        sections.splice(sections.length, 0, ...plainSections)
       }
     }
 
-    return { primary: primarySections, secondary: secondarySections }
+    return sections
   }
 }
 

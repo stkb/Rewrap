@@ -94,9 +94,7 @@ function getEditsAndSelections
   const sections = 
           documentProcessor.findSections(documentLines, options.tabSize)  
       , sectionsToEdit = 
-          Section.sectionsInSelections
-            ( sections.primary, sections.secondary, selections
-            )
+          Section.sectionsInSelections(sections, selections)
 
   // Edits should be kept in ascending order, for `adjustSelections`. For
   // applying the edits with `editor.edit` it doesn't matter.

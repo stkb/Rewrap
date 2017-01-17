@@ -10,7 +10,7 @@ export default class Markdown extends DocumentProcessor
 {
   findSections
     ( docLines: string[], tabSize: number
-    ) : { primary: Section[], secondary: Section[] }
+    ): Section[]
   {
     const text = docLines.join('\n')
         , ast = parse(text) as AstNode
@@ -19,10 +19,7 @@ export default class Markdown extends DocumentProcessor
       ast.children
         .flatMap(c => processNode(docLines, c))
 
-    return { 
-      primary: sections.filter(s => !s.isSecondary),
-      secondary: sections.filter(s => s.isSecondary),
-    }
+    return sections
   }
 }
 

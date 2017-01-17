@@ -97,22 +97,15 @@ export interface SectionToEdit {
 
 /** Gets all the sections that are touched by the given selections */
 function sectionsInSelections
-  ( primarySections: Section[], secondarySections: Section[], selections: Range[]
+  ( sections: Section[], selections: Range[]
   ): SectionToEdit[]
 {
   return selections
     .flatMap(sel => {
-      const priSectionsInSelection = 
-        sectionsInSelection(sel, primarySections)
-        
-      if(priSectionsInSelection.length) return priSectionsInSelection
-      
-      const secSectionsInSelection = 
-        sectionsInSelection(sel, secondarySections)
-      
-      if(secSectionsInSelection.length) return secSectionsInSelection
-       
-      return []
+      const sectionsInSel = sectionsInSelection(sel, sections)
+          , priSectionsInSel = sectionsInSel.filter(s => !s.section.isSecondary)
+
+      return priSectionsInSel.length ? priSectionsInSel : sectionsInSel
     })
 }
 

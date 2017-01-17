@@ -18,15 +18,14 @@ export default class Xml extends DocumentProcessor
 {
   findSections
     ( docLines: string[], tabSize: number, 
-    ) : { primary: Section[], secondary: Section[] } 
+    ): Section[]
   {
     let state : LineState = new InWhitespace()
       , row: number
     const sections = [] as Section[]
     
-    for(row = 0; row < docLines.length; row++) {
-      
-
+    for(row = 0; row < docLines.length; row++) 
+    {
       state = getStateFromLineBegin(docLines, row, state, sections)
 
       state = checkIfCommentEndsOnThisLine(docLines, row, state, sections)
@@ -36,7 +35,7 @@ export default class Xml extends DocumentProcessor
       sections.push(Section.fromDocument(docLines, state.start, row - 1, false))
     }
 
-    return { primary: sections, secondary: []}
+    return sections
   }
 }
 
