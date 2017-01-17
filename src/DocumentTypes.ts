@@ -100,6 +100,10 @@ function fromLanguage(id: string): DocumentProcessor
       // Jade block comments are a bit different and might need some more thought
       return new Standard({ line: '\\/\\/' })
 
+    // Not out of the box in vscode
+    case 'latex':
+      return new Standard ({ line: '%' })
+
     case 'lua':
       return new Standard({ start: '--\\[\\[', end: '\\]\\]', line: '--' })
 
@@ -168,6 +172,9 @@ function fromExtension(extension: string): DocumentProcessor
       // Actually they're slightly different.
       // http://sass-lang.com/documentation/file.INDENTED_SYNTAX.html
       return fromLanguage('scss')
+
+    case '.tex':
+      return fromLanguage('latex')
 
     default:
       return null
