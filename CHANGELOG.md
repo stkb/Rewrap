@@ -1,6 +1,12 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases)
 
 
+## 1.1.0
+
+- Wrapping now works with js and css sections embedded in an html document (#22).
+- Very basic support for (La)TeX files added.
+
+
 ## 1.0.0
 
 Bumping up to version 1.0.0 since it was about time.
