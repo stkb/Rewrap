@@ -23,6 +23,7 @@ suite("Languages", async () =>
   languageTest('py')
   languageTest('rb')
   languageTest('sh')
+  languageTest('tex')
   languageTest('xml')
   languageTest('yaml')
 })

@@ -102,7 +102,7 @@ function fromLanguage(id: string): DocumentProcessor
 
     // Not out of the box in vscode
     case 'latex':
-      return new Standard ({ line: '%' })
+      return new Standard ({ line: '%', plainTextAsPrimary: true })
 
     case 'lua':
       return new Standard({ start: '--\\[\\[', end: '\\]\\]', line: '--' })

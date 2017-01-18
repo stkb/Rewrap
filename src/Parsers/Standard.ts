@@ -8,12 +8,17 @@ import {
 import Section, { section } from '../Section'
 import { wrapLinesDetectingTypes } from '../Wrapping'
 
-type CommentMarkers = { start?: string, end?: string, line?: string }
+type Options = { 
+  start?: string
+  end?: string
+  line?: string
+  plainTextAsPrimary?: boolean
+}
 
 
 export default class Standard extends DocumentProcessor
 {
-  constructor(public commentMarkers: CommentMarkers) 
+  constructor(public options: Options) 
   {
     super()
   }
@@ -24,7 +29,7 @@ export default class Standard extends DocumentProcessor
   {
     const ws = '[ \\t]*'
         , leadingWS = '^' + ws
-        , { start, end, line } = this.commentMarkers
+        , { start, end, line, plainTextAsPrimary } = this.options
         , startOrLine = 
             [start, line].filter(s => !!s).join('|')
         , plainPattern =
@@ -83,7 +88,11 @@ export default class Standard extends DocumentProcessor
       else {
         const plainSections = 
                 plainSectionsFromLines(sectionLines, tabSize)
-                  .map(s => ({...s, startAt: s.startAt + sectionStart}))
+                  .map(s => ({
+                    ...s, 
+                    startAt: s.startAt + sectionStart,
+                    isSecondary: !plainTextAsPrimary,
+                  }))
         sections.splice(sections.length, 0, ...plainSections)
       }
     }
