@@ -102,6 +102,7 @@ function fromLanguage(id: string): DocumentProcessor
 
     // Not out of the box in vscode
     case 'latex':
+    case 'tex':
       return new Standard ({ line: '%', plainTextAsPrimary: true })
 
     case 'lua':
@@ -156,6 +157,12 @@ function fromExtension(extension: string): DocumentProcessor
   {
     case '.ahk':
       return fromLanguage('ahk')
+
+    case '.bbx':
+    case '.cbx':
+    case '.cls':
+    case '.sty':
+      return fromLanguage('tex')
 
     case '.cs':
       return fromLanguage('csharp')
