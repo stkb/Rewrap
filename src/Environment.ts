@@ -9,10 +9,10 @@ export function getOptions
   ( editor: TextEditorLike
   ) : WrappingOptions 
 {
-  const wrappingColumn = getWrappingColumn()
+  const wrappingColumn = getWrappingColumn(editor)
       , tabSize = getTabSize(editor, wrappingColumn)
       , doubleSentenceSpacing = 
-          workspace.getConfiguration('rewrap').get<boolean>('doubleSentenceSpacing')
+          getSetting<boolean>(editor, 'rewrap.doubleSentenceSpacing')
   return { wrappingColumn, tabSize, doubleSentenceSpacing }
 }
 
@@ -44,13 +44,11 @@ function getTabSize(editor: TextEditorLike, wrappingColumn: number): number
 
 /** Gets the wrapping column (eg 80) from the user's settings.  
  *  Sanitizes the input. */
-function getWrappingColumn(): number {
-  const extensionColumn =
-          workspace.getConfiguration('rewrap').get<number>('wrappingColumn')
-      , rulers =
-          workspace.getConfiguration('editor').get<number[]>('rulers')
-      , editorColumn =
-          workspace.getConfiguration('editor').get<number>('wrappingColumn')
+function getWrappingColumn(editor: TextEditorLike): number 
+{
+  const extensionColumn = getSetting<number>(editor, 'rewrap.wrappingColumn')
+      , rulers = getSetting<number[]>(editor, 'editor.rulers')
+      , editorColumn = getSetting<number>(editor, 'editor.wrappingColumn')
 
   let wrappingColumn =
         extensionColumn
@@ -74,4 +72,29 @@ function getWrappingColumn(): number {
   }
 
   return wrappingColumn
+}
+
+/** Gets a setting from vscode. Tries to find a setting for the appropriate
+ *  language for the editor. */
+function getSetting<T>(editor: TextEditorLike, setting: string): T
+{
+  const language = editor.document.languageId
+      , config = workspace.getConfiguration()
+      , languageSection = config.get('[' + language + ']')
+
+  return languageSetting<T>(languageSection, setting.split('.')) 
+          || config.get<T>(setting)
+}
+
+function languageSetting<T>(obj : any, pathParts: string[]): T 
+{
+  if(!pathParts.length) return undefined
+
+  const [next, ...rest] = pathParts
+  if(obj) {
+    return obj[pathParts.join('.')] || languageSetting<T>(obj[next], rest)
+  }
+  else {
+    return undefined
+  }
 }
