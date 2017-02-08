@@ -24,6 +24,7 @@ suite("Languages", async () =>
   languageTest('rb')
   languageTest('sh')
   languageTest('tex')
+  languageTest('toml')
   languageTest('xml')
   languageTest('yaml')
 })

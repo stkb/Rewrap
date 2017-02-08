@@ -67,6 +67,7 @@ function fromLanguage(id: string): DocumentProcessor
     case 'perl':
     case 'r':
     case 'shellscript':
+    case 'toml':
     case 'yaml':
       // These all seem not to have standard multi-line comments
       return new Standard({ line: '#' })
@@ -183,6 +184,9 @@ function fromExtension(extension: string): DocumentProcessor
 
     case '.tex':
       return fromLanguage('latex')
+
+    case '.toml':
+      return fromLanguage('toml')
 
     default:
       return null
