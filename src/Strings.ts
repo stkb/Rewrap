@@ -33,11 +33,11 @@ function prefixSize(tabSize: number, prefix: string)
 /** Gets the text of a line after the prefix (eg '  //') */
 function textAfterPrefix
   ( lineText: string
-  , prefexRegex: RegExp
+  , prefixRegex: RegExp
   , prefixMaxLength: number = Number.MAX_VALUE
   ): string
 {
-  const prefixLength = lineText.match(prefexRegex)[0].length
+  const prefixLength = lineText.match(prefixRegex)[0].length
   let textAfter = lineText.substr(Math.min(prefixLength, prefixMaxLength))
     
   // Allow an extra one-space indent

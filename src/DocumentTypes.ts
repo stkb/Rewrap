@@ -2,6 +2,7 @@ import { TextDocument } from 'vscode'
 import { extname } from 'path'
 import DocumentProcessor from './DocumentProcessor'
 import Standard from './Parsers/Standard'
+import LaTeX from './Parsers/LaTeX'
 import Markdown from './Parsers/Markdown'
 import Xml from './Parsers/Xml'
 
@@ -103,7 +104,7 @@ function fromLanguage(id: string): DocumentProcessor
     // Not out of the box in vscode
     case 'latex':
     case 'tex':
-      return new Standard ({ line: '%', plainTextAsPrimary: true })
+      return new LaTeX()
 
     case 'lua':
       return new Standard({ start: '--\\[\\[', end: '\\]\\]', line: '--' })

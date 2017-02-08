@@ -1,13 +1,16 @@
 import wrap = require('word-wrap')
 import { containsActualText, trimInsignificantEnd } from './Strings'
 
-export { LineType, lineType, wrapText, wrapLinesDetectingTypes }
+export { LineType, wrapText, wrapLinesDetectingTypes }
 export default exports
 
 
 /** The main function that takes text and wraps it. */
 function wrapLinesDetectingTypes
-  ( wrappingWidth: number, doubleSentenceSpacing: boolean, lines: string[]
+  ( wrappingWidth: number
+  , lineType: (line: string) => LineType
+  , doubleSentenceSpacing: boolean
+  , lines: string[]
   ) : string[]
 {
   return (
@@ -40,44 +43,6 @@ function addSpaceToLinesEndingASentence
           return { text, type }
         })
   return lines
-}
-
-
-/** Gets the LineType of a line */
-function lineType(text: string): LineType 
-{
-  if(
-    // No text on line
-    !containsActualText(text) ||
-    
-    // After implementing trimInsignificantStart, make this 2 spaces
-    // Don't forget ^ priority
-    /^[ \t]/.test(text) ||
-      
-    // Whole line is a single xml tag
-    /^<[^!][^>]*>$/.test(text)
-  ) {
-    return new LineType.NoWrap()
-  }
-  
-  else {
-    let breakBefore = false, breakAfter = false
-    
-    // Start and end xml tag on same line
-    if(/^<[^>]+>[^<]*<\/[^>+]>$/.test(text)) {
-      [breakBefore, breakAfter] = [true, true]
-    }
-    
-    else {
-      // Starts with xml or @ tag
-      if(/^[@<]/.test(text)) breakBefore = true
-      
-      // Ends with (at least) 2 spaces
-      if(/  $/.test(text)) breakAfter = true
-    }
-    
-    return new LineType.Wrap(breakBefore, breakAfter)
-  }
 }
 
 

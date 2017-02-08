@@ -1,7 +1,7 @@
 import { Range } from 'vscode'
 import Section, { SectionToEdit } from './Section'
-import { prefixSize, trimEnd, trimInsignificantEnd } from './Strings'
-import { wrapLinesDetectingTypes } from './Wrapping'
+import { containsActualText, prefixSize, trimEnd, trimInsignificantEnd } from './Strings'
+import { LineType, wrapLinesDetectingTypes } from './Wrapping'
 
 
 /** Represents wrapping options */
@@ -34,13 +34,16 @@ abstract class DocumentProcessor
             wrappingColumn - prefixSize(tabSize, section.linePrefix)
 
     const lines =
-      linesToWrap(section, selection)
+      Section.linesToWrap(section, selection)
         .map(trimInsignificantEnd)
-        .apply(ls => wrapLinesDetectingTypes(wrappingWidth, doubleSentenceSpacing, ls))
+        .apply(ls => 
+            wrapLinesDetectingTypes(
+              wrappingWidth, this.lineType, doubleSentenceSpacing, ls)
+          )
         .map((line, i) => {
           const prefix = 
             selection.start.line + i === section.startAt
-              ? section.firstLinePrefix
+              ? (section.firstLinePrefix || section.linePrefix)
               : section.linePrefix
           // If the line is empty then trim all trailing ws from the prefix
           return (line ? prefix : trimEnd(prefix)) + line
@@ -52,20 +55,44 @@ abstract class DocumentProcessor
       lines,
     }  
   }
+
+  /** Gets the LineType of a line */
+  lineType(text: string): LineType 
+  {
+    if(
+      // No text on line
+      !containsActualText(text) ||
+      
+      // After implementing trimInsignificantStart, make this 2 spaces
+      // Don't forget ^ priority
+      /^[ \t]/.test(text) ||
+        
+      // Whole line is a single xml tag
+      /^<[^!][^>]*>$/.test(text)
+    ) {
+      return new LineType.NoWrap()
+    }
+    
+    else {
+      let breakBefore = false, breakAfter = false
+      
+      // Start and end xml tag on same line
+      if(/^<[^>]+>[^<]*<\/[^>+]>$/.test(text)) {
+        [breakBefore, breakAfter] = [true, true]
+      }
+      
+      else {
+        // Starts with xml or @ tag
+        if(/^[@<]/.test(text)) breakBefore = true
+        
+        // Ends with (at least) 2 spaces
+        if(/  $/.test(text)) breakAfter = true
+      }
+      
+      return new LineType.Wrap(breakBefore, breakAfter)
+    }
+  }
+
 }
 
 export default DocumentProcessor
-
-
-
-
-
-/** Gets the lines that need wrapping, given a section and selection range */
-function linesToWrap(section: Section, selection: Range): string[]
-{
-  return section.lines
-    .filter((line, i) => {
-      const row = section.startAt + i
-      return row >= selection.start.line && row <= selection.end.line
-    })
-}

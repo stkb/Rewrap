@@ -4,7 +4,7 @@ import { containsActualText, textAfterPrefix } from './Strings'
 interface Section {
   readonly startAt: number
   readonly lines: string[]
-  readonly isSecondary: boolean
+  readonly isSecondary?: boolean
   readonly linePrefix: string
   readonly firstLinePrefix?: string
 }
@@ -12,6 +12,7 @@ interface Section {
 abstract class Section
 {
   static fromDocument = fromDocument
+  static linesToWrap = linesToWrap
   static section = section
   static sectionsInSelections = sectionsInSelections
 }
@@ -136,4 +137,15 @@ function sectionAndSelectionIntersection(selection: Range, section: Section)
     return { section, selection: range }
   }
   else return null
+}
+
+
+/** Gets the lines that need wrapping, given a section and selection range */
+export function linesToWrap(section: Section, selection: Range): string[]
+{
+  return section.lines
+    .filter((line, i) => {
+      const row = section.startAt + i
+      return row >= selection.start.line && row <= selection.end.line
+    })
 }
