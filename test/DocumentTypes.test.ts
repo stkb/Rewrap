@@ -39,12 +39,4 @@ suite("Document Types", () => {
     assert.deepEqual(handler, expected)
   })
 
-  test("Return Markdown processor for unknown language and extension", () => {
-
-    const doc = new TextDocument("", 'test.abc', 'plaintext')
-        , handler = fromDocument(doc)
-
-    assert.ok(handler instanceof Markdown)
-  })
-
 })

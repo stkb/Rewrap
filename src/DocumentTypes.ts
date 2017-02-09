@@ -15,7 +15,9 @@ function fromDocument(doc: TextDocument): DocumentProcessor
 {
   return fromLanguage(doc.languageId)
     || fromExtension(extname(doc.fileName))
-    || new Markdown()
+    // Hack for now. Use as default standard processor with an unlikely comment
+    // marker for plaintext/unknown files.
+    || new Standard({line: '!@#$%'})
 }
 
 /** Gets a DocumentProcessor for a given language id. Returns null if the id is
