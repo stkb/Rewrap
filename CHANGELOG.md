@@ -1,4 +1,14 @@
-See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases)
+See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
+
+
+## 1.2.0
+
+- Added support for the new [language-specific settings](https://code.visualstudio.com/updates/v1_9#_language-specific-settings). Now you can customize `editor.rulers` and Rewrap's settings per language. (#25)
+- Improvements for LaTeX:
+  - Most \commands starting a line will now denote a new paragraph (#24).
+  - Indentation for subsequent lines in that paragraph will be cleaned up (#23).
+  - Line breaks following a line-break command (eg \\\\, \newline) will be preserved. 
+- Added basic support for TOML files (#26).
 
 
 ## 1.1.0
