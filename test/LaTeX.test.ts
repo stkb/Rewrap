@@ -39,4 +39,33 @@ suite("LaTeX:", () =>
       , "      c" , "  \\a d"
       , "  \\a d" , _
       )
+
+    suite("Line breaks:", () =>
+    {
+      test
+        ( "\\a \\\\" , "\\a \\\\"
+        , "b"        , "b"
+        )
+
+      test
+        ( "\\a \\\\*" , "\\a \\\\*"
+        , "b"         , "b"
+        )
+
+      test
+        ( "\\a \\\\[2in]" , "\\a \\\\[2in]"
+        , "b"             , "b"
+        )
+
+      test
+        ( "\\a \\newline" , "\\a \\newline"
+        , "b"             , "b"
+        )
+
+      test
+        ( "\\a \\linebreak[4]" , "\\a \\linebreak[4]"
+        , "b"                  , "b"
+        )
+
+    })
 })

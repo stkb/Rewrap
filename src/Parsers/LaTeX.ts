@@ -94,7 +94,7 @@ export default class LaTeX extends DocumentProcessor
   lineType(line: string) 
   {
     const trimmed = line.trim()
-    if(trimmed.endsWith('\\\\') || trimmed.endsWith('\\hline')) {
+    if(line.match(/\\(\\\*?|hline|newline|break|linebreak)(\[.*?\])?(\{.*?\})?\s*$/)) {
       return new LineType.Wrap(false, true)
     }
     else {
