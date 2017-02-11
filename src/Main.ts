@@ -23,28 +23,26 @@ function activate(context: ExtensionContext)
     commands.registerTextEditorCommand(
       'rewrap.rewrapComment', 
       editor => {
-        // Tried doing this as wrapSomething().then(undefined, errback) but it
-        // didn't catch errors.
-        try {
-          const options = Environment.getOptions(editor)
-          return wrapSomething(editor, options)
-        }
-        catch (err) {
-          console.error("Rewrap: Something happened.")
-          console.log(err)
-          console.error(
-            "Rewrap: Please report this (with a screenshot of this log) at " +
-            "https://github.com/stkb/vscode-rewrap/issues"
-          )       
-          vscode.window.showInformationMessage(
-            "Sorry, there was an error in Rewrap. " +
-            "Go to: Help -> Toggle Developer Tools -> Console " +
-            "for more information."
-          )
-          return null
-        }
+        const options = Environment.getOptions(editor)
+        return wrapSomething(editor, options).catch(catchErr)
       }
     )
+  )
+}
+
+
+function catchErr(err: any): void
+{
+  console.error("Rewrap: Something happened.")
+  console.log(err)
+  console.error(
+    "Rewrap: Please report this (with a screenshot of this log) at " +
+    "https://github.com/stkb/vscode-rewrap/issues"
+  )       
+  vscode.window.showInformationMessage(
+    "Sorry, there was an error in Rewrap. " +
+    "Go to: Help -> Toggle Developer Tools -> Console " +
+    "for more information."
   )
 }
 
