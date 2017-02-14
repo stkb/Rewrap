@@ -28,7 +28,8 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:rewrap.rewrapComment"
+    "onCommand:rewrap.rewrapComment",
+    "onCommand:rewrap.rewrapCommentAt"
   ],
   "main": "./out/src/Main",
   "contributes": {
@@ -36,6 +37,10 @@
       {
         "command": "rewrap.rewrapComment",
         "title": "Rewrap Comment / Text"
+      },
+      {
+        "command": "rewrap.rewrapCommentAt",
+        "title": "Rewrap Comment / Text at column..."
       }
     ],
     "configuration": {

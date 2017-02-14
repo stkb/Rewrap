@@ -14,6 +14,8 @@ import Environment from './Environment'
 
 export { activate, getEditsAndSelections, wrapSomething }
 
+/** Used in the rewrapCommmentAt command */
+let customWrappingColumn = 99
 
 /** Is called when the extension is activated, the very first time the
  *  command is executed */
@@ -21,9 +23,40 @@ function activate(context: ExtensionContext)
 {
   context.subscriptions.push(
     commands.registerTextEditorCommand(
-      'rewrap.rewrapComment', 
+      'rewrap.rewrapComment',
       editor => {
         const options = Environment.getOptions(editor)
+        return wrapSomething(editor, options).catch(catchErr)
+      }
+    ),
+    commands.registerTextEditorCommand(
+      'rewrap.rewrapCommentAt',
+      async editor => {
+        // Show input box and loop until we get a valid number
+        let initialValue = customWrappingColumn.toString()
+        while(true) {
+          const inputStr = await vscode.window.showInputBox({
+            prompt: "Wrap selected text at this column",
+            value: initialValue,
+            placeHolder: "Enter a number greater than zero"
+          })
+          if(inputStr == undefined) {
+            return
+          }
+          const inputInt = parseInt(inputStr)
+          if(isNaN(inputInt) || inputInt < 1) {
+            initialValue = undefined
+          }
+          else {
+            customWrappingColumn = inputInt
+            break
+          }
+        }
+
+        const options = { 
+          ...Environment.getOptions(editor), 
+          wrappingColumn: customWrappingColumn,
+        }
         return wrapSomething(editor, options).catch(catchErr)
       }
     )
