@@ -1,6 +1,11 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
 
+## 1.3.0
+
+Added a new command; "Rewrap Comment / Text at column..." (id: `rewrap.rewrapCommentAt`). This allows you to re-wrap something at a custom wrapping width (#27).
+
+
 ## 1.2.0
 
 - Added support for the new [language-specific settings](https://code.visualstudio.com/updates/v1_9#_language-specific-settings). Now you can customize `editor.rulers` and Rewrap's settings per language. (#25)
