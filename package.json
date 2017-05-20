@@ -82,18 +82,20 @@
     "vscode:prepublish": "npm run clean && npm run compile && npm test"
   },
   "devDependencies": {
+    "@types/mocha": "^2.2.32",
+    "@types/node": "^6.0.40",
+    "@types/xregexp": "^3.0.28",
     "mocha": "^2.3.3",
     "mocha-clean": "^1.0.0",
     "mz": "^2.4.0",
     "rimraf": "^2.5.4",
     "typescript": "^2.1.5",
-    "vscode": "^1.0.0",
-    "@types/mocha": "^2.2.32",
-    "@types/node": "^6.0.40"
+    "vscode": "^1.0.0"
   },
   "dependencies": {
     "fast-diff": "^1.1.1",
     "markdown-to-ast": "^3.4.0",
-    "word-wrap": "^1.1.0"
+    "word-wrap": "^1.1.0",
+    "xregexp": "^3.2.0"
   }
 }
