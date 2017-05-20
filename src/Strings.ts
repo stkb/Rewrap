@@ -1,21 +1,24 @@
 /** Various string-related functions */
-export { 
-  containsActualText, prefixSize, textAfterPrefix, 
-  trimEnd, trimInsignificantEnd 
+export {
+  containsActualText, prefixSize, textAfterPrefix,
+  trimEnd, trimInsignificantEnd
 }
 
+import xregexp = require('xregexp');
+
+const letter = xregexp('[\\pL\\pN_]');
 
 /** Checks whether a line of text contains actual words etc, not just symbols */
 function containsActualText(lineText: string): boolean {
   const text = lineText.trim()
   // This exception needed for Ruby
-  return text !== '=begin' && text !== '=end' && /\w/.test(text)
+  return text !== '=begin' && text !== '=end' && letter.test(text)
 }
 
 
 /** Gets the display size of a string prefix, taking in to account the render of
  *  tabs for the editor */
-function prefixSize(tabSize: number, prefix: string) 
+function prefixSize(tabSize: number, prefix: string)
 {
   let size = 0;
   for(let i = 0; i < prefix.length; i++) {
@@ -39,19 +42,19 @@ function textAfterPrefix
 {
   const prefixLength = lineText.match(prefixRegex)[0].length
   let textAfter = lineText.substr(Math.min(prefixLength, prefixMaxLength))
-    
+
   // Allow an extra one-space indent
   if(prefixLength > prefixMaxLength && /^ \S/.test(textAfter)) {
     textAfter = textAfter.substr(1)
   }
-  
+
   // Also trim end
   return trimInsignificantEnd(textAfter)
 }
 
 
 /** Trims all whitespace from just the end of the string */
-function trimEnd(s: string): string 
+function trimEnd(s: string): string
 {
   return s.replace(/\s+$/, "")
 }
@@ -65,7 +68,7 @@ function trimEnd(s: string): string
 function trimInsignificantEnd(s: string): string
 {
   s = s.replace(/\r$/, "")
-  
+
   if(/\S {2,}$/.test(s)) {
     return s;
   }
