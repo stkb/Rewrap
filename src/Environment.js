@@ -1,27 +1,28 @@
 // Gets editor settings from the environment
-export default { getOptions }
+module.exports = { getOptions }
 
-import { TextEditor, workspace } from 'vscode'
-import { WrappingOptions } from './DocumentProcessor'
-import { TextEditorLike } from './Main'
+const { workspace } = require('vscode')
 
-export function getOptions
-  ( editor: TextEditorLike
-  ) : WrappingOptions 
+
+function getOptions(editor)
 {
-  const wrappingColumn = getWrappingColumn(editor)
-      , tabSize = getTabSize(editor, wrappingColumn)
-      , doubleSentenceSpacing = 
-          getSetting<boolean>(editor, 'rewrap.doubleSentenceSpacing')
-  return { wrappingColumn, tabSize, doubleSentenceSpacing }
+    const column = getWrappingColumn(editor)
+    
+    return {
+        column,
+        tabWidth: getTabSize(editor, column),
+        doubleSentenceSpacing: getSetting(editor, 'rewrap.doubleSentenceSpacing'),
+        wholeComment: getSetting(editor, 'rewrap.wholeComment'),
+        tidyUpIndents: getSetting(editor, 'rewrap.tidyUpIndents'),
+    }
 }
 
 
 /** Gets the tab size from the editor, according to the user's settings.
  *  Sanitizes the input. */
-function getTabSize(editor: TextEditorLike, wrappingColumn: number): number 
+function getTabSize(editor, wrappingColumn) 
 {
-  let tabSize = editor.options.tabSize as number
+  let tabSize = editor.options.tabSize
   
   if(!Number.isInteger(tabSize) || tabSize < 1) {
     console.warn(
@@ -44,11 +45,11 @@ function getTabSize(editor: TextEditorLike, wrappingColumn: number): number
 
 /** Gets the wrapping column (eg 80) from the user's settings.  
  *  Sanitizes the input. */
-function getWrappingColumn(editor: TextEditorLike): number 
+function getWrappingColumn(editor) 
 {
-  const extensionColumn = getSetting<number>(editor, 'rewrap.wrappingColumn')
-      , rulers = getSetting<number[]>(editor, 'editor.rulers')
-      , editorColumn = getSetting<number>(editor, 'editor.wrappingColumn')
+  const extensionColumn = getSetting(editor, 'rewrap.wrappingColumn')
+      , rulers = getSetting(editor, 'editor.rulers')
+      , editorColumn = getSetting(editor, 'editor.wrappingColumn')
 
   let wrappingColumn =
         extensionColumn
@@ -76,23 +77,23 @@ function getWrappingColumn(editor: TextEditorLike): number
 
 /** Gets a setting from vscode. Tries to find a setting for the appropriate
  *  language for the editor. */
-function getSetting<T>(editor: TextEditorLike, setting: string): T
+function getSetting(editor, setting)
 {
   const language = editor.document.languageId
       , config = workspace.getConfiguration()
       , languageSection = config.get('[' + language + ']')
 
-  return languageSetting<T>(languageSection, setting.split('.')) 
-          || config.get<T>(setting)
+  return languageSetting(languageSection, setting.split('.')) 
+          || config.get(setting)
 }
 
-function languageSetting<T>(obj : any, pathParts: string[]): T 
+function languageSetting(obj, pathParts)
 {
   if(!pathParts.length) return undefined
 
   const [next, ...rest] = pathParts
   if(obj) {
-    return obj[pathParts.join('.')] || languageSetting<T>(obj[next], rest)
+    return obj[pathParts.join('.')] || languageSetting(obj[next], rest)
   }
   else {
     return undefined

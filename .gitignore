@@ -1,6 +1,7 @@
-/out/
+/packages/
 /node_modules/
 /.vscode-test/
 
+/fable/
 bin/
 obj/

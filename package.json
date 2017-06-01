@@ -31,7 +31,7 @@
     "onCommand:rewrap.rewrapComment",
     "onCommand:rewrap.rewrapCommentAt"
   ],
-  "main": "./out/src/Main",
+  "main": "./src/Extension",
   "contributes": {
     "commands": [
       {
@@ -73,27 +73,21 @@
     ]
   },
   "scripts": {
+    "test": "node tests",
     "postinstall": "node ./node_modules/vscode/bin/install",
-    "compile": "tsc -p ./",
-    "dev": "tsc -watch -p ./",
-    "test-cleanup": "rimraf .vscode-test",
-    "test": "node ./node_modules/vscode/bin/test && npm run test-cleanup",
-    "clean": "rimraf out && npm run test-cleanup",
-    "vscode:prepublish": "npm run clean && npm run compile && npm test"
+    "compile": "fable core/Core.fsproj --outDir fable --ecma es2015 --module commonjs",
+    "fulltest-cleanup": "rimraf .vscode-test",
+    "fulltest": "node ./node_modules/vscode/bin/test && npm run fulltest-cleanup",
+    "clean": "rimraf debug && npm run fulltest-cleanup",
+    "vscode:prepublish": "npm run clean && npm run compile && npm run fulltest"
   },
   "devDependencies": {
-    "mocha": "^2.3.3",
-    "mocha-clean": "^1.0.0",
-    "mz": "^2.4.0",
     "rimraf": "^2.5.4",
-    "typescript": "^2.1.5",
     "vscode": "^1.0.0",
-    "@types/mocha": "^2.2.32",
-    "@types/node": "^6.0.40"
+    "fable-compiler": "^0.7.51"
   },
   "dependencies": {
-    "fast-diff": "^1.1.1",
-    "markdown-to-ast": "^3.4.0",
-    "word-wrap": "^1.1.0"
+    "fable-core": "^0.7.30",
+    "fast-diff": "^1.1.1"
   }
 }
