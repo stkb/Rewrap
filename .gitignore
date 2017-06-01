@@ -1,3 +1,6 @@
 /out/
 /node_modules/
 /.vscode-test/
+
+bin/
+obj/
