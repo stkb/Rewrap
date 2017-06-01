@@ -31,7 +31,7 @@
     "onCommand:rewrap.rewrapComment",
     "onCommand:rewrap.rewrapCommentAt"
   ],
-  "main": "./src/Extension",
+  "main": "./vscode/Extension",
   "contributes": {
     "commands": [
       {
