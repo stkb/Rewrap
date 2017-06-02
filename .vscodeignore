@@ -1,13 +1,11 @@
-.*
-.*/**
+**
 
-src/**
-test/**
-typings/**
-tsconfig.json
-typings.json
+# Whitelist
 
-out/test/**
-**/*.map
-
-docs/**
+!images/**
+!fable/**
+!node_modules/**
+!vscode/**
+!CHANGELOG.md
+!package.json
+!README.md
