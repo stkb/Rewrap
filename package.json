@@ -55,6 +55,16 @@
           "type": "boolean",
           "default": false,
           "description": "When wrapping lines that end in a period, adds two spaces after that sentence in the wrapped text."
+        },
+        "rewrap.wholeComment": {
+          "type": "boolean",
+          "default": true,
+          "description": "With the cursor inside a comment block, wrap the whole comment block instead of just a single paragraph."
+        },
+        "rewrap.tidyUpIndents": {
+          "type": "boolean",
+          "default": false,
+          "description": "(EXPERIMEMTAL) When wrapping lines, tidy up paragraph indents."
         }
       }
     },
