@@ -22,6 +22,3 @@ When `doubleSentenceSpacing` is set to true, lines that end in a `.`, `?` or `!`
     Text?             ¦      ->      Text?  Text Text?
     Text              ¦
     Text?             ¦
-
-
-## tidyUpIndents ##

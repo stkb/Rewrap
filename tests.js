@@ -318,6 +318,12 @@ function printTest(input, expected, actual, width, tabWidth)
     const columnLengths = columns.map(c => c.length)
     const lineCount = Math.max(...columnLengths)
 
+    if(width == -1) {
+        output.push("Error: no wrapping column set (with '¦')")
+        output.push(...input)
+        return output
+    }
+
     const headers = 
         ["Input", "Expected", "Actual"]
             .map((s, i) => s + " (" + columnLengths[i] + ")")

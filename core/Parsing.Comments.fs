@@ -19,7 +19,7 @@ let lineComment
                 markerRegex marker
 
             let prefix =
-                    lines
+                lines
                     |> Nonempty.tryFind Line.containsText
                     |> Option.defaultValue (Nonempty.head lines)
                     |> Line.tryMatch regex
@@ -35,9 +35,15 @@ let lineComment
                     >> Tuple.mapFirst (fun s -> s.Substring(prefixLength))
                     >> fun (pre, rest) -> pre + rest
 
+            let newPrefix =
+                if options.tidyUpIndents then 
+                    prefix.TrimEnd() + " "
+                else
+                    prefix
+
             lines
                 |> Nonempty.map stripLine
-                |> Block.wrappable (Block.prefixes prefix prefix)
+                |> Block.wrappable (Block.prefixes newPrefix newPrefix)
                 |> (Block.comment (contentParser options) >> Nonempty.singleton)
         )
 
