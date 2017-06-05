@@ -1,3 +1,6 @@
+/.vs/
+*.csproj.user
+
 /packages/
 /node_modules/
 /.vscode-test/
