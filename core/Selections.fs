@@ -5,7 +5,7 @@
 
 open Nonempty
 open Extensions
-open OtherTypes
+open Rewrap
 open Block
 
 // Private type used to represent line ranges, both of selections and blocks.
@@ -233,7 +233,7 @@ let rec private applySelectionsToBlock
 
 
 
-let applyToBlocks (selections: seq<Selection>) (options: Options) (blocks: Blocks) =
+let applyToBlocks (selections: seq<Selection>) (settings: Settings) (blocks: Blocks) =
     
     let selectionRanges = 
         List.ofSeq selections 
@@ -287,7 +287,7 @@ let applyToBlocks (selections: seq<Selection>) (options: Options) (blocks: Block
             (fun (block, range) ->
                 applySelectionsToBlock
                     (selectionsForBlock block)
-                    options.wholeComment
+                    settings.wholeComment
                     (block, range)
             )
 

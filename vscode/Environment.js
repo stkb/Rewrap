@@ -1,10 +1,10 @@
 // Gets editor settings from the environment
-module.exports = { getOptions }
+module.exports = { getSettings }
 
 const { workspace } = require('vscode')
 
 
-function getOptions(editor)
+function getSettings(editor)
 {
     const column = getWrappingColumn(editor)
     

@@ -1,4 +1,4 @@
-const createEdit = require('../fable/Rewrap').rewrap
+const createEdit = require('../fable/Rewrap.Core').rewrap
 
 let doWrap
 
@@ -26,7 +26,7 @@ exports.activate = function activate(context)
      */
     function rewrapCommentCommand(editor) 
     {
-        return doWrap(editor, Environment.getOptions(editor))
+        return doWrap(editor, Environment.getSettings(editor))
     }
 
 
@@ -39,7 +39,7 @@ exports.activate = function activate(context)
             .then(customColumn => 
                     customColumn 
                         ? Object.assign
-                            ( Environment.getOptions(editor)
+                            ( Environment.getSettings(editor)
                             , { wrappingColumn: customColumn }
                             )
                         : null

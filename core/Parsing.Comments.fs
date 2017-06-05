@@ -3,13 +3,13 @@
 open Nonempty
 open System.Text.RegularExpressions
 open Extensions
-open OtherTypes
+open Rewrap
 open Parsing.Core
 
 
 /// Creates a line comment parser, given a content parser and marker.
 let lineComment 
-    (contentParser: Options -> TotalParser) (options: Options) (marker: string) 
+    (contentParser: Settings -> TotalParser) (settings: Settings) (marker: string) 
     : OptionParser =
 
     optionParser
@@ -26,17 +26,17 @@ let lineComment
                     |> Option.defaultValue marker
                 
             let prefixLength =
-                Line.tabsToSpaces options.tabWidth prefix |> String.length
+                Line.tabsToSpaces settings.tabWidth prefix |> String.length
 
             let stripLine =
-                Line.tabsToSpaces options.tabWidth
+                Line.tabsToSpaces settings.tabWidth
                     >> Line.split regex
                     >> Tuple.mapFirst (fun p -> String.replicate p.Length " ")
                     >> Tuple.mapFirst (fun s -> s.Substring(prefixLength))
                     >> fun (pre, rest) -> pre + rest
 
             let newPrefix =
-                if options.tidyUpIndents then 
+                if settings.tidyUpIndents then 
                     prefix.TrimEnd() + " "
                 else
                     prefix
@@ -44,14 +44,14 @@ let lineComment
             lines
                 |> Nonempty.map stripLine
                 |> Block.wrappable (Block.prefixes newPrefix newPrefix)
-                |> (Block.comment (contentParser options) >> Nonempty.singleton)
+                |> (Block.comment (contentParser settings) >> Nonempty.singleton)
         )
 
 
 /// Creates a multiline comment parser, given a content parser and markers.
 let multiComment 
-    (contentParser: Options -> TotalParser) 
-    (options: Options)
+    (contentParser: Settings -> TotalParser) 
+    (settings: Settings)
     (tailMarker: string, defaultTailMarker: string)
     (startMarker: string, endMarker: string)
     : OptionParser =
@@ -75,10 +75,10 @@ let multiComment
                     (Line.leadingWhitespace headLine + defaultTailMarker)
 
         let prefixLength =
-            Line.tabsToSpaces options.tabWidth tailPrefix |> String.length
+            Line.tabsToSpaces settings.tabWidth tailPrefix |> String.length
 
         let stripLine line =
-            let spacedLine = Line.tabsToSpaces options.tabWidth line
+            let spacedLine = Line.tabsToSpaces settings.tabWidth line
             let linePrefixLength = 
                 spacedLine
                     |> (Line.tryMatch tailRegex >> Option.defaultValue "")
@@ -87,7 +87,7 @@ let multiComment
 
         Nonempty(headRemainder, List.map stripLine tailLines)
             |> Block.wrappable (Block.prefixes headPrefix tailPrefix)
-            |> (Block.comment (contentParser options) >> Nonempty.singleton)
+            |> (Block.comment (contentParser settings) >> Nonempty.singleton)
 
 
     optionParser

@@ -3,12 +3,12 @@
 open System.Text.RegularExpressions
 open Extensions
 open Nonempty
-open OtherTypes
+open Rewrap
 open Block
 open Parsing.Core
 
 
-let rec markdown (options: Options): TotalParser =
+let rec markdown (settings: Settings): TotalParser =
 
     /// Ignores fenced code blocks (``` ... ```) 
     let fencedCodeBlock (Nonempty(headLine, tailLines) as lines) =
@@ -107,7 +107,7 @@ let rec markdown (options: Options): TotalParser =
                 Nonempty.map (Line.split (Regex(" {0,3}>? ?"))) lines
 
             let prefixes =
-                if options.tidyUpIndents then
+                if settings.tidyUpIndents then
                     Block.prefixes "> " "> "
                 else
                     Block.prefixes
@@ -119,7 +119,7 @@ let rec markdown (options: Options): TotalParser =
                         )
 
             Block.wrappable prefixes (Nonempty.map snd tuples)
-                |> Block.splitUp (markdown options)
+                |> Block.splitUp (markdown settings)
 
         optionParser splitter mapper
 
@@ -151,7 +151,7 @@ let rec markdown (options: Options): TotalParser =
                 Regex("^ {0," + indent.ToString() + "}")
 
             let headPrefix =
-                (if options.tidyUpIndents then
+                (if settings.tidyUpIndents then
                     String.trim prefixWithSpace + " "
                     else
                     prefixWithSpace
@@ -166,7 +166,7 @@ let rec markdown (options: Options): TotalParser =
                     strippedFirstLine,
                     (List.map (Line.split tailRegex >> snd) tailLines)
                 ))
-                |> Block.splitUp (markdown options)
+                |> Block.splitUp (markdown settings)
             , remainingLines
             )
         
@@ -174,7 +174,7 @@ let rec markdown (options: Options): TotalParser =
   
     let paragraphBlocks =
         splitIntoChunks (afterRegex (Regex(@"(\\|\s{2})$")))
-            >> Nonempty.map (firstLineIndentParagraphBlock options.tidyUpIndents)
+            >> Nonempty.map (firstLineIndentParagraphBlock settings.tidyUpIndents)
 
     let paragraphTerminatingParsers =
         tryMany [
@@ -200,7 +200,7 @@ let rec markdown (options: Options): TotalParser =
             blockQuote
         ]
 
-    Nonempty.map (Line.tabsToSpaces options.tabWidth)
+    Nonempty.map (Line.tabsToSpaces settings.tabWidth)
         >> repeatUntilEnd allParsers paragraphs
 
 

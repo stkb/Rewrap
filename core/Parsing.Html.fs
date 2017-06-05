@@ -1,7 +1,7 @@
 ﻿module private Parsing.Html
 
 open Extensions
-open OtherTypes
+open Rewrap
 open Parsing.Core
 open System.Text.RegularExpressions
 
@@ -18,9 +18,9 @@ let private cssMarkers =
 
 
 let html 
-    (scriptParser: Options -> TotalParser)
-    (cssParser: Options -> TotalParser)
-    (options: Options) 
+    (scriptParser: Settings -> TotalParser)
+    (cssParser: Settings -> TotalParser)
+    (settings: Settings) 
     : TotalParser =
 
     let embeddedScript markers contentParser =
@@ -30,7 +30,7 @@ let html
                 List.tryInit (Nonempty.tail lines)
                     |> Option.bind Nonempty.fromList
                     |> Option.map
-                        (contentParser options
+                        (contentParser settings
                             >> Nonempty.snoc (Block.Ignore 1)
                             >> Nonempty.cons (Block.Ignore 1)
                         )
@@ -42,7 +42,7 @@ let html
         tryMany
             [ blankLines
               Comments.multiComment 
-                Markdown.markdown options ( "", "" ) ( "<!--", "-->" )
+                Markdown.markdown settings ( "", "" ) ( "<!--", "-->" )
               embeddedScript scriptMarkers scriptParser
               embeddedScript cssMarkers cssParser
             ]

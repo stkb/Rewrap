@@ -1,7 +1,7 @@
 ﻿module internal Parsing.Documents
 
 open Nonempty
-open OtherTypes
+open Rewrap
 open Parsing.Core
 open Extensions
 open System.Text.RegularExpressions
@@ -11,7 +11,7 @@ open System.Text.RegularExpressions
 let private sourceCode 
     (maybeSingleMarker: Option<string>)
     (maybeMultiMarkers: Option<string * string>)
-    (options: Options)
+    (settings: Settings)
     : TotalParser =
 
     let otherParsers =
@@ -20,17 +20,17 @@ let private sourceCode
                 [ Some blankLines
                   maybeSingleMarker
                     |> Option.map 
-                        (Comments.lineComment Markdown.markdown options)
+                        (Comments.lineComment Markdown.markdown settings)
                   maybeMultiMarkers
                     |> Option.map 
-                        (Comments.multiComment Markdown.markdown options ("","") )
+                        (Comments.multiComment Markdown.markdown settings ("","") )
                 ]
             )
       
     let codeParser =
         takeLinesUntil
             otherParsers
-            (splitIntoChunks (onIndent options.tabWidth)
+            (splitIntoChunks (onIndent settings.tabWidth)
                 >> Nonempty.map (indentSeparatedParagraphBlock Block.code)
             )
 
@@ -42,7 +42,7 @@ let private withJavaDoc
     (jDocMarkers: string * string)
     (lineMarker: string)
     (multiMarkers: string * string)
-    options 
+    settings 
     : TotalParser =
 
     let javaDoc _ =
@@ -56,21 +56,21 @@ let private withJavaDoc
                             |> (splitIntoChunks
                                     (afterRegex (Regex("^\\s*@\\w+\\s*$")))
                                 )
-                            |> Nonempty.collect (Markdown.markdown options)
+                            |> Nonempty.collect (Markdown.markdown settings)
                 )
 
     let otherParsers =
         tryMany
             [ blankLines
-              Comments.multiComment javaDoc options ( "[*#]", " * " ) jDocMarkers
-              Comments.multiComment Markdown.markdown options ( "", "" ) multiMarkers
-              Comments.lineComment Markdown.markdown options lineMarker
+              Comments.multiComment javaDoc settings ( "[*#]", " * " ) jDocMarkers
+              Comments.multiComment Markdown.markdown settings ( "", "" ) multiMarkers
+              Comments.lineComment Markdown.markdown settings lineMarker
             ]
 
     let codeParser =
         takeLinesUntil
             otherParsers
-            (splitIntoChunks (onIndent options.tabWidth)
+            (splitIntoChunks (onIndent settings.tabWidth)
                 >> Nonempty.map (indentSeparatedParagraphBlock Block.code)
             )
 
@@ -95,25 +95,25 @@ let dotNet
     (xmlDocMarker: string) 
     (lineMarker: string)
     (maybeMultiMarkers: Option<string * string>)
-    (options: Options)
+    (settings: Settings)
     : TotalParser =
 
     let otherParsers =
         tryMany
             (List.choose id
                 [ Some blankLines
-                  Some (Comments.lineComment html options xmlDocMarker)
-                  Some (Comments.lineComment Markdown.markdown options lineMarker)
+                  Some (Comments.lineComment html settings xmlDocMarker)
+                  Some (Comments.lineComment Markdown.markdown settings lineMarker)
                   maybeMultiMarkers
                     |> Option.map
-                        (Comments.multiComment Markdown.markdown options ( "", "" ))
+                        (Comments.multiComment Markdown.markdown settings ( "", "" ))
                 ]
             )
 
     let codeParser =
         takeLinesUntil
             otherParsers
-            (splitIntoChunks (onIndent options.tabWidth)
+            (splitIntoChunks (onIndent settings.tabWidth)
                 >> Nonempty.map (indentSeparatedParagraphBlock Block.code)
             )
     in
@@ -222,7 +222,7 @@ let private languagesTable : List<List<string> * string> =
 
 
 
-let select (language: string) (extension: string) : Options -> TotalParser =
+let select (language: string) (extension: string) : Settings -> TotalParser =
     let findIn table id =
             List.tryFind (fst >> List.contains id) table
                 |> Option.map snd

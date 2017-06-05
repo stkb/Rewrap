@@ -1,21 +1,30 @@
-﻿module Rewrap
+﻿namespace Rewrap
 
-open OtherTypes
+/// Settings passed in from the editor
+type Settings = {
+    column : int
+    tabWidth : int
+    doubleSentenceSpacing : bool
+    tidyUpIndents : bool
+    wholeComment : bool
+}
 
-let rewrap 
-    (language: string)
-    (extension: string)
-    (selections: seq<Selection>)
-    (options: Options) 
-    (lines: seq<string>) =
 
-    let parser = 
-        Parsing.Documents.select language extension
+/// Edit object to be passed out to the editor
+type Edit = {
+    startLine : int
+    endLine : int
+    lines : array<string>
+}
 
-    let originalLines =
-        List.ofSeq lines |> Nonempty.fromListUnsafe
 
-    originalLines
-        |> parser options
-        |> Selections.applyToBlocks selections options
-        |> Wrapping.wrapBlocks options originalLines
+type Position = {
+    line : int
+    character : int
+}
+    
+
+type Selection = { 
+    active : Position
+    anchor : Position 
+}

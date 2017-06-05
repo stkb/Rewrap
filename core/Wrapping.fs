@@ -2,13 +2,13 @@
 
 open System
 open Nonempty
-open OtherTypes
+open Rewrap
 open Block
 open Line
 open Extensions
 
 
-let wrapBlocks (options: Options) (originalLines: Lines) (blocks: Blocks) : Edit =
+let wrapBlocks (settings: Settings) (originalLines: Lines) (blocks: Blocks) : Edit =
 
     // Wraps a string without newlines and returns a Lines with all lines but the last trimmed at the end
     let wrapString (width: int) (str: string) : Lines =
@@ -34,20 +34,20 @@ let wrapBlocks (options: Options) (originalLines: Lines) (blocks: Blocks) : Edit
     let wrapWrappable (w: Wrappable) : Lines =
 
         let spacedHeadPrefix =
-            Line.tabsToSpaces options.tabWidth w.prefixes.head
+            Line.tabsToSpaces settings.tabWidth w.prefixes.head
         let tailPrefixLength =
-            (Line.tabsToSpaces options.tabWidth w.prefixes.tail).Length
+            (Line.tabsToSpaces settings.tabWidth w.prefixes.tail).Length
         let headPrefixIndent =
             spacedHeadPrefix.Length - tailPrefixLength
         let wrapWidth =
-            options.column - tailPrefixLength
+            settings.column - tailPrefixLength
 
         let concatenatedText =
             w.lines 
                 |> Nonempty.mapInit 
                     (fun s ->
                         let t = s.TrimEnd()
-                        if options.doubleSentenceSpacing
+                        if settings.doubleSentenceSpacing
                             && Array.exists (fun c -> t.EndsWith(c)) [| ".";"?";"!"|]
                         then t + " "
                         else t

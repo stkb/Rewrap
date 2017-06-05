@@ -1,7 +1,7 @@
 ﻿module private Parsing.Latex
 
 open Nonempty
-open OtherTypes
+open Rewrap
 open Block
 open Parsing.Core
 open System.Text.RegularExpressions
@@ -19,7 +19,7 @@ let private emptyCommands =
 let private inlineCommands =
     [| "cite"; "dots"; "emph"; "href"; "latex"; "latexe"; "ref"; "verb" |]
 
-let latex (options: Options) : TotalParser =
+let latex (settings: Settings) : TotalParser =
     
     let startsWithCommand (line: string): Option<string> =
         let m = commandRegex.Match(line)
@@ -28,7 +28,7 @@ let latex (options: Options) : TotalParser =
     let paragraphBlocks: Lines -> Blocks =
         splitIntoChunks (afterRegex newlineRegex)
             >> Nonempty.map
-                (firstLineIndentParagraphBlock options.tidyUpIndents)
+                (firstLineIndentParagraphBlock settings.tidyUpIndents)
     
     let emptyCommand (Nonempty(headLine, tailLines)) =
         startsWithCommand headLine
@@ -48,7 +48,7 @@ let latex (options: Options) : TotalParser =
     and otherParsers =
         tryMany [
             blankLines
-            Comments.lineComment Markdown.markdown options "%"
+            Comments.lineComment Markdown.markdown settings "%"
             emptyCommand
             blockCommand
         ]

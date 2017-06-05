@@ -1,7 +1,7 @@
 const Path = require('path')
 const FS = require('fs')
 const Assert = require('assert')
-const Rewrap = require('./fable/Rewrap')
+const Core = require('./fable/Rewrap.Core')
 
 const specsDir = Path.join(__dirname, 'specs')
 const defaultSettings = 
@@ -277,7 +277,7 @@ function runTests(tests)
     function runTest({input, expected, settings, selections, wrappingColumn}) 
     {
         const edit =
-            Rewrap.rewrap
+            Core.rewrap
                 ( settings.language
                 , ''
                 , selections
