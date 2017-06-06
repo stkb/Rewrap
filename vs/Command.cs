@@ -82,11 +82,8 @@ namespace VS
 
             var edit =
                 Core.rewrap(
-                    language: snapshot.ContentType.TypeName.Split('.').Reverse().First().ToLower(),
-                    extension:
-                        snapshot.TextBuffer.Properties.TryGetProperty<ITextDocument>(typeof(ITextDocument), out ITextDocument doc)
-                        ? System.IO.Path.GetExtension(doc.FilePath)
-                        : "",
+                    language: GetLanguage(snapshot.TextBuffer),
+                    extension: GetExtension(snapshot.TextBuffer),
                     selections: GetSelections(snapshot),
                     settings: Environment.GetSettings(this.textView),
                     lines: snapshot.Lines.Select(l => l.GetText())
@@ -106,6 +103,41 @@ namespace VS
                 editor.Replace(startPos, endPos - startPos, wrappedText);
                 editor.Apply();
             }
+        }
+
+        private string GetLanguage(ITextBuffer textBuffer)
+        {
+            string language = 
+                textBuffer.ContentType.TypeName.Split('.').Reverse().First().ToLower();
+
+            // This happens with HTML files, and possibly some others.
+            if(language == "projection" &&
+                textBuffer.Properties.TryGetProperty("IdentityMapping", out textBuffer)
+            )
+            {
+                return GetLanguage(textBuffer);
+            }
+
+            return language;
+        }
+
+        private string GetExtension(ITextBuffer textBuffer)
+        {
+            if(textBuffer.Properties
+                .TryGetProperty(typeof(ITextDocument), out ITextDocument doc))
+            {
+                return System.IO.Path.GetExtension(doc.FilePath);
+            }
+
+            // HTML files (and possibly some others) have an extra level of indirection.
+            // Hopefully there isn't a case where this causes an infinite loop.
+            if (textBuffer.Properties
+                .TryGetProperty("IdentityMapping", out textBuffer))
+            {
+                return GetExtension(textBuffer);
+            }
+
+            return "";
         }
 
         private Selection[] GetSelections(ITextSnapshot snapshot)
