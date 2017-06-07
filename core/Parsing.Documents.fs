@@ -162,7 +162,7 @@ let private parsersTable =
       , sourceCode (Some "--") (Some ( "{-", "-}" ))
       )
       ( [ "ini" ]
-      , sourceCode (Some "[# ]") None
+      , sourceCode (Some "[#;]") None
       )
       ( [ "jade" ]
       , sourceCode (Some "\\/\\/") None
