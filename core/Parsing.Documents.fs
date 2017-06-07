@@ -128,6 +128,9 @@ let private parsersTable =
     [ ( [ "ahk" ]
         , sourceCode (Some ";") (Some ( "\\/\\*", "\\*\\/" ))
       )
+      ( [ "basic"; "vb" ]
+      , dotNet "'''" "'" None
+      )
       ( [ "bat" ]
       , sourceCode (Some "(?:rem|::)") None
       )
@@ -149,7 +152,7 @@ let private parsersTable =
       ( [ "elm" ]
       , sourceCode (Some "--") (Some ( "{-\\|?", "-}" ))
       )
-      ( [ "fsharp" ]
+      ( [ "f#"; "fsharp" ]
       , dotNet "///" "//" (Some ( "\\(\\*", "\\*\\)" ))
       )
       ( [ "handlebars"; "html"; "xml"; "xsl" ]
@@ -178,7 +181,7 @@ let private parsersTable =
       )
       // Todo: multi-line comments in Perl 6
       // https://docs.perl6.org/language/syntax#Comments
-      ( [ "perl6"; "ruby" ]
+      ( [ "perl"; "perl6"; "ruby" ]
       , sourceCode (Some "#") (Some ( "=begin", "=end" ))
       )
       ( [ "php" ]
@@ -196,28 +199,48 @@ let private parsersTable =
       ( [ "sql" ]
       , sourceCode (Some "--") (Some ( "\\/\\*", "\\*\\/" ))
       )
-      ( [ "vb" ]
-      , dotNet "'''" "'" None
-      )
     ]
 
 
 let private languagesTable : List<List<string> * string> = 
     [
         ( [ ".ahk" ], "ahk" )
-        ( [ ".bbx"; "cbx"; ".cls"; ".sty" ], "tex" )
+        ( [ ".bat" ], "bat" )
+        ( [ ".bbx"; ".cbx"; ".cls"; ".sty" ], "tex" )
+        ( [ ".c"; ".cpp"; ".h"; ".m"; ".mm" ], "c" )
+        ( [ ".coffee" ], "coffeescript" )
         ( [ ".cs" ], "csharp" )
-        ( [ ".elm" ], "elm" )
-        ( [ ".hs" ], "haskell" )
-        ( [ ".js"; ".jsx"; ".ts" ], "javascript" )
-        ( [ ".md" ], "markdown" )
-        ( [ ".purs" ], "purescript" )
         // Pretend .sass comments are the same as .scss for basic support.
         // Actually they're slightly different.
         // http://sass-lang.com/documentation/file.INDENTED_SYNTAX.html
-        ( [ ".sass" ], "scss" )
+        ( [ ".css"; ".less"; ".sass"; ".scss" ], "scss" )
+        ( [ "dockerfile" ], "dockerfile" )
+        ( [ ".elm" ], "elm" )
+        ( [ ".fs"; ".fsx" ], "fsharp" )
+        ( [ ".go" ], "go" )
+        ( [ ".groovy" ], "groovy" )
+        ( [ ".hs" ], "haskell" )
+        ( [ ".ini" ], "ini" )
+        ( [ ".java" ], "java" )
+        ( [ ".js"; ".jsx"; ".ts"; ".tsx" ], "javascript" )
+        ( [ ".lua" ], "lua" )
+        ( [ "makefile" ], "makefile" )
+        ( [ ".md" ], "markdown" )
+        ( [ ".php" ], "php")
+        ( [ ".pl"; ".pm" ], "perl")
+        ( [ ".ps1"; ".psm1" ], "powershell" )
+        ( [ ".purs" ], "purescript" )
+        ( [ ".py" ], "python" )
+        ( [ ".r" ], "r" )
+        ( [ ".rs" ], "rust" )
+        ( [ ".sh" ], "shellscript" )
+        ( [ ".sql" ], "sql" )
+        ( [ ".swift" ], "swift" )
         ( [ ".tex" ], "latex" )
         ( [ ".toml" ], "toml" )
+        ( [ ".vb" ], "vb" )
+        ( [ ".xml"; ".xsl" ], "xml" )
+        ( [ ".yaml" ], "yaml" )
     ]
 
 
