@@ -64,7 +64,7 @@
     <Compile Include="Parsing.Latex.fs" />
     <Compile Include="Parsing.Documents.fs" />
     <Compile Include="Wrapping.fs" />
-    <Compile Include="Rewrap.Core.fs" />
+    <Compile Include="Main.fs" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
