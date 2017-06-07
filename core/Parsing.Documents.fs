@@ -146,7 +146,7 @@ let private parsersTable =
       ( [ "css"; "less"; "scss" ]
       , css
       )
-      ( [ "dockerfile"; "makefile"; "perl"; "r"; "shellscript"; "toml"; "yaml" ]
+      ( [ "dockerfile"; "elixir"; "makefile"; "perl"; "r"; "shellscript"; "toml"; "yaml" ]
       , sourceCode (Some "#") None
       )
       ( [ "elm" ]
@@ -216,6 +216,7 @@ let private languagesTable : List<List<string> * string> =
         ( [ ".css"; ".less"; ".sass"; ".scss" ], "scss" )
         ( [ "dockerfile" ], "dockerfile" )
         ( [ ".elm" ], "elm" )
+        ( [ ".ex"; ".exs" ], "elixir" )
         ( [ ".fs"; ".fsx" ], "fsharp" )
         ( [ ".go" ], "go" )
         ( [ ".groovy" ], "groovy" )
