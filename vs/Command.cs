@@ -83,7 +83,7 @@ namespace VS
             var edit =
                 Core.rewrap(
                     language: GetLanguage(snapshot.TextBuffer),
-                    extension: GetExtension(snapshot.TextBuffer),
+                    filePath: GetFilePath(snapshot.TextBuffer),
                     selections: GetSelections(snapshot),
                     settings: Environment.GetSettings(this.textView),
                     lines: snapshot.Lines.Select(l => l.GetText())
@@ -121,12 +121,12 @@ namespace VS
             return language;
         }
 
-        private string GetExtension(ITextBuffer textBuffer)
+        private string GetFilePath(ITextBuffer textBuffer)
         {
             if(textBuffer.Properties
                 .TryGetProperty(typeof(ITextDocument), out ITextDocument doc))
             {
-                return System.IO.Path.GetExtension(doc.FilePath);
+                return doc.FilePath;
             }
 
             // HTML files (and possibly some others) have an extra level of indirection.
@@ -134,7 +134,7 @@ namespace VS
             if (textBuffer.Properties
                 .TryGetProperty("IdentityMapping", out textBuffer))
             {
-                return GetExtension(textBuffer);
+                return GetFilePath(textBuffer);
             }
 
             return "";

@@ -9,7 +9,6 @@ exports.activate = function activate(context)
 {
     const { Range, commands, workspace, window } = require('vscode')
     const Environment = require('./Environment')
-    const Path = require('path')
     const { adjustSelections } = require('./FixSelections')
 
     // Register the commands
@@ -91,7 +90,7 @@ exports.activate = function activate(context)
         return Promise.resolve(
             createEdit
                 ( document.languageId
-                , Path.extname(document.fileName)
+                , document.fileName
                 , selections
                 , options
                 , lines

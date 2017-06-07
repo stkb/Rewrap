@@ -245,7 +245,17 @@ let private languagesTable : List<List<string> * string> =
 
 
 
-let select (language: string) (extension: string) : Settings -> TotalParser =
+let select (language: string) (filePath: string) : Settings -> TotalParser =
+
+    let fileName = 
+        filePath.Split('\\', '/') |> Array.last
+
+    // Get file extension or if no extension, the whole filename
+    let extensionOrName =
+        match fileName.Split('.') with
+            | [| name |] -> name
+            | arr -> "." + Array.last arr
+
     let findIn table id =
             List.tryFind (fst >> List.contains id) table
                 |> Option.map snd
@@ -253,10 +263,10 @@ let select (language: string) (extension: string) : Settings -> TotalParser =
     let plainText =
             sourceCode None None
 
-    findIn parsersTable language
+    findIn parsersTable (language.ToLower())
         |> Option.orElseWith
             (fun () ->
-                findIn languagesTable extension
+                findIn languagesTable (extensionOrName.ToLower())
                     |> Option.bind (findIn parsersTable)
             )
         |> Option.defaultValue plainText
