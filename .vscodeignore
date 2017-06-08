@@ -4,7 +4,8 @@
 
 !images/**
 !fable/**
-!node_modules/**
+!node_modules/fast-diff/**
+!node_modules/fable-core/umd/*.js
 !vscode/**
 !CHANGELOG.md
 !package.json
