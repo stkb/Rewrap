@@ -56,14 +56,14 @@ namespace VS
         {
             [Category("Rewrap options")]
             [DisplayName("Double sentence spacing")]
-            [Description("")]
-            public bool DoubleSentenceSpacing { get; private set; } = false;
+            [Description("When wrapping lines that end in a period, adds two spaces after that sentence in the wrapped text.")]
+            public bool DoubleSentenceSpacing { get; set; } = false;
 
 
             [Category("Rewrap options")]
             [DisplayName("Tidy up indents")]
-            [Description("")]
-            public bool TidyUpIndents { get; private set; } = false;
+            [Description("(EXPERIMEMTAL) When wrapping lines, tidy up paragraph indents.")]
+            public bool TidyUpIndents { get; set; } = false;
 
 
             [Category("Rewrap options")]
@@ -73,9 +73,9 @@ namespace VS
 
 
             [Category("Rewrap options")]
-            [DisplayName("Wrap whole comment")]
-            [Description("")]
-            public bool WholeComment { get; private set; } = false;
+            [DisplayName("Wrap whole comments")]
+            [Description("With the cursor inside a comment block, wrap the whole comment block instead of just a single paragraph.")]
+            public bool WholeComment { get; set; } = false;
         }
     }
 }
