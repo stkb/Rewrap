@@ -89,7 +89,7 @@
     "fulltest-cleanup": "rimraf .vscode-test",
     "fulltest": "node ./node_modules/vscode/bin/test && npm run fulltest-cleanup",
     "clean": "rimraf fable && npm run fulltest-cleanup",
-    "vscode:prepublish": "npm run clean && npm run compile && npm run fulltest"
+    "vscode:prepublish": "npm run clean && npm run compile"
   },
   "devDependencies": {
     "rimraf": "^2.5.4",
