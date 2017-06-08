@@ -95,7 +95,7 @@ exports.activate = function activate(context)
                 , options
                 , lines
                 )
-            ) 
+            )
             .then(applyEdit)
             .then(edit =>
                 editor.selections = adjustSelections(lines, selections, [edit])
@@ -104,14 +104,17 @@ exports.activate = function activate(context)
 
         function applyEdit(edit) 
         {
-            const range =
-                document.validateRange
-                    ( new Range(edit.startLine, 0, edit.endLine, Number.MAX_VALUE) )
-            const text = 
-                edit.lines.join('\n')
+            if(edit.lines.length) {
+                const range =
+                    document.validateRange
+                        ( new Range(edit.startLine, 0, edit.endLine, Number.MAX_VALUE) )
+                const text = 
+                    edit.lines.join('\n')
 
-            return editor.edit(editBuilder => editBuilder.replace(range, text))
-                .then(_ => edit)
+                return editor.edit(editBuilder => editBuilder.replace(range, text))
+                    .then(_ => edit)
+            }
+            else return edit
         }
     }
 

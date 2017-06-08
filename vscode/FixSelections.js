@@ -15,6 +15,8 @@ const fd = require('fast-diff');
 function adjustSelections(lines, selections, edits) {
     let runningLineGrowth = 0;
     for (let edit of edits) {
+        if(!edit || !edit.lines.length) continue;
+
         const { startLine, endLine } = edit, newStartLine = startLine + runningLineGrowth, oldLines = lines.slice(startLine, endLine + 1), diff = fd(oldLines.join('\n'), edit.lines.join('\n')), oldLineCount = endLine - startLine + 1, newLineCount = edit.lines.length, rangeLineGrowth = newLineCount - oldLineCount;
         selections = selections.map(s => {
             const points = [s.anchor, s.active]

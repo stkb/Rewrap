@@ -89,19 +89,23 @@ namespace VS
                     lines: snapshot.Lines.Select(l => l.GetText())
                 );
 
-            using (var editor = snapshot.TextBuffer.CreateEdit(EditOptions.DefaultMinimalChange, null, null))
+            if(edit.lines.Length > 0)
             {
-                var eol = snapshot.Lines.First().GetLineBreakText();
-                if (String.IsNullOrEmpty(eol)) eol = textView.Options.GetNewLineCharacter();
+                using (var editor = snapshot.TextBuffer.CreateEdit(EditOptions.DefaultMinimalChange, null, null))
+                {
+                    var eol = snapshot.Lines.First().GetLineBreakText();
+                    if (String.IsNullOrEmpty(eol)) eol = textView.Options.GetNewLineCharacter();
 
-                var startPos =
-                    snapshot.GetLineFromLineNumber(edit.startLine).Start.Position;
-                var endPos =
-                    snapshot.GetLineFromLineNumber(edit.endLine).End.Position;
-                var wrappedText = String.Join(eol, edit.lines);
+                    var startPos =
+                        snapshot.GetLineFromLineNumber(edit.startLine).Start.Position;
+                    var endPos =
+                        snapshot.GetLineFromLineNumber(edit.endLine).End.Position;
+                    var wrappedText = 
+                        String.Join(eol, edit.lines);
 
-                editor.Replace(startPos, endPos - startPos, wrappedText);
-                editor.Apply();
+                    editor.Replace(startPos, endPos - startPos, wrappedText);
+                    editor.Apply();
+                }
             }
         }
 
