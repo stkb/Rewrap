@@ -33,8 +33,9 @@ let leadingWhitespace line =
 
 
 let containsText line =
-    // Don't use \w because it contains underscore. Little hack for Ruby
-    contains (Regex("[A-Za-z0-9]")) line 
+    // Don't use \w because it contains underscore. Using almost the whole
+    // Unicode range but it's probably good enough. Little hack for Ruby.
+    contains (Regex("[A-Za-z0-9\u00C0-\uFFFF]")) line 
         && not (contains (Regex(@"^=(begin|end)\s*$")) line)
 
 /// Splits a line into prefix and remainder. If the prefix pattern is not found
