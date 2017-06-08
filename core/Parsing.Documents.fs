@@ -87,7 +87,11 @@ let private parsersTable =
       , sourceCode (Some "#") (Some ( "=begin", "=end" ))
       )
       ( [ "php" ]
-      , sourceCode (Some "(?:\\/\\/|#)") (Some ( "\\/\\*", "\\*\\/" ))
+      , customSourceCode
+            [ multiComment javadoc ( "\\*", " * " ) javadocMarkers
+              stdMultiComment cMultiMarkers
+              stdLineComment @"(?://|#)"
+            ]
       )
       ( [ "powershell" ]
       , sourceCode (Some "#") (Some ( "<#", "#>" ))
