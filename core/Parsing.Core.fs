@@ -99,7 +99,7 @@ let takeLinesUntil otherParser parser (Nonempty(headLine, tailLines)) =
 
 
 /// Takes a split function, and splits Lines into chunks of Lines
-let splitIntoChunks splitFn : (Lines -> Nonempty<Lines>) =
+let splitIntoChunks (splitFn: SplitFunction) : (Lines -> Nonempty<Lines>) =
     Nonempty.unfold splitFn
 
 

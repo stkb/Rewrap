@@ -22,7 +22,7 @@ let startsWith marker line =
 let tryMatch (regex: Regex) (line: string): Option<string> =
     let m = regex.Match(line)
     if m.Success then
-        Some (line.Substring(0, m.Index + m.Length))
+        Some (String.takeStart (m.Index + m.Length) line)
     else
         None
 
@@ -43,7 +43,7 @@ let split (regex: Regex) (line: string): string * string =
     let prefix =
         tryMatch regex line |> Option.defaultValue ""
 
-    (prefix, line.Substring(prefix.Length))
+    (prefix, String.dropStart prefix.Length line)
 
 
 // Converts all tabs in the line to spaces

@@ -1,4 +1,4 @@
-﻿module private rec Parsing.Comments
+﻿module private Parsing.Comments
 
 open Nonempty
 open System.Text.RegularExpressions
@@ -7,9 +7,16 @@ open Rewrap
 open Parsing.Core
 
 
+
+let private markerRegex marker =
+    Regex(@"^\s*" + marker + @"\s*")
+
+
 /// Creates a line comment parser, given a content parser and marker.
 let lineComment 
-    (contentParser: Settings -> TotalParser) (settings: Settings) (marker: string) 
+    (contentParser: Settings -> TotalParser)
+    (marker: string)
+    (settings: Settings) 
     : OptionParser =
 
     optionParser
@@ -32,7 +39,7 @@ let lineComment
                 Line.tabsToSpaces settings.tabWidth
                     >> Line.split regex
                     >> Tuple.mapFirst (fun p -> String.replicate p.Length " ")
-                    >> Tuple.mapFirst (fun s -> s.Substring(prefixLength))
+                    >> Tuple.mapFirst (String.dropStart prefixLength)
                     >> fun (pre, rest) -> pre + rest
 
             let newPrefix =
@@ -51,9 +58,9 @@ let lineComment
 /// Creates a multiline comment parser, given a content parser and markers.
 let multiComment 
     (contentParser: Settings -> TotalParser) 
-    (settings: Settings)
     (tailMarker: string, defaultTailMarker: string)
     (startMarker: string, endMarker: string)
+    (settings: Settings)
     : OptionParser =
 
     let tailRegex =
@@ -83,7 +90,7 @@ let multiComment
                 spacedLine
                     |> (Line.tryMatch tailRegex >> Option.defaultValue "")
                     |> (String.length >> min prefixLength)
-            spacedLine.Substring(linePrefixLength)
+            String.dropStart linePrefixLength spacedLine
 
         Nonempty(headRemainder, List.map stripLine tailLines)
             |> Block.wrappable (Block.prefixes headPrefix tailPrefix)
@@ -94,6 +101,3 @@ let multiComment
         (takeLinesBetweenMarkers (startRegex, (Regex(endMarker))))
         toComment
 
-
-let private markerRegex marker =
-    Regex(@"^\s*" + marker + @"\s*")

@@ -48,7 +48,7 @@ let latex (settings: Settings) : TotalParser =
     and otherParsers =
         tryMany [
             blankLines
-            Comments.lineComment Markdown.markdown settings "%"
+            Comments.lineComment Markdown.markdown "%" settings
             emptyCommand
             blockCommand
         ]

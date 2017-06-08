@@ -1,126 +1,12 @@
 ﻿module internal Parsing.Documents
 
 open Nonempty
+open Extensions
 open Rewrap
 open Parsing.Core
-open Extensions
-open System.Text.RegularExpressions
-
-
-/// Parser for standard source code files
-let private sourceCode 
-    (maybeSingleMarker: Option<string>)
-    (maybeMultiMarkers: Option<string * string>)
-    (settings: Settings)
-    : TotalParser =
-
-    let otherParsers =
-        tryMany
-            (List.choose id
-                [ Some blankLines
-                  maybeSingleMarker
-                    |> Option.map 
-                        (Comments.lineComment Markdown.markdown settings)
-                  maybeMultiMarkers
-                    |> Option.map 
-                        (Comments.multiComment Markdown.markdown settings ("","") )
-                ]
-            )
-      
-    let codeParser =
-        takeLinesUntil
-            otherParsers
-            (splitIntoChunks (onIndent settings.tabWidth)
-                >> Nonempty.map (indentSeparatedParagraphBlock Block.code)
-            )
-
-    repeatUntilEnd otherParsers codeParser
-
-
-/// Parser with javadoc comments
-let private withJavaDoc 
-    (jDocMarkers: string * string)
-    (lineMarker: string)
-    (multiMarkers: string * string)
-    settings 
-    : TotalParser =
-
-    let javaDoc _ =
-        splitIntoChunks (beforeRegex (Regex("^\\s*@")))
-            >> Nonempty.collect
-                (fun (Nonempty(firstLine, _) as lines) ->
-                    if Line.contains (Regex("^\\s*@example")) firstLine then
-                        Block.ignore lines |> Nonempty.singleton
-                    else
-                        lines
-                            |> (splitIntoChunks
-                                    (afterRegex (Regex("^\\s*@\\w+\\s*$")))
-                                )
-                            |> Nonempty.collect (Markdown.markdown settings)
-                )
-
-    let otherParsers =
-        tryMany
-            [ blankLines
-              Comments.multiComment javaDoc settings ( "[*#]", " * " ) jDocMarkers
-              Comments.multiComment Markdown.markdown settings ( "", "" ) multiMarkers
-              Comments.lineComment Markdown.markdown settings lineMarker
-            ]
-
-    let codeParser =
-        takeLinesUntil
-            otherParsers
-            (splitIntoChunks (onIndent settings.tabWidth)
-                >> Nonempty.map (indentSeparatedParagraphBlock Block.code)
-            )
-
-    repeatUntilEnd otherParsers codeParser
-
-
-/// Parser for css (also used in html)
-let private css =
-    sourceCode None (Some ( "/\\*", "\\*/" ))
-
-/// Parser for java/javascript (also used in html)
-let java =
-    withJavaDoc ( "/\\*\\*", "\\*/" ) "//" ( "/\\*", "\\*/" )
-
-/// Parser for html (also used in dotNet)
-let private html = 
-    Parsing.Html.html java css
-
-
-/// Constructs a parser for .Net languages, supporting xmldoc comments
-let dotNet 
-    (xmlDocMarker: string) 
-    (lineMarker: string)
-    (maybeMultiMarkers: Option<string * string>)
-    (settings: Settings)
-    : TotalParser =
-
-    let otherParsers =
-        tryMany
-            (List.choose id
-                [ Some blankLines
-                  Some (Comments.lineComment html settings xmlDocMarker)
-                  Some (Comments.lineComment Markdown.markdown settings lineMarker)
-                  maybeMultiMarkers
-                    |> Option.map
-                        (Comments.multiComment Markdown.markdown settings ( "", "" ))
-                ]
-            )
-
-    let codeParser =
-        takeLinesUntil
-            otherParsers
-            (splitIntoChunks (onIndent settings.tabWidth)
-                >> Nonempty.map (indentSeparatedParagraphBlock Block.code)
-            )
-    in
-        repeatUntilEnd otherParsers codeParser
-
-
-
+open Parsing.Comments
+open Javadoc
+open Parsing.SourceCode
 
 
 let private parsersTable =
@@ -129,7 +15,7 @@ let private parsersTable =
         , sourceCode (Some ";") (Some ( "\\/\\*", "\\*\\/" ))
       )
       ( [ "basic"; "vb" ]
-      , dotNet "'''" "'" None
+      , customSourceCode [ lineComment html "'''"; stdLineComment "'" ]
       )
       ( [ "bat" ]
       , sourceCode (Some "(?:rem|::)") None
@@ -138,13 +24,25 @@ let private parsersTable =
       , sourceCode (Some "//") (Some ( "/\\*", "\\*/" ))
       )
       ( [ "csharp" ]
-      , dotNet "///" "//" (Some ( "/\\*", "\\*/" ))
+      , customSourceCode [ lineComment html "///"; stdLineComment "//"; stdMultiComment cMultiMarkers ]
       )
       ( [ "coffeescript" ]
-      , withJavaDoc ( "###\\*", "###" ) "#" ( "###", "###" )
+      , customSourceCode 
+            [ multiComment javadoc ("[*#]", " * ") ( "###\\*", "###" )
+              stdMultiComment ( "###", "###" )
+              stdLineComment "#"
+            ]
       )
       ( [ "css"; "less"; "scss" ]
       , css
+      )
+      ( [ "dart" ]
+      , customSourceCode
+            [ lineComment javadoc "///"
+              stdLineComment "//"
+              multiComment javadoc ( "\*", " * " ) javadocMarkers
+              stdMultiComment cMultiMarkers
+            ]
       )
       ( [ "dockerfile"; "elixir"; "makefile"; "perl"; "r"; "shellscript"; "toml"; "yaml" ]
       , sourceCode (Some "#") None
@@ -153,7 +51,11 @@ let private parsersTable =
       , sourceCode (Some "--") (Some ( "{-\\|?", "-}" ))
       )
       ( [ "f#"; "fsharp" ]
-      , dotNet "///" "//" (Some ( "\\(\\*", "\\*\\)" ))
+      , customSourceCode 
+            [ lineComment html "///"
+              stdLineComment "//"
+              stdMultiComment ( "\\(\\*", "\\*\\)" )
+            ]
       )
       ( [ "handlebars"; "html"; "xml"; "xsl" ]
       , html
@@ -214,6 +116,7 @@ let private languagesTable : List<List<string> * string> =
         // Actually they're slightly different.
         // http://sass-lang.com/documentation/file.INDENTED_SYNTAX.html
         ( [ ".css"; ".less"; ".sass"; ".scss" ], "scss" )
+        ( [ ".dart" ], "dart" )
         ( [ "dockerfile" ], "dockerfile" )
         ( [ ".elm" ], "elm" )
         ( [ ".ex"; ".exs" ], "elixir" )

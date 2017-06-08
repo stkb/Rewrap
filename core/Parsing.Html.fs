@@ -42,7 +42,7 @@ let html
         tryMany
             [ blankLines
               Comments.multiComment 
-                Markdown.markdown settings ( "", "" ) ( "<!--", "-->" )
+                Markdown.markdown ( "", "" ) ( "<!--", "-->" ) settings
               embeddedScript scriptMarkers scriptParser
               embeddedScript cssMarkers cssParser
             ]
