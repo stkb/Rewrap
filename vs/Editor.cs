@@ -1,0 +1,138 @@
+﻿using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Editor;
+using Microsoft.VisualStudio.Text.Editor.OptionsExtensionMethods;
+using Rewrap;
+using System;
+using System.Linq;
+
+namespace VS
+{
+    /// <summary>
+    /// Gets the needed information from the text editor to perform the re-wrap,
+    /// and applies the returned edit.
+    /// </summary>
+    static class Editor
+    {
+        /// <summary>
+        /// Executes the Rewrap command for the given text view.
+        /// </summary>
+        public static void ExecRewrap(IWpfTextView textView)
+        {
+            var snapshot = textView.TextBuffer.CurrentSnapshot;
+
+            var edit =
+                Core.rewrap
+                    ( language: GetLanguage( snapshot.TextBuffer )
+                    , filePath: GetFilePath( snapshot.TextBuffer )
+                    , selections: GetSelections( textView, snapshot )
+                    , settings: Environment.GetSettings( textView )
+                    , lines: snapshot.Lines.Select( l => l.GetText() )
+                    );
+
+            ApplyEdit( textView, snapshot, edit );
+        }
+
+
+        /// <summary>
+        /// Applies the given Edit to the given text view snapshot.
+        /// </summary>
+        static void ApplyEdit(IWpfTextView textView, ITextSnapshot snapshot, Edit edit)
+        {
+            if ( edit.lines.Length > 0 )
+            {
+                using
+                    ( var textEdit =
+                        snapshot.TextBuffer.CreateEdit
+                            ( EditOptions.DefaultMinimalChange, null, null
+                            )
+                    )
+                {
+                    var eol = snapshot.Lines.First().GetLineBreakText();
+                    if ( String.IsNullOrEmpty( eol ) )
+                        eol = textView.Options.GetNewLineCharacter();
+
+                    var startPos =
+                        snapshot.GetLineFromLineNumber( edit.startLine ).Start.Position;
+                    var endPos =
+                        snapshot.GetLineFromLineNumber( edit.endLine ).End.Position;
+                    var wrappedText =
+                        String.Join( eol, edit.lines );
+
+                    textEdit.Replace( startPos, endPos - startPos, wrappedText );
+                    textEdit.Apply();
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Gets the document type (language) for the given text buffer.
+        /// </summary>
+        static string GetLanguage(ITextBuffer textBuffer)
+        {
+            string language =
+                textBuffer.ContentType.TypeName.Split( '.' ).Reverse().First().ToLower();
+
+            // This happens with HTML files, and possibly some others.
+            if ( language == "projection" &&
+                textBuffer.Properties.TryGetProperty( "IdentityMapping", out textBuffer )
+            )
+            {
+                return GetLanguage( textBuffer );
+            }
+
+            return language;
+        }
+
+
+        /// <summary>
+        /// Gets the file path of the document in the given text buffer.
+        /// </summary>
+        static string GetFilePath(ITextBuffer textBuffer)
+        {
+            if ( textBuffer.Properties
+                .TryGetProperty( typeof( ITextDocument ), out ITextDocument doc ) )
+            {
+                return doc.FilePath;
+            }
+
+            // HTML files (and possibly some others) have an extra level of indirection.
+            // Hopefully there isn't a case where this causes an infinite loop.
+            if ( textBuffer.Properties
+                .TryGetProperty( "IdentityMapping", out textBuffer ) )
+            {
+                return GetFilePath( textBuffer );
+            }
+
+            return "";
+        }
+
+
+        /// <summary>
+        /// Gets the selection positions in the given text snapshot.
+        /// </summary>
+        static Selection[] GetSelections(IWpfTextView textView, ITextSnapshot snapshot)
+        {
+            return new Selection[]
+                { new Selection
+                    ( GetPosition(snapshot, textView.Selection.ActivePoint)
+                    , GetPosition(snapshot, textView.Selection.AnchorPoint)
+                    )
+                };
+        }
+
+
+        /// <summary>
+        /// Gets a Rewrap Position object from a snapshot point.
+        /// </summary>
+        static Position GetPosition(ITextSnapshot snapshot, VirtualSnapshotPoint point)
+        {
+            var offset = point.Position.Position;
+            var line = snapshot.GetLineFromPosition( offset );
+            var column = offset - line.Start.Position;
+
+            return new Position( line.LineNumber, column );
+        }
+
+    }
+}

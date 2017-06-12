@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <!-- The VSCT compiler (the tool that translates this file into the binary
+       format that VisualStudio will consume) has the ability to run a
+       preprocessor on the vsct file; this preprocessor is (usually) the C++
+       preprocessor, so it is possible to define includes and macros with the
+       same syntax used in C++ files. Using this ability of the compiler here,
+       we include some files defining some of the constants that we will use
+       inside the file. -->
+
+  <!-- Defines the IDs for all the commands exposed by VisualStudio. -->
+  <Extern href="stdidcmd.h"/>
+
+  <!-- Contains the command ids for the menus provided by the shell. -->
+  <Extern href="vsshlids.h"/>
+
+  <!-- Defines commands, menus, and menu groups. In each sub-section, each
+       element is identified by a guid and numeric id pair. The guid part
+       ("command set") creates a logical group; Here we use one for the whole
+       extension. -->
+  <Commands package="PackageID">
+
+    <!-- Defines menu groups, ie: containers for other menus or
+         buttons/commands. The parent of a group must be a menu. -->
+    <Groups>
+      <Group guid="CommandSetID" id="MenuGroup" priority="0x0600">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_EDIT"/>
+        <GroupFlag>Dynamic</GroupFlag>
+      </Group>
+    </Groups>
+
+    <!-- Buttons/commands. -->
+    <Buttons>
+      <Button guid="CommandSetID" id="RewrapCommandId" priority="0x0100" type="Button">
+        <Parent guid="CommandSetID" id="MenuGroup" />
+        <Strings>
+          <ButtonText>Rewrap Lines</ButtonText>
+        </Strings>
+      </Button>
+    </Buttons>
+  </Commands>
+
+  <KeyBindings>
+    <KeyBinding guid="CommandSetID" id="RewrapCommandId" editor="guidVSStd97" key1="q" mod1="Alt" />
+  </KeyBindings>
+
+  <Symbols>
+    <!-- The package guid. -->
+    <GuidSymbol name="PackageID" value="{97d91fdc-1781-499d-97f6-31501ae81702}" />
+
+    <!-- The command set guid. -->
+    <GuidSymbol name="CommandSetID" value="{03647b07-e8ca-4d6e-9aae-5b89bbd3276d}">
+      <IDSymbol name="MenuGroup" value="0x1020" />
+      <IDSymbol name="RewrapCommandId" value="0x0100" />
+    </GuidSymbol>
+  </Symbols>
+</CommandTable>
