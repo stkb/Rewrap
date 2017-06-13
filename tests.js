@@ -247,7 +247,7 @@ function readTestLines(lines)
         return lines
             .map(line =>
                 line
-                    .replace(/->(?=\s*$)/, '  ')
+                    .replace(/ ->(?=\s*$)/, '   ')
                     .replace(/¦/g, ' ')
                     .replace(/[«»]/g, '')
                     .replace(/\s+$/, '')
