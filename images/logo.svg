@@ -1,5 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" 
-    width="128" height="128">
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128">
   <rect x="0" y="0" width="128" height="128" fill="black"/>
   <circle cx="87" cy="41" r="15" fill="white"/>
   <circle cx="87" cy="41" r="5" fill="black"/>
@@ -12,5 +11,6 @@
   <rect x="27" y="46" width="60" height="10" fill="white"/>
   <rect x="27" y="66" width="70" height="10" fill="white"/>
   <line x1="114" y1="14" x2="114" y2="114" stroke="white" stroke-width="8"/>
-  <text x="8" y="106" stroke="white" fill="white" font-family="monospace" font-size="20pt">rewrap</text>
+  <text x="56" y="106" stroke="white" fill="white" text-anchor="middle"
+    font-family="monospace" font-size="20pt">rewrap</text>
 </svg>

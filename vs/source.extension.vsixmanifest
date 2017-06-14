@@ -4,6 +4,7 @@
     <Identity Id="Rewrap.stkb.4d01f0ab-ed41-47cc-a43f-777f84fcf51e" Version="0.1.1" Language="en-US" Publisher="stkb" />
     <DisplayName>Rewrap</DisplayName>
     <Description xml:space="preserve">Re-wraps comments and other text</Description>
+    <Icon>logo.png</Icon>
   </Metadata>
   <Installation>
     <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[14.0,]" />
