@@ -32,8 +32,11 @@
 
     <!-- Buttons/commands. -->
     <Buttons>
-      <Button guid="CommandSetID" id="RewrapCommandId" priority="0x0100" type="Button">
+      <Button guid="CommandSetID" id="RewrapCommandID" priority="0x0100" type="Button">
         <Parent guid="CommandSetID" id="MenuGroup" />
+        <CommandFlag>DefaultDisabled</CommandFlag>
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
         <Strings>
           <ButtonText>Rewrap Lines</ButtonText>
         </Strings>
@@ -41,8 +44,12 @@
     </Buttons>
   </Commands>
 
+  <VisibilityConstraints>
+    <VisibilityItem guid="CommandSetID" id="RewrapCommandID" context="UICONTEXT_CodeWindow" />
+  </VisibilityConstraints>
+
   <KeyBindings>
-    <KeyBinding guid="CommandSetID" id="RewrapCommandId" editor="guidVSStd97" key1="q" mod1="Alt" />
+    <KeyBinding guid="CommandSetID" id="RewrapCommandID" editor="guidVSStd97" key1="q" mod1="Alt" />
   </KeyBindings>
 
   <Symbols>
@@ -52,7 +59,7 @@
     <!-- The command set guid. -->
     <GuidSymbol name="CommandSetID" value="{03647b07-e8ca-4d6e-9aae-5b89bbd3276d}">
       <IDSymbol name="MenuGroup" value="0x1020" />
-      <IDSymbol name="RewrapCommandId" value="0x0100" />
+      <IDSymbol name="RewrapCommandID" value="0x0100" />
     </GuidSymbol>
   </Symbols>
 </CommandTable>
