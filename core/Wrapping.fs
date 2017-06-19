@@ -4,9 +4,11 @@ open System
 open Nonempty
 open Rewrap
 open Block
-open Line
 open Extensions
+open System.Text.RegularExpressions
 
+let private inlineTagRegex =
+    Regex(@"{@[a-z]+.*?[^\\]}", RegexOptions.IgnoreCase)
 
 let wrapBlocks (settings: Settings) (originalLines: Lines) (blocks: Blocks) : Edit =
 
@@ -42,6 +44,15 @@ let wrapBlocks (settings: Settings) (originalLines: Lines) (blocks: Blocks) : Ed
         let wrapWidth =
             settings.column - tailPrefixLength
 
+        let freezeInlineTags str =
+            inlineTagRegex.Replace
+                ( str
+                , (fun (m: Match) -> m.Value.Replace(" ", "\0"))
+                )
+
+        let unfreezeInlineTags (str: string) =
+            str.Replace("\0", " ")
+
         let concatenatedText =
             w.lines 
                 |> Nonempty.mapInit 
@@ -53,11 +64,13 @@ let wrapBlocks (settings: Settings) (originalLines: Lines) (blocks: Blocks) : Ed
                         else t
                     )
                 |> (Nonempty.toList >> String.concat " ")
+                |> freezeInlineTags
         
         if headPrefixIndent > 0 then
             concatenatedText
                 |> (+) (String.replicate headPrefixIndent "+")
                 |> wrapString wrapWidth
+                |> Nonempty.map unfreezeInlineTags
                 |> Nonempty.mapHead
                     (String.dropStart headPrefixIndent >> (+) w.prefixes.head)
                 |> Nonempty.mapTail ((+) w.prefixes.tail)
@@ -65,6 +78,7 @@ let wrapBlocks (settings: Settings) (originalLines: Lines) (blocks: Blocks) : Ed
             concatenatedText
                 |> String.dropStart -headPrefixIndent
                 |> wrapString wrapWidth
+                |> Nonempty.map unfreezeInlineTags
                 |> Nonempty.mapHead
                     ((+) (String.takeStart -headPrefixIndent concatenatedText)
                         >> (+) w.prefixes.head
@@ -73,6 +87,7 @@ let wrapBlocks (settings: Settings) (originalLines: Lines) (blocks: Blocks) : Ed
         else
             concatenatedText
                 |> wrapString wrapWidth
+                |> Nonempty.map unfreezeInlineTags
                 |> Nonempty.mapHead ((+) w.prefixes.head)
                 |> Nonempty.mapTail ((+) w.prefixes.tail)
 
