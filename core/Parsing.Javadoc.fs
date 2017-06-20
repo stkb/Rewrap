@@ -1,5 +1,6 @@
-module private Parsing.Javadoc
+﻿module private Parsing.Javadoc
 
+open Extensions
 open Nonempty
 open Parsing.Core
 open Markdown
@@ -32,3 +33,19 @@ let javadoc settings =
 
     splitIntoChunks (beforeRegex tagRegex)
         >> Nonempty.collect splitTaggedSection
+
+
+let dartdoc settings =
+
+    let isTag =
+        Line.contains (Regex(@"^\s*(@nodoc|{@template|{@endtemplate|{@macro)")) 
+
+    let splitOnTags (Nonempty(headLine, tailLines)) =
+        if isTag headLine then
+            (Nonempty.singleton headLine, Nonempty.fromList tailLines)
+        else
+            List.span (fun l -> not (isTag l)) tailLines
+                |> Tuple.mapFirst (fun before -> Nonempty(headLine, before))
+                |> Tuple.mapSecond Nonempty.fromList
+
+    splitIntoChunks splitOnTags >> Nonempty.collect (markdown settings)

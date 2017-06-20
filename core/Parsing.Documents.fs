@@ -38,9 +38,9 @@ let private parsersTable =
       )
       ( [ "dart" ]
       , customSourceCode
-            [ lineComment javadoc "///"
+            [ lineComment dartdoc "///"
               stdLineComment "//"
-              multiComment javadoc ( "\*", " * " ) javadocMarkers
+              multiComment dartdoc ( "\*", " * " ) javadocMarkers
               stdMultiComment cMultiMarkers
             ]
       )
