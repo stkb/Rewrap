@@ -136,11 +136,11 @@ let onIndent tabWidth (Nonempty(firstLine, otherLines)): Lines * Option<Lines> =
 
 
 /// Convert paragraph lines into a Block. The indent of the first line may be
-/// different from the rest. If tidyUpIndents is True, indents are removed from all
+/// different from the rest. If reformat is True, indents are removed from all
 /// lines.
-let firstLineIndentParagraphBlock tidyUpIndents (Nonempty(headLine, tailLines) as lines) =
+let firstLineIndentParagraphBlock reformat (Nonempty(headLine, tailLines) as lines) =
     let prefixes =
-        if tidyUpIndents then 
+        if reformat then 
             Block.prefixes "" ""
         else
             Block.prefixes

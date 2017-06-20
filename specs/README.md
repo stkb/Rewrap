@@ -26,7 +26,7 @@ When absent, the default values are used:
 - doubleSentenceSpacing: false
 - language: plaintext
 - wrapWholeComment: true
-- tidyUpIndents: false
+- reformat: false
 
 A new settings block completely replaces the previous one; any absent values are
 reset back to defaults.

@@ -5,7 +5,7 @@ type Settings = {
     column : int
     tabWidth : int
     doubleSentenceSpacing : bool
-    tidyUpIndents : bool
+    reformat : bool
     wholeComment : bool
 }
 

@@ -28,7 +28,7 @@ let latex (settings: Settings) : TotalParser =
     let paragraphBlocks: Lines -> Blocks =
         splitIntoChunks (afterRegex newlineRegex)
             >> Nonempty.map
-                (firstLineIndentParagraphBlock settings.tidyUpIndents)
+                (firstLineIndentParagraphBlock settings.reformat)
     
     let emptyCommand (Nonempty(headLine, tailLines)) =
         startsWithCommand headLine

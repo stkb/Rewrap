@@ -13,7 +13,7 @@ function getSettings(editor)
         tabWidth: getTabSize(editor, column),
         doubleSentenceSpacing: getSetting(editor, 'rewrap.doubleSentenceSpacing'),
         wholeComment: getSetting(editor, 'rewrap.wholeComment'),
-        tidyUpIndents: getSetting(editor, 'rewrap.tidyUpIndents'),
+        reformat: getSetting(editor, 'rewrap.reformat'),
     }
 }
 

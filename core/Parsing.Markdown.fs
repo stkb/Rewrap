@@ -107,7 +107,7 @@ let rec markdown (settings: Settings): TotalParser =
                 Nonempty.map (Line.split (Regex(" {0,3}>? ?"))) lines
 
             let prefixes =
-                if settings.tidyUpIndents then
+                if settings.reformat then
                     Block.prefixes "> " "> "
                 else
                     Block.prefixes
@@ -151,7 +151,7 @@ let rec markdown (settings: Settings): TotalParser =
                 Regex("^ {0," + indent.ToString() + "}")
 
             let headPrefix =
-                (if settings.tidyUpIndents then
+                (if settings.reformat then
                     String.trim prefixWithSpace + " "
                     else
                     prefixWithSpace
@@ -174,7 +174,7 @@ let rec markdown (settings: Settings): TotalParser =
   
     let paragraphBlocks =
         splitIntoChunks (afterRegex (Regex(@"(\\|\s{2})$")))
-            >> Nonempty.map (firstLineIndentParagraphBlock settings.tidyUpIndents)
+            >> Nonempty.map (firstLineIndentParagraphBlock settings.reformat)
 
     let paragraphTerminatingParsers =
         tryMany [

@@ -43,7 +43,7 @@ let lineComment
                     >> fun (pre, rest) -> pre + rest
 
             let newPrefix =
-                if settings.tidyUpIndents then 
+                if settings.reformat then 
                     prefix.TrimEnd() + " "
                 else
                     prefix

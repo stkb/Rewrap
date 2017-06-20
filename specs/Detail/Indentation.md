@@ -1,11 +1,11 @@
 ## Markdown ##
 
 Rewrap has two settings for indentation:
-- tidyUpIndents: false (default): The indentation for each paragraph is
+- reformat: false (default): The indentation for each paragraph is
   preserved.
-- tidyUpIndents: true: Each paragraph's indent is "fixed" or cleaned up
+- reformat: true: Each paragraph's indent is "fixed" or reformatted.
 
-> language: "markdown", tidyUpIndents: false
+> language: "markdown", reformat: false
 
 Paragraph indents are all left as-is. (Paragraphs can be indented up to 3
 spaces. More than that is a code block)
@@ -33,9 +33,9 @@ same indent.)
     ·Line two.       ¦                two.           ¦
 
 
-> language: "markdown", tidyUpIndents: true
+> language: "markdown", reformat: true
 
-With tidyUpIndents: true, indents are tidied-up and reduced as much as possible.
+With reformat: true, indents are tidied-up and reduced as much as possible.
 
     ·First          ¦      ->      First paragraph  ¦
      paragraph      ¦                               ¦
@@ -64,9 +64,9 @@ could maybe be fixed in the future).
 
 ## Comments ##
 
-This is still under consideration. With `tidyUpIndents` on, the basic indent
+This is still under consideration. With `reformat` on, the basic indent
 after all comment markers will be reduced to 1 space.
 
-> language: "csharp", tidyUpIndents: true
+> language: "csharp", reformat: true
 
     //   a ¦     ->      // a   ¦

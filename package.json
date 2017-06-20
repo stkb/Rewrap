@@ -61,10 +61,10 @@
           "default": true,
           "description": "With the cursor inside a comment block, wrap the whole comment block instead of just a single paragraph."
         },
-        "rewrap.tidyUpIndents": {
+        "rewrap.reformat": {
           "type": "boolean",
           "default": false,
-          "description": "(EXPERIMEMTAL) When wrapping lines, tidy up paragraph indents."
+          "description": "(EXPERIMEMTAL) When wrapping lines, reformat paragraph indents."
         }
       }
     },

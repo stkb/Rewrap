@@ -44,7 +44,7 @@ namespace VS
                 page.WrappingColumn,
                 editor.Options.GetTabSize(),
                 page.DoubleSentenceSpacing,
-                page.TidyUpIndents,
+                page.Reformat,
                 page.WholeComment
             );
         }
@@ -61,9 +61,9 @@ namespace VS
 
 
             [Category("Rewrap options")]
-            [DisplayName("Tidy up indents")]
-            [Description("(EXPERIMEMTAL) When wrapping lines, tidy up paragraph indents.")]
-            public bool TidyUpIndents { get; set; } = false;
+            [DisplayName("Reformat")]
+            [Description("(EXPERIMEMTAL) When wrapping lines, reformat paragraph indents.")]
+            public bool Reformat { get; set; } = false;
 
 
             [Category("Rewrap options")]

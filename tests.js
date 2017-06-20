@@ -8,7 +8,7 @@ const defaultSettings =
     { language: 'plaintext'
     , tabWidth: 4
     , doubleSentenceSpacing: false
-    , tidyUpIndents: false
+    , reformat: false
     , wholeComment: true
     }
 

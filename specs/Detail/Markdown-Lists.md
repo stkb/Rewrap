@@ -4,7 +4,7 @@
       b c ¦                c   ¦
       --  ¦                --  
 
-> language: "markdown", tidyUpIndents: true
+> language: "markdown", reformat: true
 
     * a b   ¦      ->      * a b c ¦
       c d   ¦                d     ¦
