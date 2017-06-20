@@ -1,4 +1,4 @@
-﻿module private Parsing.Javadoc
+﻿module private Parsing.DocComments
 
 open Extensions
 open Nonempty

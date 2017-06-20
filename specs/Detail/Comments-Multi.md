@@ -59,3 +59,33 @@ If the end marker is on a separate line, it remains where it is.
     ··b      ¦                       ¦
              ¦              ··c */   ¦
     c */     ¦
+
+
+#### Javadoc ####
+
+> language: "javascript"
+
+Having `*` characters in front of every line is a convention, but is not
+required, so in a comment that lacks them, they will remain absent.
+
+    /**                   ¦              ->      /**                   ¦
+       Gets the absolute value of n                 Gets the absolute  ¦
+       @param n {number}  ¦                         value of n         ¦
+    */                    ¦                         @param n {number}  ¦
+                          ¦                      */                    ¦
+
+The `*` characters can be mis-aligned or absent. As always, the "prefix" for the
+middle lines is taken from the second line, and then applied to the rest,
+tidying things up.
+
+    ··/**    ¦      ->      ··/**
+       * a   ¦                 * a b
+     * b c   ¦                 * c d
+     d e f   ¦                 * e f
+    ···*/    ¦                 */
+
+If a java/jsdoc comment only has one line before wrapping, a default prefix of 
+` * ` is used for created lines.
+
+    ··/** Foo bar¦baz */      ->      ··/** Foo bar¦
+                 ¦                       * baz */  ¦

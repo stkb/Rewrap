@@ -5,7 +5,7 @@ open Extensions
 open Rewrap
 open Parsing.Core
 open Parsing.Comments
-open Javadoc
+open Parsing.DocComments
 open Parsing.SourceCode
 
 

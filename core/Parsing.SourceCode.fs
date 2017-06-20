@@ -57,7 +57,7 @@ let javadocMarkers =
 /// Parser for java/javascript (also used in html)
 let java =
     customSourceCode
-        [ multiComment Javadoc.javadoc ( "\\*", " * " ) javadocMarkers
+        [ multiComment DocComments.javadoc ( "\\*", " * " ) javadocMarkers
           stdMultiComment cMultiMarkers
           stdLineComment "//"
         ]
