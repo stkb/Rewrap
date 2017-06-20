@@ -70,10 +70,16 @@ let multiComment
         markerRegex startMarker
     
     let toComment (Nonempty(headLine, tailLines)) =
-        let headPrefix, headRemainder =
+        let originalHeaadPrefix, headRemainder =
             Line.split startRegex headLine
 
-        let tailPrefix =
+        let newHeadPrefix =
+            if settings.reformat then
+                originalHeaadPrefix.TrimEnd() + " "
+            else
+                originalHeaadPrefix
+
+        let originalTailPrefix =
             List.tryFind Line.containsText tailLines
                 |> Option.orElse (List.tryHead tailLines)
                 |> Option.map
@@ -82,7 +88,13 @@ let multiComment
                     (Line.leadingWhitespace headLine + defaultTailMarker)
 
         let prefixLength =
-            Line.tabsToSpaces settings.tabWidth tailPrefix |> String.length
+            Line.tabsToSpaces settings.tabWidth originalTailPrefix |> String.length
+
+        let newTailPrefix = 
+            if settings.reformat then
+                Line.leadingWhitespace headLine + defaultTailMarker
+            else
+                originalTailPrefix
 
         let stripLine line =
             let spacedLine = Line.tabsToSpaces settings.tabWidth line
@@ -93,7 +105,7 @@ let multiComment
             String.dropStart linePrefixLength spacedLine
 
         Nonempty(headRemainder, List.map stripLine tailLines)
-            |> Block.wrappable (Block.prefixes headPrefix tailPrefix)
+            |> Block.wrappable (Block.prefixes newHeadPrefix newTailPrefix)
             |> (Block.comment (contentParser settings) >> Nonempty.singleton)
 
 
