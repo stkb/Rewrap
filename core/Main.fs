@@ -1,5 +1,12 @@
 ﻿module Rewrap.Core
 
+open Extensions
+
+
+let languageFromFileName (fileName: string) : string =
+    Parsing.Documents.languageFromFileName fileName |> Option.defaultValue null
+
+
 let rewrap 
     (language: string)
     (filePath: string)
