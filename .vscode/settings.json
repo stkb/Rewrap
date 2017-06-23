@@ -4,6 +4,8 @@
         "**/.vs/": true,
         "node_modules/": true,
         "**/bin/": true,
-        "**/obj/": true
+        "**/obj/": true,
+        "packages/": true,
+        "fable": true
     }
 }
