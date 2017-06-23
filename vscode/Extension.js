@@ -39,7 +39,7 @@ exports.activate = function activate(context)
                     customColumn 
                         ? Object.assign
                             ( Environment.getSettings(editor)
-                            , { wrappingColumn: customColumn }
+                            , { column: customColumn }
                             )
                         : null
                 )
