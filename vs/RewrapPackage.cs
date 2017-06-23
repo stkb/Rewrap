@@ -40,7 +40,7 @@ namespace VS
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [Guid(RewrapPackage.PackageGuidString)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
-    [ProvideOptionPage(typeof(Environment.SettingsPage), "Environment", "Rewrap", 0, 0, true)]
+    [ProvideOptionPage(typeof(Environment.SettingsPage), "", "Rewrap", 0, 0, true)]
     public sealed class RewrapPackage : Microsoft.VisualStudio.Shell.Package
     {
         /// <summary>
