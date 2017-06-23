@@ -13,12 +13,12 @@ Any whitespace around the comment markers is preserved.
                           ¦                     ··// 2 spaces         ¦
 
 
-## Multi-line comment markers ##
+## Block comment markers ##
 
 > language: "c"
 
 
-Also multi-line comments
+Also block comments
 
     /* One Three Two      ->      /* One Three   ¦
        Four */     ¦                 Two Four */ ¦

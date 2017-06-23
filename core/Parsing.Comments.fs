@@ -55,8 +55,8 @@ let lineComment
         )
 
 
-/// Creates a multiline comment parser, given a content parser and markers.
-let multiComment 
+/// Creates a block comment parser, given a content parser and markers.
+let blockComment 
     (contentParser: Settings -> TotalParser) 
     (tailMarker: string, defaultTailMarker: string)
     (startMarker: string, endMarker: string)

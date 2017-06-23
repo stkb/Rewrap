@@ -24,12 +24,12 @@ let private parsersTable =
       , sourceCode (Some "//") (Some ( "/\\*", "\\*/" ))
       )
       ( [ "csharp" ]
-      , customSourceCode [ lineComment html "///"; stdLineComment "//"; stdMultiComment cMultiMarkers ]
+      , customSourceCode [ lineComment html "///"; stdLineComment "//"; stdBlockComment cBlockMarkers ]
       )
       ( [ "coffeescript" ]
       , customSourceCode 
-            [ multiComment javadoc ("[*#]", " * ") ( "###\\*", "###" )
-              stdMultiComment ( "###", "###" )
+            [ blockComment javadoc ("[*#]", " * ") ( "###\\*", "###" )
+              stdBlockComment ( "###", "###" )
               stdLineComment "#"
             ]
       )
@@ -40,8 +40,8 @@ let private parsersTable =
       , customSourceCode
             [ lineComment dartdoc "///"
               stdLineComment "//"
-              multiComment dartdoc ( "\*", " * " ) javadocMarkers
-              stdMultiComment cMultiMarkers
+              blockComment dartdoc ( "\*", " * " ) javadocMarkers
+              stdBlockComment cBlockMarkers
             ]
       )
       ( [ "dockerfile"; "elixir"; "makefile"; "perl"; "r"; "shellscript"; "toml"; "yaml" ]
@@ -54,7 +54,7 @@ let private parsersTable =
       , customSourceCode 
             [ lineComment html "///"
               stdLineComment "//"
-              stdMultiComment ( "\\(\\*", "\\*\\)" )
+              stdBlockComment ( "\\(\\*", "\\*\\)" )
             ]
       )
       ( [ "handlebars"; "html"; "xml"; "xsl" ]
@@ -81,15 +81,15 @@ let private parsersTable =
       ( [ "markdown" ]
       , Markdown.markdown
       )
-      // Todo: multi-line comments in Perl 6
+      // Todo: block comments in Perl 6
       // https://docs.perl6.org/language/syntax#Comments
       ( [ "perl"; "perl6"; "ruby" ]
       , sourceCode (Some "#") (Some ( "=begin", "=end" ))
       )
       ( [ "php" ]
       , customSourceCode
-            [ multiComment javadoc ( "\\*", " * " ) javadocMarkers
-              stdMultiComment cMultiMarkers
+            [ blockComment javadoc ( "\\*", " * " ) javadocMarkers
+              stdBlockComment cBlockMarkers
               stdLineComment @"(?://|#)"
             ]
       )

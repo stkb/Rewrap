@@ -1,6 +1,6 @@
 > language: "c"
 
-Comments with multi-line comment markers can have a variety of forms. The
+Block comments can have a variety of forms. The
 relative positions of the begin and end markers (on separate lines or in-line
 with the text) are preserved.
 

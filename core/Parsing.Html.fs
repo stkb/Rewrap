@@ -41,7 +41,7 @@ let html
     let otherParsers =
         tryMany
             [ blankLines
-              Comments.multiComment 
+              Comments.blockComment 
                 Markdown.markdown ( "", "" ) ( "<!--", "-->" ) settings
               embeddedScript scriptMarkers scriptParser
               embeddedScript cssMarkers cssParser

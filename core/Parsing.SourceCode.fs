@@ -28,25 +28,25 @@ let customSourceCode
 let stdLineComment =
     lineComment Markdown.markdown
 
-let stdMultiComment =
-    multiComment Markdown.markdown ("", "")
+let stdBlockComment =
+    blockComment Markdown.markdown ("", "")
 
 
 /// Parser for standard source code files
 let sourceCode 
     (maybeSingleMarker: Option<string>)
-    (maybeMultiMarkers: Option<string * string>)
+    (maybeBlockMarkers: Option<string * string>)
     : Settings -> TotalParser =
 
     customSourceCode
         ( List.choose id
             [ maybeSingleMarker |> Option.map stdLineComment
-              maybeMultiMarkers |> Option.map stdMultiComment
+              maybeBlockMarkers |> Option.map stdBlockComment
             ]
         )
 
 
-let cMultiMarkers =
+let cBlockMarkers =
     (@"/\*", @"\*/")
 
 
@@ -57,15 +57,15 @@ let javadocMarkers =
 /// Parser for java/javascript (also used in html)
 let java =
     customSourceCode
-        [ multiComment DocComments.javadoc ( "\\*", " * " ) javadocMarkers
-          stdMultiComment cMultiMarkers
+        [ blockComment DocComments.javadoc ( "\\*", " * " ) javadocMarkers
+          stdBlockComment cBlockMarkers
           stdLineComment "//"
         ]
 
 
 /// Parser for css (also used in html)
 let css =
-    sourceCode None (Some cMultiMarkers)
+    sourceCode None (Some cBlockMarkers)
 
 
 /// Parser for html (also used in dotNet)
