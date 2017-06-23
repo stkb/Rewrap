@@ -49,15 +49,10 @@ function getWrappingColumn(editor)
 {
   const extensionColumn = getSetting(editor, 'rewrap.wrappingColumn')
       , rulers = getSetting(editor, 'editor.rulers')
-      , editorColumn = getSetting(editor, 'editor.wrappingColumn')
+      , editorColumn = getSetting(editor, 'editor.wordWrapColumn')
 
-  let wrappingColumn =
-        extensionColumn
-        || rulers[0]
-        // 300 is the default for 'editor.wrappingColumn' so we check it's not
-        // that. If that default changes in vscode this will break.
-        || (0 < editorColumn && editorColumn < 300) && editorColumn
-        || 80
+  // The default for editor.wordWrapColumn is already 80
+  let wrappingColumn = extensionColumn || rulers[0] || editorColumn
   
   if(!Number.isInteger(wrappingColumn) || wrappingColumn < 1) {
     console.warn(
