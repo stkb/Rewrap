@@ -1,3 +1,5 @@
+# Indents & Reformat #
+
 ## Markdown ##
 
 Rewrap has two settings for indentation:
@@ -70,3 +72,18 @@ after all comment markers will be reduced to 1 space.
 > language: "csharp", reformat: true
 
     //   a ¦     ->      // a   ¦
+
+### Block comments ###
+
+With block comments, the defaults for reformatting are 1 space after the marker
+on the first line, and no indent for following lines.
+
+> language: "xml", reformat: false
+
+    <!--a b  ¦       ->      <!--a b c¦
+        c d -->                  d -->¦
+
+> language: "xml", reformat: true
+
+    <!--a b  ¦       ->      <!-- a b ¦
+        c d -->              c d -->  ¦
