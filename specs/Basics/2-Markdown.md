@@ -1,4 +1,7 @@
-Markdown documents can be re-wrapped too, and the contents of comments in other types of files is parsed as markdown too.
+# Markdown #
+
+Markdown (CommonMark spec) is used for the contents of code comments, as well as
+normal Markdown files.
 
 > language: "markdown"
 
@@ -13,15 +16,25 @@ Short lines are concatenated and then wrapped as appropriate.
     Short.        ¦              Lines.        ¦
     Lines.        ¦
 
-A line break can be forced by ending a line in a single `\` or two spaces.
+Normal paragraphs are separated by spaces.
 
-    Line break\       ¦
-    Line break··      ¦
-    More text         ¦
+    Paragraph one.      ->      Paragraph  ¦
+               ¦                one.       ¦
+    Para       ¦                           ¦
+    two.       ¦                Para two.  ¦
 
-## Features ##
+A line break can be forced within a paragraph by ending a line with a single `\`
+or two spaces.
 
-Any line without text (used for decoration) is left alone
+    A                ¦      ->      A break\         ¦
+    break\           ¦              Another line     ¦
+    Another line break··            break··          ¦
+    More text        ¦              More text        ¦
+
+
+## Markdown features ##
+
+Any line without text (used for decoration) is left alone.
 
     ###############      ->      ###############
     ***************              ***************
@@ -32,30 +45,31 @@ Any line without text (used for decoration) is left alone
 
 ATX headings. The text must be on a single line, so these are left alone too.
 
-    ### Heading style 1 ¦
-    ### With trailing #'s ###
+    ### Heading style 1 ¦          ->      ### Heading style 1 ¦
+    ### With trailing #'s ###              ### With trailing #'s ###
 
-However setext headings (with underlines) can be wrapped. But the underline remains unchanged (this is maybe something that could be changed).
+However setext headings (with underlines) can be wrapped. But the underline
+remains unchanged (this is maybe something that could be added in the future).
 
     Heading with underline      ->      Heading with         ¦
-    ---------------------               underline            ¦
-    With double                         ---------------------¦
-    underline                           With double underline¦
+    ---------------------¦              underline            ¦
+    With double          ¦              ---------------------¦
+    underline            ¦              With double underline¦
     ==================   ¦              ==================   ¦
 
 Bullet lists. They can immediately follow a paragraph.
 
-    List items:    ¦              ->      List items:
-    - With dash    ¦                      - With dash
-    * With star    ¦                      * With star
-    + With plus text wrapped              + With plus
-                                            text wrapped
+    List items:    ¦              ->      List items:    ¦
+    - With dash    ¦                      - With dash    ¦
+    * With star    ¦                      * With star    ¦
+    + With plus text wrapped              + With plus    ¦
+                   ¦                        text wrapped ¦
 
 Numbered lists
 
-    1) Item 1
-    2. Item 2
-    999999999) Item 999999999 ¦
+    1) Item 1                 ¦      ->      1) Item 1
+    2. Item 2                 ¦              2. Item 2
+    999999999) Item 999999999 ¦              999999999) Item 999999999
 
 Indented code blocks
 
@@ -64,12 +78,13 @@ Indented code blocks
 
 Fenced code blocks. Can come directly after a paragraph.
 
-    Text       ¦
-    ``` c      ¦
-    a = 1;     ¦
-    b = 2;     ¦
-    ```        ¦
-    ··~~~ javascript
-    a = 1;     ¦
-    b = 2;     ¦
-    ·~~~       ¦
+    Some       ¦          ->      Some text  ¦
+    text       ¦                  ``` c      ¦
+    ``` c      ¦                  a = 1;     ¦
+    a = 1;     ¦                  b = 2;     ¦
+    b = 2;     ¦                  ```        ¦
+    ```        ¦                  ··~~~ javascript
+    ··~~~ javascript              a = 1;     ¦
+    a = 1;     ¦                  b = 2;     ¦
+    b = 2;     ¦                  ·~~~       ¦
+    ·~~~       ¦                             ¦

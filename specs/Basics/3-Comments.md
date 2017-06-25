@@ -1,8 +1,11 @@
-## Single-line comment markers ##
+# Comments #
+
+## Line comment markers ##
 
 > language: "javascript"
 
-Every type of source code document has its own comment markers. These are preserved and added or removed for each line as necessary.
+Every type of source code document has its own comment markers. These are
+preserved and added or removed for each line as necessary.
 
     // Line comment markers      ->      // Line comment ¦
                     ¦                    // markers      ¦
@@ -23,7 +26,9 @@ Also block comments
     /* One Three Two      ->      /* One Three   ¦
        Four */     ¦                 Two Four */ ¦
 
-The indent of the text relative to the comment markers is preserved. Also the indents of the start/end markers and if they are on separate lines from the text.
+The indent of the text relative to the comment markers is preserved. Also the
+indents of the start/end markers and if they are on separate lines from the
+text.
 
     /*··One Three Two      ->      /*··One Three  ¦
         Four */    ¦                   Two Four */¦
@@ -41,7 +46,8 @@ The indent of the text relative to the comment markers is preserved. Also the in
     ····Four       ¦               ····Two Four   ¦
     ·*/            ¦               ·*/            ¦
 
-The first line can be indented relative to the rest of the text because of the comment marker, and this is preserved.
+The first line can be indented relative to the rest of the text because of the
+comment marker, and this is preserved.
 
     /* One Three Two      ->      /* One Three   ¦
     Four */        ¦              Two Four */    ¦

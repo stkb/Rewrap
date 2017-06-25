@@ -1,4 +1,15 @@
+# Html #
+
 > language: "html"
+
+Html (includes Xml) has its own wrapping behaviors. Unlike other source code
+files, all content is considered equal when it comes to selections; selecting a
+whole document will wrap comments and other content alike.
+
+    <!-- comment comment -->              <!-- comment
+    text text text text           ->      comment -->
+                ¦                         text text
+                ¦                         text text
 
 Mixed content on a line is wrapped as one.
 
@@ -19,10 +30,10 @@ Any line that ends with a tag ends the paragraph.
 
 This means things like this are preserved.
 
-    <ul>                 ¦
-      <li> 1 </li>       ¦
-      <li> 2 </li>       ¦
-    </ul>                ¦
+    <ul>                 ¦              <ul>
+      <li> 1 </li>       ¦      ->        <li> 1 </li>
+      <li> 2 </li>       ¦                <li> 2 </li>
+    </ul>                ¦              </ul>
 
 
 ## Embedded JS and CSS
