@@ -14,19 +14,20 @@
   "icon": "images/logo.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/stkb/vscode-rewrap.git"
+    "url": "https://github.com/stkb/Rewrap.git"
   },
   "bugs": {
-    "url": "https://github.com/stkb/vscode-rewrap/issues",
+    "url": "https://github.com/stkb/Rewrap/issues",
     "email": "_steve_@outlook.com"
   },
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE",
   "engines": {
     "vscode": "^1.6.0"
   },
   "categories": [
     "Other"
   ],
+  "markdown": "standard",
   "activationEvents": [
     "onCommand:rewrap.rewrapComment",
     "onCommand:rewrap.rewrapCommentAt"
