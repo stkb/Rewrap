@@ -1,5 +1,30 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
+## 1.4.0
+
+Important: if you still use and prefer the old keybinding for Rewrap (`ctrl+k ctrl+w`), please add it to your settings manually. It will be removed in the next version.
+
+Rewrap is now also available for Visual Studio!
+
+The main change in this release is that all<sup>1</sup> comments now are parsed as Markdown (CommonMark spec), enabling wrapping of bulleted/numbered lists and all other Markdown features.<sup>2</sup>
+
+Additionally, a new setting: `wholeCommment`, has been added to give more control over wrapping comments. See [here](https://github.com/stkb/Rewrap/wiki/Settings-VSCode#wrapping-whole-or-parts-of-comments).
+
+Added languages:
+- Elixir
+- Dart
+
+Other fixes and changes:
+- Supports unicode (#38)
+- In js/javadoc, inline tags (eg: `{@link}`) aren't broken up (#35)
+- Support doc-comments in PHP (#34)
+
+----
+
+<sup>1</sup> Except for .Net xml-doc comments.
+
+<sup>2</sup> (This introduces a small breaking change: where code samples (which aren't rewrapped) within a comment previously only required a 2-space indent, now they require 4 spaces, in line with the Markdown spec.)
+
 
 ## 1.3.0
 
