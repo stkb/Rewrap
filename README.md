@@ -2,7 +2,7 @@
 
 **Latest version: 1.4.0 ([view changes](https://github.com/stkb/vscode-rewrap/releases))**
  
-Reformats code comments and other text to a given line length. For VSCode and **now also for Visual Studio**.
+Reformats code comments and other text to a given line length. For VSCode and [**now also for Visual Studio**](https://marketplace.visualstudio.com/items?itemName=stkb.Rewrap-18980).
 
 ![Example](https://github.com/stkb/Rewrap/wiki/images/example.png)
 
