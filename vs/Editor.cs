@@ -1,9 +1,13 @@
-﻿using Microsoft.VisualStudio.Text;
+﻿using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Editor.OptionsExtensionMethods;
 using Rewrap;
 using System;
 using System.Linq;
+using VS.Options;
 
 namespace VS
 {
@@ -19,13 +23,15 @@ namespace VS
         public static void ExecRewrap(IWpfTextView textView)
         {
             var snapshot = textView.TextBuffer.CurrentSnapshot;
+            var language = GetLanguage( snapshot.TextBuffer );
+            var filePath = GetFilePath( snapshot.TextBuffer );
 
             var edit =
                 Core.rewrap
-                    ( language: GetLanguage( snapshot.TextBuffer )
-                    , filePath: GetFilePath( snapshot.TextBuffer )
+                    ( language: language
+                    , filePath: filePath
                     , selections: GetSelections( textView, snapshot )
-                    , settings: Environment.GetSettings( textView )
+                    , settings: GetSettings( textView, language, filePath )
                     , lines: snapshot.Lines.Select( l => l.GetText() )
                     );
 
@@ -64,6 +70,19 @@ namespace VS
             }
         }
 
+
+        static Settings GetSettings(IWpfTextView editor, string language, string filePath)
+        {
+            var options = OptionsPage.GetOptions( language, filePath );
+            return new Settings
+                // In the future this will look for rulers if wrappingColumn is null
+                ( options.WrappingColumn.GetValueOrDefault( 80 )
+                , editor.Options.GetTabSize()
+                , options.DoubleSentenceSpacing
+                , options.Reformat
+                , options.WholeComment
+                );
+        }
 
         /// <summary>
         /// Gets the document type (language) for the given text buffer.
@@ -134,5 +153,39 @@ namespace VS
             return new Position( line.LineNumber, column );
         }
 
+
+        /// <summary>
+        /// Gets the OptionsPage from the package.
+        /// </summary>
+        static OptionsPage OptionsPage
+        {
+            get
+            {
+                if(_OptionsPage == null)
+                {
+                    var shell = (IVsShell)ServiceProvider.GlobalProvider.GetService( typeof( IVsShell ) );
+                    if ( shell == null )
+                        throw new Exception( "Rewrap: Couldn't get IVsShell instance" );
+
+                    IVsPackage vsPackage = null;
+                    if ( shell.IsPackageLoaded( RewrapPackage.Guid, out vsPackage ) != VSConstants.S_OK )
+                    {
+                        shell.LoadPackage( RewrapPackage.Guid, out vsPackage );
+                    }
+                    Package package = vsPackage as Package;
+                    if ( package == null )
+                        throw new Exception( "Rewrap: Couldn't get package instance" );
+
+                    var page = package.GetDialogPage( typeof( OptionsPage ) ) as OptionsPage;
+                    if ( page == null )
+                        throw new Exception( "Rewrap: Couldn't get OptionsPage instance" );
+
+                    _OptionsPage = page;
+                }
+                return _OptionsPage;
+            }
+        }
+
+        static OptionsPage _OptionsPage;
     }
 }

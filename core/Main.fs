@@ -3,8 +3,10 @@
 open Extensions
 
 
-let languageFromFileName (fileName: string) : string =
-    Parsing.Documents.languageFromFileName fileName |> Option.defaultValue null
+let findLanguage name filePath : string =
+    Parsing.Documents.findLanguage name filePath
+        |> Option.map (fun l -> l.name)
+        |> Option.defaultValue null
 
 
 let languages : string[] =

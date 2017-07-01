@@ -123,7 +123,7 @@ let psdoc =
             else
                 ignoreFirstLine
                     (fun settings ->
-                        Comments.extractWrappable "" (fun _ -> "    ") settings
+                        Comments.extractWrappable "" (fun _ -> "  ") settings
                             >> Block.splitUp (markdown settings)
                     )
         )

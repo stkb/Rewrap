@@ -142,7 +142,8 @@ let languages : Language[] = [|
 
 
 /// Gets a language ID from a given file path.
-let languageFromFileName (filePath: string) : Option<string> =
+/// </summary>
+let private languageFromFileName (filePath: string) : Option<Language> =
     
     let fileName = 
         filePath.Split('\\', '/') |> Array.last
@@ -155,17 +156,12 @@ let languageFromFileName (filePath: string) : Option<string> =
     
     languages
         |> Array.tryFind (fun l -> Array.contains extensionOrName l.extensions)
-        |> Option.map(fun l -> l.name)
 
 
 /// <summary>
-/// Selects a parser from the given language and file path.
+/// Looks for a known language from either the given language name or the file path.
 /// </summary>
-/// <remarks>
-/// First the language is checked. If this fails to find a parser, the file name
-/// is checked. If this also fails, a default plain text parser is used.
-/// </remarks>
-let rec select (language: string) (filePath: string) : Settings -> TotalParser =
+let findLanguage name filePath : Option<Language> =
 
     let findName (name: string) : Option<Language> =
         languages
@@ -174,14 +170,23 @@ let rec select (language: string) (filePath: string) : Settings -> TotalParser =
                     l.name.ToLower() = name.ToLower() 
                         || Array.contains (name.ToLower()) l.aliases
                 )
+    
+    findName name
+        |> Option.orElseWith (fun () -> languageFromFileName filePath)
+
+
+/// <summary>
+/// Selects a parser from the given language and file path.
+/// </summary>
+/// <remarks>
+/// First the language is checked. If this is fails to find a parser, the file
+/// name is checked. If this also fails, a default plain text parser is used.
+/// </remarks>
+let rec select (language: string) (filePath: string) : Settings -> TotalParser =
 
     let plainText =
             sourceCode []
     
-    findName language
-        |> Option.orElseWith
-            (fun () ->
-                languageFromFileName filePath |> Option.bind findName
-            )
+    findLanguage language filePath
         |> Option.map (fun l -> l.parser)
         |> Option.defaultValue plainText
