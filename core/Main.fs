@@ -7,10 +7,6 @@ let languageFromFileName (fileName: string) : string =
     Parsing.Documents.languageFromFileName fileName |> Option.defaultValue null
 
 
-let languages : string[] =
-    Parsing.Documents.languages
-        |> Array.map (fun l -> l.name)
-
 let rewrap 
     (language: string)
     (filePath: string)
