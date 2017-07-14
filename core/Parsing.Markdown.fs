@@ -112,7 +112,7 @@ let rec markdown (settings: Settings): TotalParser =
                 else
                     Block.prefixes
                         (fst firstTuple)
-                        (snd
+                        (fst
                             (List.tryHead otherTuples
                                 |> Option.defaultValue firstTuple
                             )

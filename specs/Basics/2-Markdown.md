@@ -71,6 +71,14 @@ Numbered lists
     2. Item 2                 ¦              2. Item 2
     999999999) Item 999999999 ¦              999999999) Item 999999999
 
+Block quotes
+
+    > one two three      ->      > one two   ¦
+    four        ¦                three four  ¦
+
+    > one two three      ->      > one two   ¦
+    > four      ¦                > three four¦
+
 Indented code blocks
 
     ····a = 1;
