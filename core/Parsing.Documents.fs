@@ -151,7 +151,7 @@ let languages : Language[] = [|
         java
     lang "XML" "xsl" ".xml|.xsl"
         html
-    lang "YAML" "" ".yaml"
+    lang "YAML" "" ".yaml|.yml"
         configFile
 |]
 
