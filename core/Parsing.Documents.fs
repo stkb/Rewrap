@@ -3,9 +3,9 @@
 open Extensions
 open Rewrap
 open Parsing.Core
-open Parsing.Comments
 open Parsing.DocComments
 open Parsing.SourceCode
+
 
 type Language = {
     name: string
@@ -14,9 +14,7 @@ type Language = {
     parser: Settings -> TotalParser
 }
 
-/// <summary>
 /// Constructs a Language
-/// </summary>
 let private lang (name: string) (aliases: string) (extensions: string) parser : Language =
     {
         name = name
@@ -26,44 +24,36 @@ let private lang (name: string) (aliases: string) (extensions: string) parser : 
     }
 
 
-let private c =
-    sourceCode (Some "//") (Some ( "/\\*", "\\*/" ))
-
 let private configFile =
-    sourceCode (Some "#") None
+    sourceCode [ line "#" ]
 
 
 let languages : Language[] = [|
     lang "AutoHotkey" "ahk" ".ahk" 
-        ( sourceCode (Some ";") (Some ( "\\/\\*", "\\*\\/" )) )
+        ( sourceCode [ line ";"; cBlock ] )
     lang "Basic" "vb" ".vb"
-        ( customSourceCode [ lineComment html "'''"; stdLineComment "'" ] )
+        ( sourceCode [ customLine html "'''"; line "'" ] )
     lang "Batch file" "bat" ".bat"
-        ( sourceCode (Some "(?:rem|::)") None )
+        ( sourceCode [ line "(?:rem|::)" ] )
     lang "C/C++" "c|c++|cpp" ".c|.cpp|.h"
         c
     lang "C#" "csharp" ".cs"
-        ( customSourceCode 
-            [ lineComment html "///"
-              stdLineComment "//"
-              stdBlockComment cBlockMarkers 
-            ]
-        )
+        ( sourceCode [ customLine html "///"; cLine; cBlock ] )
     lang "CoffeeScript" "" ".coffee"
-        ( customSourceCode 
-            [ blockComment javadoc ("[*#]", " * ") ( "###\\*", "###" )
-              stdBlockComment ( "###", "###" )
-              stdLineComment "#"
+        ( sourceCode 
+            [ customBlock javadoc ("[*#]", " * ") ( "###\\*", "###" )
+              block ( "###", "###" )
+              line "#"
             ]
         )
     lang "CSS" "" ".css"
         css
     lang "Dart" "" ".dart"
-        ( customSourceCode
-            [ lineComment dartdoc "///"
-              stdLineComment "//"
-              blockComment dartdoc ( "\*", " * " ) javadocMarkers
-              stdBlockComment cBlockMarkers
+        ( sourceCode
+            [ customLine dartdoc "///"
+              cLine
+              customBlock dartdoc ( "\*", " * " ) javadocMarkers
+              cBlock
             ]
         )
     lang "Dockerfile" "docker" "dockerfile"
@@ -71,24 +61,19 @@ let languages : Language[] = [|
     lang "Elixir" "" ".ex|.exs"
         configFile
     lang "Elm" "" ".elm"
-        ( sourceCode (Some "--") (Some ( "{-\\|?", "-}" )) )
+        ( sourceCode [ line "--"; block ( "{-\\|?", "-}" ) ] )
     lang "F#" "fsharp" ".fs|.fsx"
-        ( customSourceCode 
-            [ lineComment html "///"
-              stdLineComment "//"
-              stdBlockComment ( "\\(\\*", "\\*\\)" )
-            ]
-        )
+        ( sourceCode [ customLine html "///"; cLine; block ( @"\(\*", @"\*\)" ) ] )
     lang "Go" "" ".go"
         c
     lang "Groovy" "" ".groovy"
         c
     lang "Haskell" "" ".hs"
-        ( sourceCode (Some "--\\|?") (Some ( "{-\\|?", "-}" )) )
+        ( sourceCode [ line "--\\|?"; block ( "{-\\|?", "-}" ) ] )
     lang "HTML" "" ".htm|.html"
         html
     lang "INI" "" ".ini"
-        ( sourceCode (Some "[#;]") None )
+        ( sourceCode [ line "[#;]" ] )
     lang "Java" "" ".java"
         java
     lang "JavaScript" "javascriptreact|js" ".js|.jsx"
@@ -100,7 +85,7 @@ let languages : Language[] = [|
     lang "Less" "" ".less"
         c
     lang "Lua" "" ".lua"
-        ( sourceCode (Some "--") (Some ( "--\\[\\[", "\\]\\]" )) )
+        ( sourceCode [ line "--"; block ( "--\\[\\[", "\\]\\]" ) ] )
     lang "Makefile" "make" "makefile"
         configFile
     lang "Markdown" "" ".md"
@@ -113,26 +98,26 @@ let languages : Language[] = [|
         // https://docs.perl6.org/language/syntax#Comments
         configFile
     lang "PHP" "" ".php"
-        ( customSourceCode
-            [ blockComment javadoc ( "\\*", " * " ) javadocMarkers
-              stdBlockComment cBlockMarkers
-              stdLineComment @"(?://|#)"
+        ( sourceCode
+            [ customBlock javadoc ( "\\*", " * " ) javadocMarkers
+              cBlock
+              line @"(?://|#)"
             ]
         )
     lang "PowerShell" "" ".ps1|.psm1"
-        ( sourceCode (Some "#") (Some ( "<#", "#>" )) )
+        ( sourceCode [ line "#"; block ( "<#", "#>" ) ] )
     lang "Pug" "jade" ".jade|.pug"
-        ( sourceCode (Some "\\/\\/") None )
+        ( sourceCode [ cLine ] )
     lang "Purescript" "" ".purs"
-        ( sourceCode (Some "--\\|?") (Some ( "{-\\|?", "-}" )) )
+        ( sourceCode [ line "--\\|?"; block ( "{-\\|?", "-}" ) ] )
     lang "Python" "" ".py"
-        ( sourceCode (Some "#") (Some ( "('''|\"\"\")", "('''|\"\"\")" )) )
+        ( sourceCode [ line "#"; block ( "('''|\"\"\")", "('''|\"\"\")" ) ] )
     lang "R" "" ".r"
         configFile
     lang "Ruby" "" ".rb"
-        ( sourceCode (Some "#") (Some ( "=begin", "=end" )) )
+        ( sourceCode [ line "#"; block ( "=begin", "=end" ) ] )
     lang "Rust" "" ".rs"
-        ( sourceCode (Some "\\/{2}(?:\\/|\\!)?") None )
+        ( sourceCode [ line @"\/\/(?:\/|\!)?" ] )
     lang "SCSS" "" ".scss"
     // Sass still needs to be supported.
     // -  http://sass-lang.com/documentation/file.INDENTED_SYNTAX.html
@@ -142,7 +127,7 @@ let languages : Language[] = [|
     lang "Shell script" "shellscript" ".sh"
         configFile
     lang "SQL" "" ".sql"
-        ( sourceCode (Some "--") (Some ( "\\/\\*", "\\*\\/" )) )
+        ( sourceCode [ line "--"; cBlock ] )
     lang "Swift" "" ".swift"
         c
     lang "TOML" "" ".toml"
@@ -156,9 +141,7 @@ let languages : Language[] = [|
 |]
 
 
-/// <summary>
 /// Gets a language ID from a given file path.
-/// </summary>
 let languageFromFileName (filePath: string) : Option<string> =
     
     let fileName = 
@@ -179,8 +162,8 @@ let languageFromFileName (filePath: string) : Option<string> =
 /// Selects a parser from the given language and file path.
 /// </summary>
 /// <remarks>
-/// First the language is checked. If this is fails to find a parser, the file
-/// name is checked. If this also fails, a default plain text parser is used.
+/// First the language is checked. If this fails to find a parser, the file name
+/// is checked. If this also fails, a default plain text parser is used.
 /// </remarks>
 let rec select (language: string) (filePath: string) : Settings -> TotalParser =
 
@@ -193,7 +176,7 @@ let rec select (language: string) (filePath: string) : Settings -> TotalParser =
                 )
 
     let plainText =
-            sourceCode None None
+            sourceCode []
     
     findName language
         |> Option.orElseWith
