@@ -61,7 +61,7 @@ let c =
 /// Parser for java/javascript (also used in html)
 let java =
     sourceCode
-        [ customBlock DocComments.javadoc ( "\\*", " * " ) javadocMarkers
+        [ customBlock DocComments.javadoc ( "\\*?", " * " ) javadocMarkers
           cBlock
           cLine
         ]

@@ -1,5 +1,10 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
+## Unreleased
+
+Added support for PowerShell Comment-Based Help (#43)
+
+
 ### 1.4.1
 
 Fixed a bug with markdown block-quotes (#42).

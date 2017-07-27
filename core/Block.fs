@@ -83,7 +83,7 @@ let isIgnore block =
 // MODIFYING BLOCKS
 ///////////////////////////////////////////////////////////////////////////////
 
-let splitUp (mapper: Lines -> Blocks) wrappable =
+let splitUp (parser: Lines -> Blocks) wrappable =
 
     let concatPrefixes first second =
         { head = (first.head + second.head); tail = (first.tail + second.tail) }
@@ -99,6 +99,6 @@ let splitUp (mapper: Lines -> Blocks) wrappable =
             | Ignore _ ->
                 block
     
-    mapper wrappable.lines
+    parser wrappable.lines
         |> Nonempty.mapHead (prependPrefixes wrappable.prefixes)
         |> Nonempty.mapTail (prependPrefixes middlePrefixes)

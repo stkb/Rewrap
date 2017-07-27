@@ -105,7 +105,7 @@ let languages : Language[] = [|
             ]
         )
     lang "PowerShell" "" ".ps1|.psm1"
-        ( sourceCode [ line "#"; block ( "<#", "#>" ) ] )
+        ( sourceCode [ customLine psdoc "#"; customBlock psdoc ( "", "" ) ( "<#", "#>" ) ] )
     lang "Pug" "jade" ".jade|.pug"
         ( sourceCode [ cLine ] )
     lang "Purescript" "" ".purs"

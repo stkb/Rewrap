@@ -17,6 +17,7 @@ A completely empty comment remains the same.
     //     ¦
     z      ¦
 
+## External whitespace ##
 
 Any amount whitespace before the comment markers is preserved
 
@@ -28,6 +29,22 @@ Any amount whitespace before the comment markers is preserved
 
     ·····// a   ¦      ->      ·····// a b
     ·····// b c ¦              ·····// c
+
+## Internal whitespace ##
+
+### Reformat off ###
+
+> language: "c", reformat: false
+
+A single-line comment with only whitespace remains the same
+
+    //··        ->      //··
+
+A comment with only whitespace remains the same. This might change in future
+versions. The whitespace indent might be normalized depending on the first line.
+
+    //··        ->      //··
+    //····              //····
 
 Also any amount of whitespace between the comment markers and text is preserved.
 

@@ -4,12 +4,46 @@ open Nonempty
 open System.Text.RegularExpressions
 open Extensions
 open Rewrap
+open Block
 open Parsing.Core
-
 
 
 let private markerRegex marker =
     Regex(@"^\s*" + marker + @"\s*")
+
+let extractWrappable 
+    (marker: string)
+    (reformatPrefix: string -> string)
+    (settings: Settings)
+    (lines: Lines)
+    : Wrappable =
+
+        let regex = 
+            markerRegex marker
+
+        let prefix =
+            Nonempty.tryFind Line.containsText lines
+                |> Option.orElseWith 
+                    (fun () -> Nonempty.tryFind (Line.contains (Regex(@"\S"))) lines)
+                |> Option.defaultValue (Nonempty.head lines)
+                |> Line.tryMatch regex |> Option.defaultValue marker
+                
+        let prefixLength =
+            prefix |> Line.tabsToSpaces settings.tabWidth |> String.length
+
+        let stripLine =
+            Line.tabsToSpaces settings.tabWidth
+                >> Line.split regex
+                >> Tuple.mapFirst 
+                    (fun p -> String.replicate p.Length " " |> String.dropStart prefixLength)
+                >> fun (pre, rest) -> pre + rest
+
+        let newPrefix =
+            if settings.reformat then (reformatPrefix prefix) else prefix
+
+        Block.wrappable
+            (Block.prefixes newPrefix newPrefix)
+            (Nonempty.map stripLine lines)
 
 
 /// Creates a line comment parser, given a content parser and marker.
@@ -21,37 +55,8 @@ let lineComment
 
     optionParser
         (Nonempty.span (Line.startsWith marker))
-        (fun lines ->
-            let regex = 
-                markerRegex marker
-
-            let prefix =
-                lines
-                    |> Nonempty.tryFind Line.containsText
-                    |> Option.defaultValue (Nonempty.head lines)
-                    |> Line.tryMatch regex
-                    |> Option.defaultValue marker
-                
-            let prefixLength =
-                Line.tabsToSpaces settings.tabWidth prefix |> String.length
-
-            let stripLine =
-                Line.tabsToSpaces settings.tabWidth
-                    >> Line.split regex
-                    >> Tuple.mapFirst (fun p -> String.replicate p.Length " ")
-                    >> Tuple.mapFirst (String.dropStart prefixLength)
-                    >> fun (pre, rest) -> pre + rest
-
-            let newPrefix =
-                if settings.reformat then 
-                    prefix.TrimEnd() + " "
-                else
-                    prefix
-
-            lines
-                |> Nonempty.map stripLine
-                |> Block.wrappable (Block.prefixes newPrefix newPrefix)
-                |> (Block.comment (contentParser settings) >> Nonempty.singleton)
+        (extractWrappable marker (fun p -> p.TrimEnd() + " ") settings
+            >> (Block.comment (contentParser settings) >> Nonempty.singleton)
         )
 
 
@@ -63,53 +68,36 @@ let blockComment
     (settings: Settings)
     : OptionParser =
 
-    let tailRegex =
-        markerRegex tailMarker
-
     let startRegex =
         markerRegex startMarker
     
     let toComment (Nonempty(headLine, tailLines)) =
-        let originalHeaadPrefix, headRemainder =
+        let headPrefix, headRemainder =
             Line.split startRegex headLine
 
         let newHeadPrefix =
             if settings.reformat then
-                originalHeaadPrefix.TrimEnd() + " "
+                headPrefix.TrimEnd() + " "
             else
-                originalHeaadPrefix
+                headPrefix
+        
+        let addHeadLine w =
+            wrappable (prefixes newHeadPrefix w.prefixes.tail) (Nonempty.cons headRemainder w.lines)
+                    
 
-        let originalTailPrefix =
-            List.tryFind Line.containsText tailLines
-                |> Option.orElse (List.tryHead tailLines)
-                |> Option.map
-                    (Line.tryMatch tailRegex >> Option.defaultValue "")
-                |> Option.defaultValue
-                    (Line.leadingWhitespace headLine + defaultTailMarker)
-
-        let prefixLength =
-            Line.tabsToSpaces settings.tabWidth originalTailPrefix |> String.length
-
-        let newTailPrefix = 
-            if settings.reformat then
-                Line.leadingWhitespace headLine + defaultTailMarker
-            else
-                originalTailPrefix
-
-        let stripLine line =
-            let spacedLine = Line.tabsToSpaces settings.tabWidth line
-            let linePrefixLength = 
-                spacedLine
-                    |> (Line.tryMatch tailRegex >> Option.defaultValue "")
-                    |> (String.length >> min prefixLength)
-            String.dropStart linePrefixLength spacedLine
-
-        Nonempty(headRemainder, List.map stripLine tailLines)
-            |> Block.wrappable (Block.prefixes newHeadPrefix newTailPrefix)
+        Nonempty.fromList tailLines
+            |> Option.map
+                (extractWrappable tailMarker (fun _ -> Line.leadingWhitespace headLine + defaultTailMarker) settings
+                    >> addHeadLine
+                )
+            |> Option.defaultValue
+                ( wrappable 
+                    (prefixes newHeadPrefix (Line.leadingWhitespace headLine + defaultTailMarker))
+                    (Nonempty.singleton headRemainder)
+                )
             |> (Block.comment (contentParser settings) >> Nonempty.singleton)
-
+ 
 
     optionParser
         (takeLinesBetweenMarkers (startRegex, (Regex(endMarker))))
         toComment
-
