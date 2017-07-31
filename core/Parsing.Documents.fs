@@ -104,7 +104,7 @@ let languages : Language[] = [|
               line @"(?://|#)"
             ]
         )
-    lang "PowerShell" "" ".ps1|.psm1"
+    lang "PowerShell" "" ".ps1|.psd1|.psm1"
         ( sourceCode [ customLine psdoc "#"; customBlock psdoc ( "", "" ) ( "<#", "#>" ) ] )
     lang "Pug" "jade" ".jade|.pug"
         ( sourceCode [ cLine ] )
