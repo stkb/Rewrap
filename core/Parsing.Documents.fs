@@ -1,5 +1,6 @@
 ﻿module internal Parsing.Documents
 
+open System
 open Extensions
 open Rewrap
 open Parsing.Core
@@ -18,8 +19,8 @@ type Language = {
 let private lang (name: string) (aliases: string) (extensions: string) parser : Language =
     {
         name = name
-        aliases = aliases.Split('|')
-        extensions = extensions.Split('|')
+        aliases = aliases.Split([|'|'|], StringSplitOptions.RemoveEmptyEntries)
+        extensions = extensions.Split([|'|'|], StringSplitOptions.RemoveEmptyEntries)
         parser = parser
     }
 
@@ -66,6 +67,8 @@ let languages : Language[] = [|
         ( sourceCode [ customLine html "///"; cLine; block ( @"\(\*", @"\*\)" ) ] )
     lang "Go" "" ".go"
         c
+    lang "Git commit" "git-commit" ""
+        Markdown.markdown
     lang "Groovy" "" ".groovy"
         c
     lang "Haskell" "" ".hs"
