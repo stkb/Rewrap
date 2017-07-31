@@ -108,7 +108,7 @@ let languages : Language[] = [|
         ( sourceCode [ customLine psdoc "#"; customBlock psdoc ( "", "" ) ( "<#", "#>" ) ] )
     lang "Pug" "jade" ".jade|.pug"
         ( sourceCode [ cLine ] )
-    lang "Purescript" "" ".purs"
+    lang "PureScript" "" ".purs"
         ( sourceCode [ line "--\\|?"; block ( "{-\\|?", "-}" ) ] )
     lang "Python" "" ".py"
         ( sourceCode [ line "#"; block ( "('''|\"\"\")", "('''|\"\"\")" ) ] )
