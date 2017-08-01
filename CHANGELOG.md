@@ -1,8 +1,11 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
-## Unreleased
+### 1.4.2
 
-Added support for PowerShell Comment-Based Help (#43)
+- Added support for PowerShell Comment-Based Help (#43).
+- Added git-commit as a document type.
+- (Visual Studio only) Added per-language settings.
+  - Because of a change here in how settings are stored, existing settings won't be carried over after this upgrade.
 
 
 ### 1.4.1
