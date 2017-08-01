@@ -12,6 +12,7 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 
 Fixed a bug with markdown block-quotes (#42).
 
+
 ## 1.4.0
 
 Important: if you still use and prefer the old keybinding for Rewrap (`ctrl+k ctrl+w`), please add it to your settings manually. It will be removed in the next version.
