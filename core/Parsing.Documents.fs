@@ -67,7 +67,7 @@ let languages : Language[] = [|
         ( sourceCode [ customLine html "///"; cLine; block ( @"\(\*", @"\*\)" ) ] )
     lang "Go" "" ".go"
         c
-    lang "Git commit" "git-commit" ""
+    lang "Git commit" "git-commit" "tag_editmsg"
         Markdown.markdown
     lang "Groovy" "" ".groovy"
         c

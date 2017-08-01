@@ -1,5 +1,10 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
+## Unreleased ##
+
+- Added Git tag editing as a document type.
+
+
 ### 1.4.2
 
 - Added support for PowerShell Comment-Based Help (#43).
