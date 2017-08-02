@@ -79,14 +79,6 @@ namespace VS.Options
 
         public override void LoadSettingsFromStorage()
         {
-            Store.CreateCollection( "Rewrap\\*" );
-            GlobalOptions = new GlobalOptionsGroup() {
-                WrappingColumn = Store.GetInt32( "Rewrap\\*", "wrappingColumn", 80 ),
-                WholeComment = Store.GetBoolean( "Rewrap\\*", "wholeComment", true ),
-                DoubleSentenceSpacing = Store.GetBoolean( "Rewrap\\*", "doubleSentenceSpacing", false ),
-                Reformat = Store.GetBoolean( "Rewrap\\*", "reformat", false ),
-            };
-
             // Read setting but set to null if it doesn't exist
             Func<string, string, T?> readProp<T>(Func<string, string, T> readFn) where T : struct
             {
@@ -104,6 +96,14 @@ namespace VS.Options
             }
             var readInt = readProp( Store.GetInt32 );
             var readBool = readProp( Store.GetBoolean );
+
+            Store.CreateCollection( "Rewrap\\*" );
+            GlobalOptions = new GlobalOptionsGroup() {
+                WrappingColumn = readInt( "*", "wrappingColumn" ),
+                WholeComment = Store.GetBoolean( "Rewrap\\*", "wholeComment", true ),
+                DoubleSentenceSpacing = Store.GetBoolean( "Rewrap\\*", "doubleSentenceSpacing", false ),
+                Reformat = Store.GetBoolean( "Rewrap\\*", "reformat", false ),
+            };
 
             (int?, OptionsGroup) readGroup(string name)
             {

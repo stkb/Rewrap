@@ -20,12 +20,52 @@ exports.activate = function activate(context)
         )
 
 
+    // Table of document wrapping columns
+    const docWrappingColumns = {}
+
+    let lastWrap = {
+        uri: null,
+        version: null,
+        selections: null,
+    }
+
     /**
      * Standard rewrap command
      */
     function rewrapCommentCommand(editor) 
     {
-        return doWrap(editor, Environment.getSettings(editor))
+        const document = editor.document
+        const uri = document.uri
+        const settings = Environment.getSettings(editor)
+        const columns = settings.columns
+
+        if(columns.length > 1) {
+            if( uri == lastWrap.uri 
+                && document.version == lastWrap.version
+                && JSON.stringify(editor.selections) == lastWrap.selections
+            ) {
+                const nextColIndex = 
+                    (columns.indexOf(docWrappingColumns[uri]) + 1) % columns.length
+                docWrappingColumns[uri] = columns[nextColIndex]
+            } else if (!docWrappingColumns[uri]) {
+                docWrappingColumns[uri] = columns[0]
+            }
+
+            settings.column = docWrappingColumns[uri]
+        } else {
+            settings.column = settings.columns[0]
+        }
+
+        doWrap(editor, validateSettings(settings))
+            .then(saveWrapInfo)
+
+        function saveWrapInfo() {
+            lastWrap = { 
+                uri, 
+                version: document.version, 
+                selections: JSON.stringify(editor.selections), 
+            } 
+        }
     }
 
 
@@ -135,5 +175,41 @@ exports.activate = function activate(context)
             "Go to: Help -> Toggle Developer Tools -> Console " +
             "for more information."
         )
+    }
+
+
+    function validateSettings(settings) 
+    {
+        // Check wrapping column
+        if(!Number.isInteger(settings.column) || settings.column < 1) {
+            console.warn(
+                "Rewrap: wrapping column is an invalid value (%o). " +
+                "Using the default of (80) instead.", settings.column
+            )
+            settings.column = 80
+        }
+        else if(settings.column > 120) {
+            console.warn(
+                "Rewrap: wrapping column is a rather large value (%d).",
+                settings.column
+            )
+        }
+
+        // Check tab width
+        if(!Number.isInteger(settings.tabWidth) || settings.tabWidth < 1) {
+            console.warn(
+                "Rewrap: tab width is an invalid value (%o). " +
+                "Using the default of (4) instead.", settings.tabWidth
+            )
+            settings.tabWidth = 4
+        }
+        if(settings.tabWidth > settings.column / 2) {
+            console.warn(
+                "Rewrap: tabSize is (%d) and wrappingColumn is (%d). " +
+                "Unexpected results may occur.", settings.tabWidth, settings.column
+            )
+        }
+
+        return settings;
     }
 }

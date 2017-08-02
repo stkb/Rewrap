@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio;
+﻿using EnvDTE;
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
@@ -6,6 +7,7 @@ using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Editor.OptionsExtensionMethods;
 using Rewrap;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using VS.Options;
 
@@ -22,7 +24,7 @@ namespace VS
         /// </summary>
         public static void ExecRewrap(IWpfTextView textView)
         {
-            var snapshot = textView.TextBuffer.CurrentSnapshot;
+            var snapshot = textView.TextSnapshot;
             var language = GetLanguage( snapshot.TextBuffer );
             var filePath = GetFilePath( snapshot.TextBuffer );
 
@@ -36,6 +38,13 @@ namespace VS
                     );
 
             ApplyEdit( textView, snapshot, edit );
+
+            var afterSnapshot = textView.TextSnapshot;
+            LastWrap = 
+                ( filePath
+                , afterSnapshot.Version.VersionNumber
+                , GetSelections( textView, afterSnapshot )
+                );
         }
 
 
@@ -71,12 +80,47 @@ namespace VS
         }
 
 
+        static Dictionary<string, int> DocWrappingColumns = new Dictionary<string, int>();
+
+        static ValueTuple<string, int, Selection[]> LastWrap = ("", 0, new Selection[] { });
+
+        static int? GetRuler(IWpfTextView editor, string filePath)
+        {
+            int[] rulers = GetRulers();
+            if ( rulers.Length == 0 ) return null;
+            if ( rulers.Length == 1 ) return rulers[0];
+
+            var (lastPath, lastVersion, lastSelections) = LastWrap;
+            var snapshot = editor.TextBuffer.CurrentSnapshot;
+
+            if (
+                lastPath == filePath
+                    && lastVersion == snapshot.Version.VersionNumber
+                    && Enumerable.SequenceEqual
+                        ( lastSelections
+                        , GetSelections( editor, snapshot ) 
+                        )
+            )
+            {
+                int nextRulerIndex =
+                    ( Array.IndexOf<int>( rulers, DocWrappingColumns[filePath] ) + 1 ) 
+                        % rulers.Length;
+                DocWrappingColumns[filePath] = rulers[nextRulerIndex];
+            }
+            else if(!DocWrappingColumns.ContainsKey(filePath)) {
+                DocWrappingColumns[filePath] = rulers[0];
+            }
+
+            return DocWrappingColumns[filePath];
+        }
+
+
         static Settings GetSettings(IWpfTextView editor, string language, string filePath)
         {
             var options = OptionsPage.GetOptions( language, filePath );
+
             return new Settings
-                // In the future this will look for rulers if wrappingColumn is null
-                ( options.WrappingColumn.GetValueOrDefault( 80 )
+                ( options.WrappingColumn ?? GetRuler(editor, filePath) ?? 80 
                 , editor.Options.GetTabSize()
                 , options.DoubleSentenceSpacing
                 , options.Reformat
@@ -187,5 +231,22 @@ namespace VS
         }
 
         static OptionsPage _OptionsPage;
+
+        static int[] GetRulers()
+        {
+            var dte = (EnvDTE.DTE)Package.GetGlobalService( typeof( EnvDTE.DTE ) );
+            string path =
+                @"HKEY_CURRENT_USER\Software\Microsoft\VisualStudio\" + dte.Version + @"\Text Editor";
+
+            var guidesStr =
+                (string)Microsoft.Win32.Registry.GetValue( path, "Guides", ")" );
+            var rulers =
+                guidesStr
+                    .Split(')')[1]
+                    .Split( new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries )
+                    .Select( s => Int32.Parse( s.Trim() ) ).ToArray();
+
+            return rulers;
+        }
     }
 }

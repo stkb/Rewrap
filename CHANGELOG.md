@@ -3,6 +3,7 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 ## Unreleased ##
 
 - Added Git tag editing as a document type.
+- Added multiple ruler support.
 
 
 ### 1.4.2
