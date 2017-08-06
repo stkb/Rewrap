@@ -17,7 +17,6 @@
         <Style x:Key="HeaderStyle" TargetType="TextBlock">
             <Setter Property="Margin" Value="0,0,8,0" />
             <Setter Property="Padding" Value="0" />
-            <!--<Setter Property="VerticalContentAlignment" Value="Center"/>-->
             <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
@@ -31,7 +30,24 @@
             <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="FontSize" Value="13"/>
         </Style>
-               
+
+        <Style x:Key="PlaceholderStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="Gray"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="IsHitTestVisible" Value="False"/>
+            <Setter Property="Text" Value="(use global setting)"/>
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Style.Triggers>
+                <DataTrigger 
+                    Binding="{Binding Path=Children[0].Text, RelativeSource={RelativeSource AncestorType=Grid}}" 
+                    Value=""
+                >
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
 
         <Style x:Key="FieldStyle" TargetType="Control">
             <Setter Property="Margin" Value="0" />
@@ -59,22 +75,25 @@
                 
                 <UniformGrid  Style="{StaticResource OptionsGridStyle}">
                     <Label Content="Wrapping column:"/>
-                    <TextBox
-                        Text="{Binding WrappingColumn, Converter={local:ValueConverter}, UpdateSourceTrigger=PropertyChanged}"
-                        ToolTip="Column to wrap at; for example, '80' will wrap after 80 characters. Leave blank to rulers instead."
-                        />
+                    <Grid>
+                        <TextBox
+                            Text="{Binding WrappingColumn, Converter={local:ValueConverter}, UpdateSourceTrigger=PropertyChanged}"
+                            ToolTip="Column to wrap at; for example, '80' will wrap after 80 characters. Leave blank to rulers instead."
+                            />
+                        <TextBlock Text="(use rulers/guides)" Style="{StaticResource PlaceholderStyle}"/>
+                    </Grid>
 
                     <Label Content="Wrap whole comment:" />
                     <ComboBox 
-                        SelectedValue="{Binding WholeComment, Converter={local:ValueConverter}}"
-                        ToolTip="With the cursor inside a comment block, wrap the whole comment instead of just a single paragraph."
-                        >
+                            SelectedValue="{Binding WholeComment, Converter={local:ValueConverter}}"
+                            ToolTip="With the cursor inside a comment block, wrap the whole comment instead of just a single paragraph."
+                            >
                         <ComboBox.Items>
                             <sys:String>True</sys:String>
                             <sys:String>False</sys:String>
                         </ComboBox.Items>
                     </ComboBox>
-                    
+
                     <Label Content="Double sentence spacing:"/>
                     <ComboBox 
                         SelectedValue="{Binding DoubleSentenceSpacing, Converter={local:ValueConverter}}"
@@ -120,46 +139,58 @@
 
                 <UniformGrid Style="{StaticResource OptionsGridStyle}">
                     <Label Content="Wrapping column:"/>
-                    <TextBox 
-                        Text="{Binding WrappingColumn, Converter={local:ValueConverter}, UpdateSourceTrigger=PropertyChanged}"
-                        ToolTip="Column to wrap at; for example, '80' will wrap after 80 characters. Leave blank to use the global setting."
-                        />
-                    
+                    <Grid>
+                        <TextBox 
+                            Text="{Binding WrappingColumn, Converter={local:ValueConverter}, UpdateSourceTrigger=PropertyChanged}"
+                            ToolTip="Column to wrap at; for example, '80' will wrap after 80 characters. Leave blank to use the global setting."
+                            />
+                        <TextBlock Style="{StaticResource PlaceholderStyle}"/>
+                    </Grid>
+
                     <Label Content="Wrap whole comment:" />
-                    <ComboBox 
-                        SelectedValue="{Binding WholeComment, Converter={local:ValueConverter}}"
-                        ToolTip="With the cursor inside a comment block, wrap the whole comment instead of just a single paragraph. Leave blank to use the global setting."
-                        >
-                        <ComboBox.Items>
-                            <x:Static Member="sys:String.Empty"/>
-                            <sys:String>True</sys:String>
-                            <sys:String>False</sys:String>
-                        </ComboBox.Items>
-                    </ComboBox>
+                    <Grid>
+                        <ComboBox 
+                            SelectedValue="{Binding WholeComment, Converter={local:ValueConverter}}"
+                            ToolTip="With the cursor inside a comment block, wrap the whole comment instead of just a single paragraph. Leave blank to use the global setting."
+                            >
+                            <ComboBox.Items>
+                                <x:Static Member="sys:String.Empty"/>
+                                <sys:String>True</sys:String>
+                                <sys:String>False</sys:String>
+                            </ComboBox.Items>
+                        </ComboBox>
+                        <TextBlock Style="{StaticResource PlaceholderStyle}"/>
+                    </Grid>
                     
                     <Label Content="Double sentence spacing:"/>
-                    <ComboBox 
+                    <Grid>
+                        <ComboBox 
                         SelectedValue="{Binding DoubleSentenceSpacing, Converter={local:ValueConverter}}"
                         ToolTip="When wrapping lines that end in a period, add two spaces after that sentence in the wrapped text. Leave blank to use the global setting."
                         >
-                        <ComboBox.Items>
-                            <x:Static Member="sys:String.Empty"/>
-                            <sys:String>True</sys:String>
-                            <sys:String>False</sys:String>
-                        </ComboBox.Items>
-                    </ComboBox>
-                    
+                            <ComboBox.Items>
+                                <x:Static Member="sys:String.Empty"/>
+                                <sys:String>True</sys:String>
+                                <sys:String>False</sys:String>
+                            </ComboBox.Items>
+                        </ComboBox>
+                        <TextBlock Style="{StaticResource PlaceholderStyle}"/>
+                    </Grid>
+
                     <Label Content="Reformat (experimental):" />
-                    <ComboBox 
+                    <Grid>
+                        <ComboBox 
                         SelectedValue="{Binding Reformat, Converter={local:ValueConverter}}"
                         ToolTip="When wrapping lines, fix and reformat paragraph indents. Leave blank to use the global setting."
                         >
-                        <ComboBox.Items>
-                            <x:Static Member="sys:String.Empty"/>
-                            <sys:String>True</sys:String>
-                            <sys:String>False</sys:String>
-                        </ComboBox.Items>
-                    </ComboBox>
+                            <ComboBox.Items>
+                                <x:Static Member="sys:String.Empty"/>
+                                <sys:String>True</sys:String>
+                                <sys:String>False</sys:String>
+                            </ComboBox.Items>
+                        </ComboBox>
+                        <TextBlock Style="{StaticResource PlaceholderStyle}"/>
+                    </Grid>
                 </UniformGrid>
             </StackPanel>
         </DataTemplate>

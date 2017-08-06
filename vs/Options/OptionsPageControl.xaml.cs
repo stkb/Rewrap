@@ -164,21 +164,36 @@ namespace VS.Options
         {
             TipBox.Text = null;
 
-            if ( inputBox != null )
+            string tip = null;
+            string findLabel(FrameworkElement control)
             {
-                var siblings = ( inputBox.Parent as UniformGrid )?.Children;
-                if ( siblings != null )
+                tip = tip ?? (string)control.ToolTip;
+                switch(control.Parent)
                 {
-                    var label = siblings[siblings.IndexOf( inputBox ) - 1] as Label;
-                    if ( label != null )
-                    {
-                        TipBox.Text = inputBox.ToolTip as String;
-                        TipBox.Inlines.InsertBefore
-                            ( TipBox.Inlines.FirstInline
-                            , new Bold( new Run( label.Content as String + " " ) )
-                            );
-                    }
+                    case UniformGrid ug:
+                        int index = ug.Children.IndexOf( control ) - 1;
+                        if (index >=0 && ug.Children[index] is Label l )
+                        {
+                            return l.Content as String;
+                        }
+                        else return null;
+
+                    case FrameworkElement fe:
+                        return findLabel( fe );
+
+                    default:
+                        return null;
                 }
+            }
+
+            string label = findLabel( inputBox );
+            if(label != null && tip != null)
+            {
+                TipBox.Text = tip;
+                TipBox.Inlines.InsertBefore
+                    ( TipBox.Inlines.FirstInline
+                    , new Bold( new Run( label + " " ) )
+                    );
             }
         }
     }
