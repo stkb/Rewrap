@@ -61,7 +61,7 @@
                     <Label Content="Wrapping column:"/>
                     <TextBox
                         Text="{Binding WrappingColumn, Converter={local:ValueConverter}, UpdateSourceTrigger=PropertyChanged}"
-                        ToolTip="Column to wrap at; for example, '80' will wrap after 80 characters."
+                        ToolTip="Column to wrap at; for example, '80' will wrap after 80 characters. Leave blank to rulers instead."
                         />
 
                     <Label Content="Wrap whole comment:" />
