@@ -60,7 +60,7 @@
                 <UniformGrid  Style="{StaticResource OptionsGridStyle}">
                     <Label Content="Wrapping column:"/>
                     <TextBox
-                        Text="{Binding WrappingColumn, Converter={local:ValueConverter}}"
+                        Text="{Binding WrappingColumn, Converter={local:ValueConverter}, UpdateSourceTrigger=PropertyChanged}"
                         ToolTip="Column to wrap at; for example, '80' will wrap after 80 characters."
                         />
 
@@ -121,7 +121,7 @@
                 <UniformGrid Style="{StaticResource OptionsGridStyle}">
                     <Label Content="Wrapping column:"/>
                     <TextBox 
-                        Text="{Binding WrappingColumn, Converter={local:ValueConverter}}"
+                        Text="{Binding WrappingColumn, Converter={local:ValueConverter}, UpdateSourceTrigger=PropertyChanged}"
                         ToolTip="Column to wrap at; for example, '80' will wrap after 80 characters. Leave blank to use the global setting."
                         />
                     
