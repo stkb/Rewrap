@@ -33,9 +33,8 @@ let wrapBlocks (settings: Settings) (originalLines: Lines) (blocks: Blocks) : Ed
     
 
     // Wraps a Wrappable, creating lines prefixed with its Prefixes
-    let wrapWrappable (w: Wrappable) : Lines =
-        let pHead, pTail =
-            w.prefixes
+    let wrapWrappable ((pHead, pTail), lines) : Lines =
+
         let spacedHeadPrefix =
             Line.tabsToSpaces settings.tabWidth pHead
         let tailPrefixLength =
@@ -55,9 +54,9 @@ let wrapBlocks (settings: Settings) (originalLines: Lines) (blocks: Blocks) : Ed
             str.Replace("\0", " ")
 
         let concatenatedText =
-            w.lines 
+            lines 
                 |> Nonempty.mapInit 
-                    (fun s ->
+                    (fun (s: string) ->
                         let t = s.TrimEnd()
                         if settings.doubleSentenceSpacing
                             && Array.exists (fun c -> t.EndsWith(c)) [| ".";"?";"!"|]
@@ -73,8 +72,8 @@ let wrapBlocks (settings: Settings) (originalLines: Lines) (blocks: Blocks) : Ed
                 |> wrapString wrapWidth
                 |> Nonempty.map unfreezeInlineTags
                 |> Nonempty.mapHead
-                    (String.dropStart headPrefixIndent >> (+) (fst w.prefixes))
-                |> Nonempty.mapTail ((+) (snd w.prefixes))
+                    (String.dropStart headPrefixIndent >> (+) pHead)
+                |> Nonempty.mapTail ((+) pTail)
         else if headPrefixIndent < 0 then
             concatenatedText
                 |> String.dropStart -headPrefixIndent
@@ -82,15 +81,15 @@ let wrapBlocks (settings: Settings) (originalLines: Lines) (blocks: Blocks) : Ed
                 |> Nonempty.map unfreezeInlineTags
                 |> Nonempty.mapHead
                     ((+) (String.takeStart -headPrefixIndent concatenatedText)
-                        >> (+) (fst w.prefixes)
+                        >> (+) pHead
                     )
-                |> Nonempty.mapTail ((+) (snd w.prefixes))
+                |> Nonempty.mapTail ((+) pTail)
         else
             concatenatedText
                 |> wrapString wrapWidth
                 |> Nonempty.map unfreezeInlineTags
-                |> Nonempty.mapHead ((+) (fst w.prefixes))
-                |> Nonempty.mapTail ((+) (snd w.prefixes))
+                |> Nonempty.mapHead ((+) pHead)
+                |> Nonempty.mapTail ((+) pTail)
 
     let startLine =
         List.takeWhile Block.isIgnore (Nonempty.toList blocks)
@@ -118,7 +117,7 @@ let wrapBlocks (settings: Settings) (originalLines: Lines) (blocks: Blocks) : Ed
             | Wrap (_, w) :: nextRemainingBlocks ->
                 loop
                     (outputLines @ (Nonempty.toList (wrapWrappable w)))
-                    (List.safeSkip (Nonempty.length w.lines) remainingOriginalLines)
+                    (List.safeSkip (Nonempty.length (snd w)) remainingOriginalLines)
                     nextRemainingBlocks
 
             | Ignore n :: nextRemainingBlocks ->

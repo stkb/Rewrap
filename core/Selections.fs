@@ -106,22 +106,18 @@ let private normalizeRanges =
     loop [] >> List.rev
 
  
-let private splitWrappable length w =
+let private splitWrappable length ((pHead, pTail), lines) : Wrappable * Option<Wrappable> =
     
     let maybeTopLines =
-        w.lines |> Nonempty.toList |> List.truncate length |> Nonempty.fromList
+        lines |> Nonempty.toList |> List.truncate length |> Nonempty.fromList
 
     let maybeBottomLines =
-        w.lines |> Nonempty.toList |> List.safeSkip length |> Nonempty.fromList
-
-    let bottomPrefixes =
-        let (_, tail) = w.prefixes
-        (tail, tail)
+        lines |> Nonempty.toList |> List.safeSkip length |> Nonempty.fromList
 
     match maybeTopLines with
         | Some topLines ->
-            ( Block.wrappable w.prefixes topLines
-            , maybeBottomLines |> Option.map (Block.wrappable bottomPrefixes)
+            ( ((pHead, pTail), topLines)
+            , maybeBottomLines |> Option.map (fun ls -> ((pTail, pTail), ls))
             )
 
         | None ->
@@ -202,7 +198,7 @@ let rec private applySelectionsToBlock
                             // If selection start is within the block, we split at 
                             // that line; lines before are ignored
                             if selectionStartOffset > 0 then
-                                ( selectionStartOffset, fun w -> Block.ignore w.lines  )
+                                ( selectionStartOffset, fun (_, ls) -> Block.ignore ls )
                             // Else we assume selection end is within the block
                             // and take lines up to there
                             else

@@ -117,7 +117,7 @@ let rec markdown (settings: Settings): TotalParser =
                         )
                    )
 
-            Block.wrappable prefixes (Nonempty.map snd tuples)
+            (prefixes, tuples |> Nonempty.map snd)
                 |> Block.splitUp (markdown settings)
 
         optionParser splitter mapper
@@ -156,13 +156,13 @@ let rec markdown (settings: Settings): TotalParser =
                     prefixWithSpace
                 )
                 
-            ( Block.wrappable
-                (headPrefix, (String.replicate (String.length headPrefix) " "))
-                (Nonempty(
-                    strippedFirstLine,
-                    (List.map (Line.split tailRegex >> snd) tailLines)
-                ))
-                |> Block.splitUp (markdown settings)
+            ( ( (headPrefix, (String.replicate (String.length headPrefix) " "))
+              , Nonempty
+                    ( strippedFirstLine
+                    , List.map (Line.split tailRegex >> snd) tailLines
+                    )
+              )
+                    |> Block.splitUp (markdown settings)
             , remainingLines
             )
         

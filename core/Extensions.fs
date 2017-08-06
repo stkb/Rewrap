@@ -11,6 +11,12 @@ module internal Tuple =
     let mapSecond f (a, b) =
         (a, f b)
 
+    let replaceFirst x (a, b) =
+        (x, b)
+
+    let replaceSecond x (a, b) =
+        (a, x)
+
 
 module Option =
 

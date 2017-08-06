@@ -148,10 +148,8 @@ let firstLineIndentParagraphBlock reformat (Nonempty(headLine, tailLines) as lin
                 |> Option.defaultValue headLine
                 |> Line.leadingWhitespace
             )
-    let trimmedLines =
-        lines |> Nonempty.map (fun (l: string) -> l.TrimStart())
 
-    Block.text (wrappable prefixes trimmedLines)
+    Block.text (prefixes, lines |> Nonempty.map String.trimStart)
 
 
 /// Convert paragraph lines into a Block, in a document where paragraphs can be
@@ -162,11 +160,8 @@ let indentSeparatedParagraphBlock
 
     let prefix =
         Line.leadingWhitespace (Nonempty.head lines)
-
-    let trimmedLines =
-            (Nonempty.map String.trimStart lines)
     
-    textType (Block.wrappable (prefix, prefix) trimmedLines)
+    textType ((prefix, prefix), lines |> Nonempty.map String.trimStart)
 
 
 /// Creates an OptionSplitFunction that will take all lines between a start and 
