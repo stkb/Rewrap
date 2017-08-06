@@ -41,9 +41,7 @@ let extractWrappable
         let newPrefix =
             if settings.reformat then (reformatPrefix prefix) else prefix
 
-        Block.wrappable
-            (Block.prefixes newPrefix newPrefix)
-            (Nonempty.map stripLine lines)
+        Block.wrappable (newPrefix, newPrefix) (Nonempty.map stripLine lines)
 
 
 /// Creates a line comment parser, given a content parser and marker.
@@ -82,8 +80,8 @@ let blockComment
                 headPrefix
         
         let addHeadLine w =
-            wrappable (prefixes newHeadPrefix w.prefixes.tail) (Nonempty.cons headRemainder w.lines)
-                    
+            let (_, tail) = w.prefixes
+            wrappable (newHeadPrefix, tail) (Nonempty.cons headRemainder w.lines)
 
         Nonempty.fromList tailLines
             |> Option.map
@@ -92,7 +90,7 @@ let blockComment
                 )
             |> Option.defaultValue
                 ( wrappable 
-                    (prefixes newHeadPrefix (Line.leadingWhitespace headLine + defaultTailMarker))
+                    (newHeadPrefix, (Line.leadingWhitespace headLine + defaultTailMarker))
                     (Nonempty.singleton headRemainder)
                 )
             |> (Block.comment (contentParser settings) >> Nonempty.singleton)

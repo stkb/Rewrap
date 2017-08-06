@@ -34,11 +34,12 @@ let wrapBlocks (settings: Settings) (originalLines: Lines) (blocks: Blocks) : Ed
 
     // Wraps a Wrappable, creating lines prefixed with its Prefixes
     let wrapWrappable (w: Wrappable) : Lines =
-
+        let pHead, pTail =
+            w.prefixes
         let spacedHeadPrefix =
-            Line.tabsToSpaces settings.tabWidth w.prefixes.head
+            Line.tabsToSpaces settings.tabWidth pHead
         let tailPrefixLength =
-            (Line.tabsToSpaces settings.tabWidth w.prefixes.tail).Length
+            (Line.tabsToSpaces settings.tabWidth pTail).Length
         let headPrefixIndent =
             spacedHeadPrefix.Length - tailPrefixLength
         let wrapWidth =
@@ -72,8 +73,8 @@ let wrapBlocks (settings: Settings) (originalLines: Lines) (blocks: Blocks) : Ed
                 |> wrapString wrapWidth
                 |> Nonempty.map unfreezeInlineTags
                 |> Nonempty.mapHead
-                    (String.dropStart headPrefixIndent >> (+) w.prefixes.head)
-                |> Nonempty.mapTail ((+) w.prefixes.tail)
+                    (String.dropStart headPrefixIndent >> (+) (fst w.prefixes))
+                |> Nonempty.mapTail ((+) (snd w.prefixes))
         else if headPrefixIndent < 0 then
             concatenatedText
                 |> String.dropStart -headPrefixIndent
@@ -81,15 +82,15 @@ let wrapBlocks (settings: Settings) (originalLines: Lines) (blocks: Blocks) : Ed
                 |> Nonempty.map unfreezeInlineTags
                 |> Nonempty.mapHead
                     ((+) (String.takeStart -headPrefixIndent concatenatedText)
-                        >> (+) w.prefixes.head
+                        >> (+) (fst w.prefixes)
                     )
-                |> Nonempty.mapTail ((+) w.prefixes.tail)
+                |> Nonempty.mapTail ((+) (snd w.prefixes))
         else
             concatenatedText
                 |> wrapString wrapWidth
                 |> Nonempty.map unfreezeInlineTags
-                |> Nonempty.mapHead ((+) w.prefixes.head)
-                |> Nonempty.mapTail ((+) w.prefixes.tail)
+                |> Nonempty.mapHead ((+) (fst w.prefixes))
+                |> Nonempty.mapTail ((+) (snd w.prefixes))
 
     let startLine =
         List.takeWhile Block.isIgnore (Nonempty.toList blocks)

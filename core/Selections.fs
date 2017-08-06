@@ -115,7 +115,8 @@ let private splitWrappable length w =
         w.lines |> Nonempty.toList |> List.safeSkip length |> Nonempty.fromList
 
     let bottomPrefixes =
-        Block.prefixes w.prefixes.tail w.prefixes.tail
+        let (_, tail) = w.prefixes
+        (tail, tail)
 
     match maybeTopLines with
         | Some topLines ->

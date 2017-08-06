@@ -108,15 +108,14 @@ let rec markdown (settings: Settings): TotalParser =
 
             let prefixes =
                 if settings.reformat then
-                    Block.prefixes "> " "> "
+                   ("> ", "> ")
                 else
-                    Block.prefixes
-                        (fst firstTuple)
-                        (fst
-                            (List.tryHead otherTuples
-                                |> Option.defaultValue firstTuple
-                            )
+                   ( fst firstTuple
+                   , fst
+                        (List.tryHead otherTuples
+                            |> Option.defaultValue firstTuple
                         )
+                   )
 
             Block.wrappable prefixes (Nonempty.map snd tuples)
                 |> Block.splitUp (markdown settings)
@@ -158,10 +157,7 @@ let rec markdown (settings: Settings): TotalParser =
                 )
                 
             ( Block.wrappable
-                (Block.prefixes
-                    headPrefix
-                    (String.replicate (String.length headPrefix) " ")
-                )
+                (headPrefix, (String.replicate (String.length headPrefix) " "))
                 (Nonempty(
                     strippedFirstLine,
                     (List.map (Line.split tailRegex >> snd) tailLines)

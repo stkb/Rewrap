@@ -23,10 +23,12 @@ type Wrappable = {
     lines : Lines
 }
 
-type Prefixes = {
-    head : string
-    tail : string
-}
+/// A tuple of two strings. The first represents the prefix used for the first
+/// line of a block of lines; the second the prefix for the rest. Some blocks,
+/// eg a list item or a block comment, will have a different prefix for the
+/// first line than for the rest. Others have the same for both.
+type Prefixes =
+    string * string
 
 type Lines = 
     Nonempty<string>
@@ -36,8 +38,6 @@ type Lines =
 // CONSTRUCTORS
 ///////////////////////////////////////////////////////////////////////////////
 
-let prefixes head tail =
-    { head = head; tail = tail }
 
 let wrappable prefixes lines =
     { prefixes = prefixes; lines = lines }
@@ -85,11 +85,13 @@ let isIgnore block =
 
 let splitUp (parser: Lines -> Blocks) wrappable =
 
-    let concatPrefixes first second =
-        { head = (first.head + second.head); tail = (first.tail + second.tail) }
+    let concatPrefixes (head1, tail1) (head2, tail2) =
+        (head1 + head2, tail1 + tail2)
 
     let middlePrefixes =
-        { head = wrappable.prefixes.tail; tail = wrappable.prefixes.tail }
+        let (_, tail) = 
+            wrappable.prefixes
+        (tail, tail)
 
     let prependPrefixes p block =
         match block with

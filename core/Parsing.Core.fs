@@ -141,14 +141,13 @@ let onIndent tabWidth (Nonempty(firstLine, otherLines)): Lines * Option<Lines> =
 let firstLineIndentParagraphBlock reformat (Nonempty(headLine, tailLines) as lines) =
     let prefixes =
         if reformat then 
-            Block.prefixes "" ""
+            ("", "")
         else
-            Block.prefixes
-                (Line.leadingWhitespace headLine)
-                (List.tryHead tailLines 
-                    |> Option.defaultValue headLine
-                    |> Line.leadingWhitespace
-                )
+            ( Line.leadingWhitespace headLine
+            , List.tryHead tailLines
+                |> Option.defaultValue headLine
+                |> Line.leadingWhitespace
+            )
     let trimmedLines =
         lines |> Nonempty.map (fun (l: string) -> l.TrimStart())
 
@@ -167,7 +166,7 @@ let indentSeparatedParagraphBlock
     let trimmedLines =
             (Nonempty.map String.trimStart lines)
     
-    textType (Block.wrappable (Block.prefixes prefix prefix) trimmedLines)
+    textType (Block.wrappable (prefix, prefix) trimmedLines)
 
 
 /// Creates an OptionSplitFunction that will take all lines between a start and 
