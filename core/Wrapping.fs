@@ -12,84 +12,70 @@ let private inlineTagRegex =
 
 let wrapBlocks (settings: Settings) (originalLines: Lines) (blocks: Blocks) : Edit =
 
-    // Wraps a string without newlines and returns a Lines with all lines but the last trimmed at the end
-    let wrapString (width: int) (str: string) : Lines =
-        let rec loop output (line: string) words =
+    // Wraps a string without newlines and returns a Lines with all lines but
+    // the last trimmed at the end. Takes a tuple of line widths for the first
+    // and rest of the lines.
+    let wrapString (headWidth, tailWidth) (str: string) : Lines =
+
+        let rec loop lineWidth output (line: string) words =
             match words with
                 | [] ->
                     Nonempty (line, output)
 
                 | word :: nextWords ->
                     if line = "" then
-                        loop output word nextWords
-                    else if line.Length + 1 + word.Length > width then
-                        loop (line :: output) word nextWords
+                        loop lineWidth output word nextWords
+                    else if line.Length + 1 + word.Length <= lineWidth then
+                        loop lineWidth output (line + " " + word) nextWords                    
                     else
-                        loop output (line + " " + word) nextWords                    
+                        loop tailWidth (line :: output) word nextWords
         
-        loop [] "" (List.ofArray (str.Split([|' '|])))
+        loop headWidth [] "" (List.ofArray (str.Split([|' '|])))
             |> Nonempty.mapTail (fun s -> s.TrimEnd())
             |> Nonempty.rev
-    
 
-    // Wraps a Wrappable, creating lines prefixed with its Prefixes
-    let wrapWrappable ((pHead, pTail), lines) : Lines =
+    /// Wraps a Wrappable, creating lines prefixed with its Prefixes
+    let wrapWrappable (prefixes, lines) : Lines =
 
-        let spacedHeadPrefix =
-            Line.tabsToSpaces settings.tabWidth pHead
-        let tailPrefixLength =
-            (Line.tabsToSpaces settings.tabWidth pTail).Length
-        let headPrefixIndent =
-            spacedHeadPrefix.Length - tailPrefixLength
-        let wrapWidth =
-            settings.column - tailPrefixLength
-
+        /// If the setting is set, adds an extra space to lines ending with .?!
+        let addDoubleSpaces =
+            Nonempty.mapInit 
+                (fun (s: string) ->
+                    let t = s.TrimEnd()
+                    if settings.doubleSentenceSpacing
+                        && Array.exists (fun c -> t.EndsWith(c)) [| ".";"?";"!"|]
+                    then t + " "
+                    else t
+                )
+        
+        /// "Freezes" inline tags ({@tag }) so that they don't get broken up
         let freezeInlineTags str =
             inlineTagRegex.Replace
                 ( str
                 , (fun (m: Match) -> m.Value.Replace(" ", "\0"))
                 )
 
+        /// "Unfreezes" inline tags
         let unfreezeInlineTags (str: string) =
             str.Replace("\0", " ")
 
-        let concatenatedText =
-            lines 
-                |> Nonempty.mapInit 
-                    (fun (s: string) ->
-                        let t = s.TrimEnd()
-                        if settings.doubleSentenceSpacing
-                            && Array.exists (fun c -> t.EndsWith(c)) [| ".";"?";"!"|]
-                        then t + " "
-                        else t
+        /// Tuple of widths for the first and other lines
+        let lineWidths =
+            prefixes
+                |> Tuple.map
+                    (Line.tabsToSpaces settings.tabWidth
+                        >> (fun s -> settings.column - s.Length)
                     )
-                |> (Nonempty.toList >> String.concat " ")
-                |> freezeInlineTags
         
-        if headPrefixIndent > 0 then
-            concatenatedText
-                |> (+) (String.replicate headPrefixIndent "+")
-                |> wrapString wrapWidth
-                |> Nonempty.map unfreezeInlineTags
-                |> Nonempty.mapHead
-                    (String.dropStart headPrefixIndent >> (+) pHead)
-                |> Nonempty.mapTail ((+) pTail)
-        else if headPrefixIndent < 0 then
-            concatenatedText
-                |> String.dropStart -headPrefixIndent
-                |> wrapString wrapWidth
-                |> Nonempty.map unfreezeInlineTags
-                |> Nonempty.mapHead
-                    ((+) (String.takeStart -headPrefixIndent concatenatedText)
-                        >> (+) pHead
-                    )
-                |> Nonempty.mapTail ((+) pTail)
-        else
-            concatenatedText
-                |> wrapString wrapWidth
-                |> Nonempty.map unfreezeInlineTags
-                |> Nonempty.mapHead ((+) pHead)
-                |> Nonempty.mapTail ((+) pTail)
+        lines
+            |> addDoubleSpaces
+            |> (Nonempty.toList >> String.concat " ")
+            |> freezeInlineTags
+            |> wrapString lineWidths 
+            |> Nonempty.map unfreezeInlineTags
+            |> Nonempty.mapHead ((+) (fst prefixes))
+            |> Nonempty.mapTail ((+) (snd prefixes))
+        
 
     let startLine =
         List.takeWhile Block.isIgnore (Nonempty.toList blocks)

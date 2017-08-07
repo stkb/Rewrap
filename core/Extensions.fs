@@ -5,6 +5,9 @@
 
 module internal Tuple =
 
+    let map f (a, b) =
+        (f a, f b)
+
     let mapFirst f (a, b) =
         (f a, b)
 
