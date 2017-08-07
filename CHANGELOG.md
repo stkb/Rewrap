@@ -4,6 +4,7 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 
 - Added Git tag editing as a document type.
 - Added multiple ruler support.
+- Removed old keybinding (ctrl+k ctrl+w)
 
 
 ### 1.4.2
