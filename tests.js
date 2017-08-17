@@ -20,12 +20,11 @@ const fileNames =
 
 const tests =
     fileNames
-        .map(readFileLines)
         .map(readSamplesInFile)
-        .reduce((xs, x) => [...xs, ...x], [])
-        .map(({settings, lines}) => 
+        .reduce((xs, x) => [...xs, ...x], []) // Concat tests
+        .map(({fileName, settings, lines}) => 
             Object.assign(
-                { settings }, readTestLines(lines)
+                { fileName, settings }, readTestLines(lines)
             )
         )
 
@@ -64,16 +63,9 @@ function getSpecFiles(dir)
 }
 
 
-function readFileLines(fileName) {
-    return (
-        FS.readFileSync(fileName, { encoding: 'utf8' })
-            .split(/\r?\n/)
-    )
-}
-
-
-function readSamplesInFile(lines) 
+function readSamplesInFile(fileName) 
 {
+    const lines = FS.readFileSync(fileName, { encoding: 'utf8' }).split(/\r?\n/)
     return loop([], defaultSettings, [], lines)
 
     function loop(output, settings, sampleLines, remainingLines)
@@ -82,7 +74,7 @@ function readSamplesInFile(lines)
 
         if(line == null) {
             if(sampleLines.length > 0) {
-                return [...output, {settings, lines: sampleLines} ]
+                return [...output, {fileName, settings, lines: sampleLines} ]
             }
             else {
                 return output
@@ -101,7 +93,7 @@ function readSamplesInFile(lines)
             // End of sample: add it to output
             else if(sampleLines.length > 0) {
                 return loop
-                    ( [...output, {settings, lines: sampleLines} ]
+                    ( [...output, {fileName, settings, lines: sampleLines} ]
                     , settings
                     , []
                     , remainingLines
@@ -134,27 +126,18 @@ function readSettings(line)
 
 function readTestLines(lines) 
 {
-    let inputLines, outputLines
+    let [inputLines, outputLines] =
+        splitLines('->', lines)
 
-    const splitPoint = 
-        Math.max(...lines.map(l => l.indexOf('->')))
-
-    if(splitPoint == -1) {
-        outputLines = inputLines = removeIndent(lines)
-    }
-    else {
-        [inputLines, outputLines] =
-            lines
-                .map(line => splitAt(splitPoint + 2, line))
-                // Convert list of tuples to tuple of lists
-                .reduce
-                    ( ([xs, ys], [x, y]) =>
-                        [[...xs, x], [...ys, y]]
-                    , [[], []]
-                    )
-                .map(removeIndent)
+    if(!outputLines) {
+        return {
+            err: "No expected output",
+            input : cleanUp(inputLines),
+        }
     }
 
+    [outputLines, reformattedLines] =
+        splitLines('-or-', outputLines)
 
     const wrappingColumn =
         getWrappingColumn(inputLines)
@@ -163,14 +146,37 @@ function readTestLines(lines)
         err: wrappingColumn == -1 ? "Wrapping column" : undefined,
         input: cleanUp(inputLines),
         expected: cleanUp(outputLines),
+        reformatted: cleanUp(reformattedLines),
         wrappingColumn,
         selections: getSelections(inputLines)
     }
 
-    /** Splits a string at a given points and returns a string tuple */
-    function splitAt(p, s) 
+    /** Splits a group of lines with the given marker. The marker can be on any line */
+    function splitLines(marker, lines)
     {
-        return [s.substr(0, p), s.substr(p)]
+        const splitPoint = 
+            Math.max(...lines.map(l => l.indexOf(marker)))
+
+        if(splitPoint == -1) {
+            return [lines, null]
+        }
+        else {
+            return lines
+                .map(line => splitAt(splitPoint + marker.length, line))
+                // Convert list of tuples to tuple of lists
+                .reduce
+                    ( ([xs, ys], [x, y]) =>
+                        [[...xs, x], [...ys, y]]
+                    , [[], []]
+                    )
+                .map(removeIndent)
+        }
+
+        /** Splits a string at a given points and returns a string tuple */
+        function splitAt(p, s) 
+        {
+            return [s.substr(0, p), s.substr(p)]
+        }
     }
 
     /** Removes any indent whitespace that is common to all lines */
@@ -244,10 +250,12 @@ function readTestLines(lines)
     /** Removes special characters and trailing whitespace */
     function cleanUp(lines) 
     {
-        return lines
+        if(!lines) return null
+        else return lines
             .map(line =>
                 line
                     .replace(/ ->(?=\s*$)/, '   ')
+                    .replace(/-or-/, '    ')
                     .replace(/¦/g, ' ')
                     .replace(/[«»]/g, '')
                     .replace(/\s+$/, '')
@@ -274,30 +282,71 @@ function runTests(tests)
     return failures
 
     /** Runs a test and returns a failure object if it fails, otherwise null */
-    function runTest({input, expected, settings, selections, wrappingColumn}) 
+    function runTest({err, fileName, input, expected, reformatted, settings, selections, wrappingColumn}) 
     {
-        const edit =
-            Core.rewrap
-                ( settings.language
-                , ''
-                , selections
-                , Object.assign(settings, { column: wrappingColumn })
-                , input
-                )
+        let actual
+        
+        if(err) {
+            return printError(err)
+        }
+        else {
+            if(reformatted) {
+                let [normalResult, reformatResult] =
+                    [false, true]
+                        .map(reformat => 
+                            runTest({
+                                input,
+                                expected: reformat ? reformatted : expected,
+                                settings: Object.assign({}, settings, { reformat }),
+                                selections,
+                                wrappingColumn,
+                            })
+                        )
 
-        const actual = applyEdit(edit, input)
+                if(!normalResult && !reformatResult)
+                    return null
+                else
+                    return (normalResult || []).concat(reformatResult || [])
+            }
+        }
+
+        try {
+            const edit =
+                Core.rewrap
+                    ( settings.language
+                    , ''
+                    , selections
+                    , Object.assign(settings, { column: wrappingColumn })
+                    , input
+                    )
+            actual = applyEdit(edit, input)
+        }
+        catch(err) {
+            return printError(err)
+        }
+
         try {
             Assert.deepEqual(actual, expected)
             return null
         }
         catch(err) {
-            return printTest
-                ( input
-                , expected
-                , actual
-                , wrappingColumn
-                , settings.tabWidth
-                )
+            return printError()
+        }
+
+        function printError(err)
+        {
+            return [
+                "Fail: " + (err || "Output not expected"),
+                fileName,
+                JSON.stringify(settings),
+                ...printTest
+                    ( input
+                    , expected = expected || []
+                    , actual = actual || []
+                    , wrappingColumn
+                    , settings.tabWidth
+                    ),
+            ]
         }
     }
 }

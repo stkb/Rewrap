@@ -81,8 +81,8 @@ Block quotes
 
 Indented code blocks
 
-    ····a = 1;
-    ····b = 2;
+    ····a = 1;    ¦      ->      ····a = 1;    ¦
+    ····b = 2;    ¦              ····b = 2;    ¦
 
 Fenced code blocks. Can come directly after a paragraph.
 
