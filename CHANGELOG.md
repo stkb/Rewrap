@@ -1,10 +1,11 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
-## Unreleased ##
+## 1.5.0
 
+- Added multiple ruler support ([VSCode](https://github.com/stkb/Rewrap/wiki/Settings-VSCode#wrapping-to-rulers), [VS](https://github.com/stkb/Rewrap/wiki/Settings-Visual-Studio#wrapping-to-rulers)). (#30)
 - Added Git tag editing as a document type.
-- Added multiple ruler support.
-- Removed old keybinding (ctrl+k ctrl+w)
+- VSCode: Removed old keybinding (ctrl+k ctrl+w) ([how to add it back](https://github.com/stkb/Rewrap/wiki/Keybindings-VSCode#old-keybinding))
+- VS: Fixed bug in Options screen (#44)
 
 
 ### 1.4.2
