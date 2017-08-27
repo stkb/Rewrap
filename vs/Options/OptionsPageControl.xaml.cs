@@ -162,6 +162,8 @@ namespace VS.Options
         // Shows the tip text for the given control
         private void ShowTipText(Control inputBox)
         {
+            if (inputBox == null) return;
+
             TipBox.Text = null;
 
             string tip = null;
