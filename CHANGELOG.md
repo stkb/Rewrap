@@ -1,5 +1,8 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
+## Unreleased
+
+
 ## 1.5.0
 
 - Added multiple ruler support ([VSCode](https://github.com/stkb/Rewrap/wiki/Settings-VSCode#wrapping-to-rulers), [VS](https://github.com/stkb/Rewrap/wiki/Settings-Visual-Studio#wrapping-to-rulers)). (#30)
