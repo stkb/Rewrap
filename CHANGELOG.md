@@ -2,6 +2,7 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 
 ## Unreleased
 
+- Added support for Protocol Buffers (Protobuf)
 
 ## 1.5.0
 
