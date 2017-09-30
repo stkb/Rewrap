@@ -2,7 +2,9 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 
 ## Unreleased
 
-- Added support for Protocol Buffers (Protobuf)
+- Added support for Protocol Buffers (Protobuf) (#47)
+- Added support for GraphQL (#49)
+
 
 ## 1.5.0
 
