@@ -4,6 +4,7 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 
 - Added support for Protocol Buffers (Protobuf) (#47)
 - Added support for GraphQL (#49)
+- Fixed issue with "\0" in text (#48)
 
 
 ## 1.5.0

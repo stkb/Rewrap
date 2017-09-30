@@ -52,12 +52,12 @@ let wrapBlocks (settings: Settings) (originalLines: Lines) (blocks: Blocks) : Ed
         let freezeInlineTags str =
             inlineTagRegex.Replace
                 ( str
-                , (fun (m: Match) -> m.Value.Replace(" ", "\0"))
+                , (fun (m: Match) -> m.Value.Replace(' ', '\000'))
                 )
 
         /// "Unfreezes" inline tags
         let unfreezeInlineTags (str: string) =
-            str.Replace("\0", " ")
+            str.Replace('\000', ' ')
 
         /// Tuple of widths for the first and other lines
         let lineWidths =
