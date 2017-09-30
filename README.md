@@ -37,7 +37,7 @@ See the [wiki](https://github.com/stkb/vscode-rewrap/wiki) for pages on configur
 
 The full list of types currently supported is:
 
-AutoHotKey, Bash/shell script, Batch file, C, C#, C++, CoffeeScript, CSS, Dart, Docker file, Elixir, Elm, F#, Go, Groovy, Haskell, Html, Ini, Jade, Java, JavaScript, LaTeX, Less, Lua, Makefile, Markdown, Objective-C, Perl, PHP, PowerShell, PureScript, Python, R, Ruby, Rust, Sass, SQL, Swift, Toml, TypeScript, Visual Basic, Xml, Xsl, Yaml.
+AutoHotKey, Bash/shell script, Batch file, C, C#, C++, CoffeeScript, CSS, Dart, Docker file, Elixir, Elm, F#, Go, GraphQL, Groovy, Haskell, Html, Ini, Jade, Java, JavaScript, LaTeX, Less, Lua, Makefile, Markdown, Objective-C, Perl, PHP, PowerShell, PureScript, Python, R, Ruby, Rust, Sass, SQL, Swift, Toml, TypeScript, Visual Basic, Xml, Xsl, Yaml.
 
 For any other type of file, plain-text paragraph wrapping is still supported.
 
