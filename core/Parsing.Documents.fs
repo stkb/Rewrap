@@ -69,6 +69,8 @@ let languages : Language[] = [|
         c
     lang "Git commit" "git-commit" "tag_editmsg"
         Markdown.markdown
+    lang "GraphQL" "graphql" ".graphql"
+        configFile
     lang "Groovy" "" ".groovy"
         c
     lang "Haskell" "" ".hs"
