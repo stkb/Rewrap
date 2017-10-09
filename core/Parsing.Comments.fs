@@ -13,6 +13,7 @@ let private markerRegex marker =
 
 let extractWrappable 
     (marker: string)
+    (eraseIndentedMarker: bool)
     (reformatPrefix: string -> string)
     (settings: Settings)
     (lines: Lines)
@@ -35,7 +36,12 @@ let extractWrappable
             Line.tabsToSpaces settings.tabWidth
                 >> Line.split regex
                 >> Tuple.mapFirst 
-                    (fun p -> String.replicate p.Length " " |> String.dropStart prefixLength)
+                    (fun pre -> 
+                        if eraseIndentedMarker then
+                            String.replicate pre.Length " " 
+                                |> String.dropStart prefixLength
+                        else String.dropStart prefixLength pre
+                    )
                 >> fun (pre, rest) -> pre + rest
 
         let newPrefix =
@@ -53,7 +59,7 @@ let lineComment
 
     optionParser
         (Nonempty.span (Line.startsWith marker))
-        (extractWrappable marker (fun p -> p.TrimEnd() + " ") settings
+        (extractWrappable marker true (fun p -> p.TrimEnd() + " ") settings
             >> (Block.comment (contentParser settings) >> Nonempty.singleton)
         )
 
@@ -87,6 +93,7 @@ let blockComment
             |> Option.map
                 (extractWrappable 
                     tailMarker 
+                    false
                     (fun _ -> Line.leadingWhitespace headLine + defaultTailMarker)
                     settings
                     >> addHeadLine

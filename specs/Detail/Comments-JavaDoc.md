@@ -19,9 +19,28 @@ Star absent on first line:
      * ddd     ¦                   ccc ddd ¦
      */        ¦                 */        ¦
 
-Alternative placement:
+Alternative placement (or should this be corrected?):
 
     /**        ¦        ->      /**        ¦
     *  aaa bbb ccc              *  aaa bbb ¦
      * ddd     ¦                *  ccc ddd ¦
     */         ¦                */         ¦
+
+Since the *'s are optional, they should not be consumed if used as bullets in a
+comment where leading *'s are absent. 
+
+    /**         ¦      ->      /**         ¦
+    List:       ¦              List:       ¦
+     * Item A   ¦               * Item A   ¦
+     * Item B   ¦               * Item B   ¦
+    */          ¦              */          ¦
+
+Unfortunately the following case fails. The bullets are incorrectly interpreted
+as leading *'s.
+
+``` js
+/** List:
+* Item A
+* Item B
+*/
+```
