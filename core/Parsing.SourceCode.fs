@@ -47,7 +47,7 @@ let cLine =
 
 /// C-Style block comment parser (/* ... */)
 let cBlock =
-    block (@"/\*", @"\*/")
+    customBlock Markdown.markdown (@"\*?", "") (@"/\*", @"\*/")
 
 /// Markers for javadoc
 let javadocMarkers =
