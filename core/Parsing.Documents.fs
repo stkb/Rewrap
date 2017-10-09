@@ -37,9 +37,15 @@ let languages : Language[] = [|
     lang "Batch file" "bat" ".bat"
         ( sourceCode [ line "(?:rem|::)" ] )
     lang "C/C++" "c|c++|cpp" ".c|.cpp|.h"
-        c
+        java
     lang "C#" "csharp" ".cs"
-        ( sourceCode [ customLine html "///"; cLine; cBlock ] )
+        ( sourceCode
+            [ customLine html "///"
+              cLine
+              customBlock javadoc ( "\\*?", " * " ) javadocMarkers
+              cBlock
+            ]
+        )
     lang "CoffeeScript" "" ".coffee"
         ( sourceCode 
             [ customBlock javadoc ("[*#]", " * ") ( "###\\*", "###" )
@@ -66,13 +72,13 @@ let languages : Language[] = [|
     lang "F#" "fsharp" ".fs|.fsx"
         ( sourceCode [ customLine html "///"; cLine; block ( @"\(\*", @"\*\)" ) ] )
     lang "Go" "" ".go"
-        c
+        java
     lang "Git commit" "git-commit" "tag_editmsg"
         Markdown.markdown
     lang "GraphQL" "" ".graphql|.gql"
         configFile
     lang "Groovy" "" ".groovy"
-        c
+        java
     lang "Haskell" "" ".hs"
         ( sourceCode [ line "--\\|?"; block ( "{-\\|?", "-}" ) ] )
     lang "HTML" "" ".htm|.html"
@@ -88,7 +94,7 @@ let languages : Language[] = [|
     lang "LaTeX" "tex" ".bbx|.cbx|.cls|.sty|.tex"
         Latex.latex
     lang "Less" "" ".less"
-        c
+        java
     lang "Lua" "" ".lua"
         ( sourceCode [ line "--"; block ( "--\\[\\[", "\\]\\]" ) ] )
     lang "Makefile" "make" "makefile"
@@ -96,7 +102,7 @@ let languages : Language[] = [|
     lang "Markdown" "" ".md"
         Markdown.markdown
     lang "Objective-C" "" ".m|.mm"
-        c
+        java
     lang "Perl" "perl6" ".p6|.pl|.pl6|.pm|.pm6"
         // Putting Perl & Perl6 together. Perl6 also has a form of block comment
         // which still needs to be supported.
@@ -128,15 +134,15 @@ let languages : Language[] = [|
     lang "SCSS" "" ".scss"
     // Sass still needs to be supported.
     // -  http://sass-lang.com/documentation/file.INDENTED_SYNTAX.html
-        c
+        java
     lang "Shaderlab" "" ".shader"
-        c
+        java
     lang "Shell script" "shellscript" ".sh"
         configFile
     lang "SQL" "" ".sql"
         ( sourceCode [ line "--"; cBlock ] )
     lang "Swift" "" ".swift"
-        c
+        java
     lang "TOML" "" ".toml"
         configFile
     lang "TypeScript" "typescriptreact" ".ts|.tsx"

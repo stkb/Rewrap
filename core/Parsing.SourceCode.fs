@@ -54,10 +54,6 @@ let javadocMarkers =
     (@"/\*\*", @"\*/")
 
 
-/// Basic parser for C-Style languages
-let c =
-    sourceCode [ cLine;  cBlock ]
-
 /// Parser for java/javascript (also used in html)
 let java =
     sourceCode
@@ -68,7 +64,10 @@ let java =
 
 /// Parser for css (also used in html)
 let css =
-    sourceCode [ cBlock ]
+    sourceCode 
+        [ customBlock DocComments.javadoc ( "\\*?", " * " ) javadocMarkers
+          cBlock
+        ]
 
 /// Parser for html (also used in dotNet)
 let html = 
