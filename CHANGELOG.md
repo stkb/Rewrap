@@ -1,5 +1,10 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
+### 1.5.2
+
+- Support lines starting with `*` in all C-Style blocks (`/* .. */`) in all languages that use them. 
+
+
 ### 1.5.1
 
 - Added support for Protocol Buffers (Protobuf) (#47)
