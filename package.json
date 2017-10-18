@@ -81,9 +81,7 @@
     "test": "node tests",
     "postinstall": "node ./node_modules/vscode/bin/install",
     "compile": "fable core/Core.fsproj --outDir fable --ecma es2015 --module commonjs",
-    "fulltest-cleanup": "rimraf .vscode-test",
-    "fulltest": "node ./node_modules/vscode/bin/test && npm run fulltest-cleanup",
-    "clean": "rimraf fable && npm run fulltest-cleanup",
+    "clean": "rimraf fable",
     "vscode:prepublish": "npm run clean && npm run compile"
   },
   "devDependencies": {
