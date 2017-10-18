@@ -1,4 +1,4 @@
-const createEdit = require('../fable/Main').rewrap
+const createEdit = require('./compiled/Core/Main').rewrap
 
 let doWrap
 

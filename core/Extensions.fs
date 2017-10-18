@@ -1,7 +1,6 @@
 ﻿namespace Extensions
 
-// Some extra functions, and also implementations of F# 4.1 functions that are
-// not yet supported in Fable
+// Some extra functions
 
 module internal Tuple =
 
@@ -19,33 +18,6 @@ module internal Tuple =
 
     let replaceSecond x (a, b) =
         (a, x)
-
-
-module Option =
-
-    // Not supported in Fable
-    let defaultValue (def: 'T) (opt: Option<'T>): 'T =
-        match opt with
-            | Some x -> x
-            | None -> def
-
-    // Not supported in Fable
-    let defaultWith (thunk: unit -> 'T) (opt: Option<'T>): 'T =
-        match opt with
-            | Some x -> x
-            | None -> thunk ()
-
-    // Not supported in Fable
-    let orElse (ifNone: Option<'T>) (option: Option<'T>) =
-        match option with
-            | None -> ifNone
-            | _ -> option
-
-    // Not supported in Fable
-    let orElseWith (thunk: unit -> Option<'T>) (opt: Option<'T>): Option<'T> =
-        match opt with
-            | None -> thunk ()
-            | _ -> opt
 
 
 module List =
@@ -74,7 +46,8 @@ module List =
         loop []
 
     
-    // Seems to have a bug in Fable
+    // List.truncate has a bug in Fable.
+    // https://github.com/fable-compiler/Fable/issues/1187
     let truncate<'T> : int -> list: List<'T> -> List<'T> =
         let rec loop output n input =
             match input with
@@ -89,10 +62,10 @@ module List =
         fun n -> loop [] n >> List.rev
 
 
-    // Not supported in Fable
-    let splitAt (n: int) (list: List<'T>): List<'T> * List<'T> =
+    /// splitAt that doesn't throw an error if n is too great; it just returns
+    /// (list, []).
+    let safeSplitAt (n: int) (list: List<'T>): List<'T> * List<'T> =
         (truncate n list, safeSkip n list)
-    
 
 
     let tryTail (list: List<'T>) : Option<List<'T>> =

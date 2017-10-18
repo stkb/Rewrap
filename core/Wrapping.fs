@@ -43,7 +43,7 @@ let wrapBlocks (settings: Settings) (originalLines: Lines) (blocks: Blocks) : Ed
                 (fun (s: string) ->
                     let t = s.TrimEnd()
                     if settings.doubleSentenceSpacing
-                        && Array.exists (fun c -> t.EndsWith(c)) [| ".";"?";"!"|]
+                        && Array.exists (fun (c: string) -> t.EndsWith(c)) [| ".";"?";"!" |]
                     then t + " "
                     else t
                 )
@@ -108,7 +108,7 @@ let wrapBlocks (settings: Settings) (originalLines: Lines) (blocks: Blocks) : Ed
 
             | Ignore n :: nextRemainingBlocks ->
                 let blockLines, restLines =
-                    List.splitAt n remainingOriginalLines
+                    List.safeSplitAt n remainingOriginalLines
                 loop (outputLines @ blockLines) restLines nextRemainingBlocks
 
     let newLines = 

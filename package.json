@@ -79,18 +79,21 @@
   },
   "scripts": {
     "test": "node tests",
-    "postinstall": "node ./node_modules/vscode/bin/install",
-    "compile": "fable core/Core.fsproj --outDir fable --ecma es2015 --module commonjs",
-    "clean": "rimraf fable",
+    "postinstall": "node ./node_modules/vscode/bin/install && dotnet restore vscode",
+    "compile": "cd vscode && dotnet fable npm-run fable-splitter",
+    "fable-splitter": "fable-splitter --config vscode/FableConfig.js",
+    "clean": "rimraf vscode/compiled",
     "vscode:prepublish": "npm run clean && npm run compile"
   },
   "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-preset-env": "^1.6.0",
+    "fable-splitter": "^0.1.20",
+    "fable-utils": "^1.0.6",
     "rimraf": "^2.5.4",
-    "vscode": "^1.0.0",
-    "fable-compiler": "^0.7.51"
+    "vscode": "^1.0.0"
   },
   "dependencies": {
-    "fable-core": "^0.7.30",
     "fast-diff": "^1.1.1"
   }
 }

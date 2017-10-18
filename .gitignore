@@ -5,6 +5,6 @@
 /node_modules/
 /.vscode-test/
 
-/fable/
+/vscode/compiled/
 bin/
 obj/

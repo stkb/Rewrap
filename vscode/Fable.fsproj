@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\Core\AssemblyInfo.fs" />
+    <Compile Include="..\Core\Extensions.fs" />
+    <Compile Include="..\Core\Nonempty.fs" />
+    <Compile Include="..\Core\Rewrap.fs" />
+    <Compile Include="..\Core\Line.fs" />
+    <Compile Include="..\Core\Block.fs" />
+    <Compile Include="..\Core\Selections.fs" />
+    <Compile Include="..\Core\Parsing.Core.fs" />
+    <Compile Include="..\Core\Parsing.Markdown.fs" />
+    <Compile Include="..\Core\Parsing.Comments.fs" />
+    <Compile Include="..\Core\Parsing.DocComments.fs" />
+    <Compile Include="..\Core\Parsing.Html.fs" />
+    <Compile Include="..\Core\Parsing.SourceCode.fs" />
+    <Compile Include="..\Core\Parsing.Latex.fs" />
+    <Compile Include="..\Core\Parsing.Documents.fs" />
+    <Compile Include="..\Core\Wrapping.fs" />
+    <Compile Include="..\Core\Main.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Fable.Core" Version="1.2.4" />
+    <DotNetCliToolReference Include="dotnet-fable" Version="1.2.4" />
+  </ItemGroup>
+</Project>

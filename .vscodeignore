@@ -3,10 +3,11 @@
 # Whitelist
 
 !images/**
-!fable/**
 !node_modules/fast-diff/**
-!node_modules/fable-core/umd/*.js
-!vscode/**
+!vscode/compiled/**
+!vscode/Environment.js
+!vscode/Extension.js
+!vscode/FixSelections.js
 !CHANGELOG.md
 !package.json
 !README.md

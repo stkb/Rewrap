@@ -1,7 +1,7 @@
 const Path = require('path')
 const FS = require('fs')
 const Assert = require('assert')
-const Core = require('./fable/Main')
+const Core = require('./vscode/compiled/Core/Main')
 
 const specsDir = Path.join(__dirname, 'specs')
 const defaultSettings = 
