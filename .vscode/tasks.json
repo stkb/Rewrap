@@ -10,19 +10,19 @@
 	"version": "0.1.0",
 	// show the output window only if unrecognized errors occur.
 	"showOutput": "silent",
-	"command": "env",
+	"command": "npm",
 	"isShellCommand": true,
 	"tasks": [
 		{
 			"taskName": "compile",
-			"args": ["npm", "run", "compile", "--loglevel", "silent"],
+			"args": ["run", "compile", "--loglevel", "silent"],
 			"suppressTaskName": true,
 			"isBuildCommand": true,
 			"isShellCommand": true
 		},
 		{
 			"taskName": "test",
-			"args": ["npm", "test", "--loglevel", "silent"],
+			"args": ["test", "--loglevel", "silent"],
 			"isTestCommand": true,
 			"suppressTaskName": true,
 			"isShellCommand": true
