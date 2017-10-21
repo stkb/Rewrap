@@ -1,8 +1,5 @@
 ﻿module internal Selections
 
-#nowarn "40" 
-
-
 open Nonempty
 open Extensions
 open Rewrap
