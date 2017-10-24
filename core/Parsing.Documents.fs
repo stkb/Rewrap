@@ -143,6 +143,8 @@ let languages : Language[] = [|
         ( sourceCode [ line "--"; cBlock ] )
     lang "Swift" "" ".swift"
         java
+    lang "Tcl" "" ".tcl"
+        configFile
     lang "TOML" "" ".toml"
         configFile
     lang "TypeScript" "typescriptreact" ".ts|.tsx"

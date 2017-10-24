@@ -1,5 +1,10 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
+## Unreleased
+
+- Support Tcl (#54)
+
+
 ### 1.5.2
 
 - Support lines starting with `*` in all C-Style blocks (`/* .. */`) in all languages that use them. 
