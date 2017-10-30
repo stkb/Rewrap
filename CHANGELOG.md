@@ -1,6 +1,6 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
-## Unreleased
+### 1.5.3
 
 - Support Tcl (#54)
 - VS: Add keywords for VS settings search
