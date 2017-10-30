@@ -3,6 +3,7 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 ## Unreleased
 
 - Support Tcl (#54)
+- VS: Add keywords for VS settings search
 
 
 ### 1.5.2
