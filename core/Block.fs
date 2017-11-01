@@ -16,8 +16,8 @@ type Block =
 
 type TextType =
     | Comment of (Lines -> Blocks)
-    | Text
-    | Code
+    | Text // Can be wrapped and indent adjusted
+    | Code // Markdown only. Not wrapped but indent can be adjusted
 
 type Wrappable =
     Prefixes * Lines

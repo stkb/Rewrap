@@ -1,5 +1,11 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
+
+## Unreleased
+
+- Code in a source file is no longer wrappable (#41, #51)
+
+
 ### 1.5.3
 
 - Support Tcl (#54)

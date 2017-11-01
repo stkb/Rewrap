@@ -25,6 +25,14 @@ let private lang (name: string) (aliases: string) (extensions: string) parser : 
     }
 
 
+let plainText settings =
+    let paragraphs =
+        splitIntoChunks (onIndent settings.tabWidth)
+            >> Nonempty.map (indentSeparatedParagraphBlock Block.text)
+
+    repeatUntilEnd blankLines (takeLinesUntil blankLines paragraphs)
+
+
 let private configFile =
     sourceCode [ line "#" ]
 
@@ -152,8 +160,17 @@ let languages : Language[] = [|
     lang "XML" "xsl" ".xml|.xsl"
         html
     lang "YAML" "" ".yaml|.yml"
-        configFile
-|]
+        /// Also allow text paragraphs to be wrapped. Though wrapping the whole
+        /// file at once will mess it up.
+        (fun settings -> 
+            let comments =
+                line "#" settings
+
+            repeatUntilEnd 
+                comments 
+                (takeLinesUntil comments (plainText settings))
+        )
+    |]
 
 
 /// Gets a language ID from a given file path.
@@ -197,11 +214,7 @@ let findLanguage name filePath : Option<Language> =
 /// First the language is checked. If this is fails to find a parser, the file
 /// name is checked. If this also fails, a default plain text parser is used.
 /// </remarks>
-let rec select (language: string) (filePath: string) : Settings -> TotalParser =
-
-    let plainText =
-            sourceCode []
-    
+let rec select (language: string) (filePath: string) : Settings -> TotalParser =    
     findLanguage language filePath
         |> Option.map (fun l -> l.parser)
         |> Option.defaultValue plainText

@@ -1,6 +1,7 @@
 # Selections #
 
-In the examples on this page, `«` represents the start of a selection and `»` the end. These characers are removed from the input.
+In the examples on this page, `«` represents the start of a selection and `»`
+the end. These characers are removed from the input.
 
 
 ## Plain text ##
@@ -83,11 +84,16 @@ With wholeComment: false, only that paragraph will be wrapped
 
 ## Comments and code ##
 
-In source code files, with a mix of comments and code, comments always take
-precedence in selections. So if one or more comments appear in a selection, only
-the comments will be wrapped and the code will be untouched.
-
 > language: "javascript"
+
+In source code files, code is never wrapped, even if it's the only thing
+selected.
+
+    // Comment       ¦           ->      // Comment       ¦
+    // text          ¦                   // text          ¦
+    bool «»checkFunctions()              bool «»checkFunctions()
+
+So a selection can cover code and comments.
 
     «// Checks answer is valid.          ->    // Checks answer is   ¦
     function isValid (answer)                  // valid.             ¦

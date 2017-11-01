@@ -15,11 +15,7 @@ let sourceCode
             (blankLines :: (List.map (fun cp -> cp settings) commentParsers))
 
     let codeParser =
-        takeLinesUntil
-            otherParsers
-            (splitIntoChunks (onIndent settings.tabWidth)
-                >> Nonempty.map (indentSeparatedParagraphBlock Block.code)
-            )
+        takeLinesUntil otherParsers (Block.ignore >> Nonempty.singleton)
 
     repeatUntilEnd otherParsers codeParser
 

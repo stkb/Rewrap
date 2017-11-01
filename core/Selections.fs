@@ -126,12 +126,6 @@ let private ignoreBlock block =
     Block.Ignore (Block.length block)
 
 
-let private isPrimary (block: Block.Block) =
-    match block with
-        | Wrap (Comment _, _)  -> true
-        | Wrap (Text, _) -> true
-        | _ -> false
-
 
 let private withRange offset block =
     (block, LineRange.fromStartLength offset (Block.length block))
@@ -239,26 +233,6 @@ let applyToBlocks (selections: seq<Selection>) (settings: Settings) (blocks: Blo
     let blocksWithRanges : Nonempty<Block * LineRange> =
         addRanges 0 blocks
 
-    // Make a list of selections that don't touch any comments. These are
-    // used to wrap plain sections.
-    let selectionsWithNoComments =
-        let
-            hasComments selection =
-                Nonempty.toList blocksWithRanges
-                    |> List.filter
-                        (snd >> intersects selection)
-                    |> List.map fst
-                    |> List.exists isPrimary
-        in
-            selectionRanges
-                |> List.filter (not << hasComments)
-    
-    // Gets a list of all the selections that could apply to a section. For
-    // comment sections, this is all selections. For non-comment sections,
-    // this is only selections that don't touch a comment.
-    let selectionsForBlock block =
-        if isPrimary block then selectionRanges else selectionsWithNoComments
-
     // For each block, check if there are selections that touch it,
     // otherwise ignore it. For non-comments only check non-comment
     // selections.
@@ -267,7 +241,7 @@ let applyToBlocks (selections: seq<Selection>) (settings: Settings) (blocks: Blo
             |> Nonempty.map
                 (fun (block, blockRange) ->
                     if
-                        selectionsForBlock block
+                        selectionRanges
                             |> List.filter (intersects blockRange)
                             |> (not << List.isEmpty)
                     then
@@ -280,7 +254,7 @@ let applyToBlocks (selections: seq<Selection>) (settings: Settings) (blocks: Blo
         |> Nonempty.collect
             (fun (block, range) ->
                 applySelectionsToBlock
-                    (selectionsForBlock block)
+                    selectionRanges
                     settings.wholeComment
                     (block, range)
             )
