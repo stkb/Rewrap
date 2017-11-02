@@ -24,6 +24,8 @@ line.
 
     <#            ¦                   ->       <#            ¦
     .PARAMETER LongParameterName               .PARAMETER LongParameterName
+        aaaaa bbbbb                                aaaaa     ¦
+        ccc       ¦                                bbbbb ccc ¦
     #>            ¦                            #>            ¦
 
 

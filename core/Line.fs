@@ -18,7 +18,8 @@ let contains (regex: Regex) (line: string) =
 let startsWith marker line =
     Regex(@"^\s*" + marker).IsMatch(line)
 
-
+/// Tries to match a regex against a line. If a match is found returns all
+/// characters up to and including the end of the match.
 let tryMatch (regex: Regex) (line: string): Option<string> =
     let m = regex.Match(line)
     if m.Success then
