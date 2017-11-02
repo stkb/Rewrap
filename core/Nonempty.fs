@@ -41,6 +41,11 @@ let snoc last (Nonempty(head, tail)) =
 let append (Nonempty(head, tail)) b =
     Nonempty(head, tail @ toList b)
 
+let appendToList listA neListB =
+    match fromList listA with
+        | Some neListA -> append neListA neListB
+        | None -> neListB
+
 
 //-----------------------------------------------------------------------------
 // GETTING FROM NON-EMPTY LISTS 
@@ -68,7 +73,7 @@ let tryFind predicate =
 //-----------------------------------------------------------------------------
 
 
-let toList<'T> (Nonempty (head, tail)) =
+let toList<'T> (Nonempty (head, tail): Nonempty<'T>): List<'T> =
     List.Cons (head, tail)
 
 
@@ -106,8 +111,25 @@ let collect (fn: 'T -> Nonempty<'U>) (neList: Nonempty<'T>) : Nonempty<'U> =
                 output
 
     rev neList |> (fun (Nonempty(head, tail)) -> loop (fn head) tail)
-        
 
+let splitAt n (Nonempty(head, tail)) =
+    let rec loop count left maybeRight =
+        match maybeRight with
+            | None ->
+                (left, None)
+            | Some (Nonempty(x, xs)) ->
+                if count < 1 then
+                    (left, maybeRight)
+                else
+                    loop (count - 1) (Nonempty.cons x left) (Nonempty.fromList xs)
+        
+    loop (n - 1) (Nonempty.singleton head) (Nonempty.fromList tail)
+        |> Tuple.mapFirst Nonempty.rev
+
+
+/// Takes a predicate and a list, and Optionally returns a Tuple, of the longest
+/// prefix of the list for which the predicate holds, and the rest of the list.
+/// If that prefix is empty, returns None.
 let span predicate: Nonempty<'a> -> Option<Nonempty<'a> * Option<Nonempty<'a>>> =
     let rec loop output maybeRemaining =
         match maybeRemaining with

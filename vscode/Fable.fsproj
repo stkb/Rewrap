@@ -9,7 +9,6 @@
     <Compile Include="..\Core\Rewrap.fs" />
     <Compile Include="..\Core\Line.fs" />
     <Compile Include="..\Core\Block.fs" />
-    <Compile Include="..\Core\Selections.fs" />
     <Compile Include="..\Core\Parsing.Core.fs" />
     <Compile Include="..\Core\Parsing.Markdown.fs" />
     <Compile Include="..\Core\Parsing.Comments.fs" />
@@ -19,6 +18,7 @@
     <Compile Include="..\Core\Parsing.Latex.fs" />
     <Compile Include="..\Core\Parsing.Documents.fs" />
     <Compile Include="..\Core\Wrapping.fs" />
+    <Compile Include="..\Core\Selections.fs" />
     <Compile Include="..\Core\Main.fs" />
   </ItemGroup>
   <ItemGroup>

@@ -75,6 +75,7 @@ module List =
             | [] ->
                 None
 
+
     let tryInit (list: List<'T>) : Option<List<'T>> =
        list |> List.rev |> tryTail |> Option.map List.rev
 
@@ -101,3 +102,7 @@ module internal String =
 
     let trimStart (str: string) =
         str.TrimStart()
+
+
+    let trimEnd (str: string) =
+        str.TrimEnd()

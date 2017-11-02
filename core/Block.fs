@@ -25,6 +25,10 @@ type Wrappable =
 module Wrappable =
     let mapPrefixes = Tuple.mapFirst
     let mapLines = Tuple.mapSecond
+    let fromLines prefixes lines =
+        (prefixes, lines)
+    let toLines ((pHead: string, pTail: string), lines) =
+        lines |> Nonempty.mapHead ((+) pHead) |> Nonempty.mapTail ((+) pTail)
 
 /// A tuple of two strings. The first represents the prefix used for the first
 /// line of a block of lines; the second the prefix for the rest. Some blocks,

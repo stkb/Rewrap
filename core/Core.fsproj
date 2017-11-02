@@ -57,7 +57,6 @@
     <Compile Include="Rewrap.fs" />
     <Compile Include="Line.fs" />
     <Compile Include="Block.fs" />
-    <Compile Include="Selections.fs" />
     <Compile Include="Parsing.Core.fs" />
     <Compile Include="Parsing.Markdown.fs" />
     <Compile Include="Parsing.Comments.fs" />
@@ -67,6 +66,7 @@
     <Compile Include="Parsing.Latex.fs" />
     <Compile Include="Parsing.Documents.fs" />
     <Compile Include="Wrapping.fs" />
+    <Compile Include="Selections.fs" />
     <Compile Include="Main.fs" />
     <Content Include="packages.config" />
   </ItemGroup>

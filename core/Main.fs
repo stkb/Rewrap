@@ -28,5 +28,4 @@ let rewrap
 
     originalLines
         |> parser settings
-        |> Selections.applyToBlocks selections settings
-        |> Wrapping.wrapBlocks settings originalLines
+        |> Selections.wrapSelected originalLines (List.ofSeq selections) settings
