@@ -1,4 +1,4 @@
-﻿module internal rec Block
+module internal rec Block
 
 open Nonempty
 open Extensions
@@ -12,7 +12,7 @@ type Blocks = Nonempty<Block>
 
 type Block =
     | Wrap of TextType * Wrappable
-    | Ignore of int
+    | NoWrap of Lines
 
 type TextType =
     | Comment of (Lines -> Blocks)
@@ -55,7 +55,7 @@ let code wrappable: Block =
     Wrap(Code, wrappable)
 
 let ignore lines: Block =
-    Ignore(Nonempty.length lines)
+    NoWrap lines
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -68,17 +68,8 @@ let length block =
         | Wrap (_, (_, lines)) ->
             Nonempty.length lines
 
-        | Ignore n ->
-            n
-
-// Returns whether the block is an ignore block
-let isIgnore block =
-    match block with
-        | Ignore _ ->
-            true
-
-        | _ ->
-            false
+        | NoWrap lines ->
+            Nonempty.length lines
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -93,10 +84,13 @@ let splitUp (parser: Lines -> Blocks) ((pHead, pTail), lines) =
     let prependPrefixes p block =
         match block with
             | Wrap (t, w) ->
-                Wrap (t, w |> Tuple.mapFirst (concatPrefixes p))
+                Wrap (t, Wrappable.mapPrefixes (concatPrefixes p) w)
 
-            | Ignore _ ->
-                block
+            | NoWrap ls ->
+                ls 
+                    |> Nonempty.mapHead ((+) (fst p))
+                    |> Nonempty.mapTail ((+) (snd p))
+                    |> NoWrap
     
     parser lines
         |> Nonempty.mapHead (prependPrefixes (pHead, pTail))

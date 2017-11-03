@@ -1,4 +1,4 @@
-﻿module internal Selections
+module internal Selections
 
 open Nonempty
 open Extensions
@@ -160,7 +160,7 @@ let rec private processBlocks
 
                         match block with
                             
-                            | Ignore _ ->
+                            | NoWrap _ ->
                                 (None, None)
 
                             | Wrap (Comment linesToBlocks, wrappable) ->

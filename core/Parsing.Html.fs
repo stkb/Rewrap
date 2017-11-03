@@ -31,8 +31,8 @@ let html
                     |> Option.bind Nonempty.fromList
                     |> Option.map
                         (contentParser settings
-                            >> Nonempty.snoc (Block.Ignore 1)
-                            >> Nonempty.cons (Block.Ignore 1)
+                            >> Nonempty.snoc (Block.ignore (Nonempty.singleton (Nonempty.last lines)))
+                            >> Nonempty.cons (Block.ignore (Nonempty.singleton (Nonempty.head lines)))
                         )
                     |> Option.defaultValue
                         (Nonempty.singleton (Block.ignore lines))

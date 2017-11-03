@@ -60,6 +60,10 @@ let tail (Nonempty (head, tail)) =
     tail
 
 
+let last (Nonempty (head, tail)) =
+    List.tryLast tail |> Option.defaultValue head
+
+
 let length<'T> =
     tail >> List.length<'T> >> (+) 1
 
