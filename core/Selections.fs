@@ -163,7 +163,7 @@ let rec private processBlocks
                             | NoWrap _ ->
                                 (None, None)
 
-                            | Wrap (Comment subBlocks, _) ->
+                            | Comment subBlocks ->
                                 let commentSelections =
                                     if hasEmptySelection && settings.wholeComment then
                                         [ LineRange.fromStartLength start blockLength ]

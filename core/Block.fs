@@ -11,11 +11,11 @@ open Extensions
 type Blocks = Nonempty<Block>
 
 type Block =
+    | Comment of Blocks
     | Wrap of TextType * Wrappable
     | NoWrap of Lines
 
 type TextType =
-    | Comment of Blocks
     | Text // Can be wrapped and indent adjusted
     | Code // Markdown only. Not wrapped but indent can be adjusted
 
@@ -46,7 +46,7 @@ type Lines =
 ///////////////////////////////////////////////////////////////////////////////
 
 let comment parser wrappable: Block =
-    Wrap(Comment (Block.splitUp parser wrappable), wrappable)
+    Comment (Block.splitUp parser wrappable)
 
 let text wrappable: Block =
     Wrap(Text, wrappable)
@@ -65,6 +65,9 @@ let ignore lines: Block =
 /// Gets the length of a block
 let length block =
     match block with
+        | Comment subBlocks ->
+            Nonempty.toList subBlocks |> List.sumBy length
+
         | Wrap (_, (_, lines)) ->
             Nonempty.length lines
 
@@ -83,6 +86,9 @@ let splitUp (parser: Lines -> Blocks) ((pHead, pTail), lines) =
 
     let prependPrefixes p block =
         match block with
+            | Comment subBlocks ->
+                // A comment in a comment (probably) won't happen :)
+                block
             | Wrap (t, w) ->
                 Wrap (t, Wrappable.mapPrefixes (concatPrefixes p) w)
 
