@@ -1,4 +1,4 @@
-module internal rec Block
+﻿module internal rec Block
 
 open Nonempty
 open Extensions
@@ -15,7 +15,7 @@ type Block =
     | NoWrap of Lines
 
 type TextType =
-    | Comment of (Lines -> Blocks)
+    | Comment of Blocks
     | Text // Can be wrapped and indent adjusted
     | Code // Markdown only. Not wrapped but indent can be adjusted
 
@@ -46,7 +46,7 @@ type Lines =
 ///////////////////////////////////////////////////////////////////////////////
 
 let comment parser wrappable: Block =
-    Wrap(Comment parser, wrappable)
+    Wrap(Comment (Block.splitUp parser wrappable), wrappable)
 
 let text wrappable: Block =
     Wrap(Text, wrappable)

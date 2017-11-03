@@ -1,4 +1,4 @@
-module internal Selections
+﻿module internal Selections
 
 open Nonempty
 open Extensions
@@ -163,7 +163,7 @@ let rec private processBlocks
                             | NoWrap _ ->
                                 (None, None)
 
-                            | Wrap (Comment linesToBlocks, wrappable) ->
+                            | Wrap (Comment subBlocks, _) ->
                                 let commentSelections =
                                     if hasEmptySelection && settings.wholeComment then
                                         [ LineRange.fromStartLength start blockLength ]
@@ -172,7 +172,7 @@ let rec private processBlocks
                                 let commentParseResult =
                                     { startLine = start
                                     ; originalLines = origLines
-                                    ; blocks = Block.splitUp linesToBlocks wrappable 
+                                    ; blocks = subBlocks
                                     }
 
 
