@@ -1,4 +1,4 @@
-﻿module private rec Parsing.Markdown
+module private rec Parsing.Markdown
 
 open System.Text.RegularExpressions
 open Extensions
@@ -132,7 +132,7 @@ let rec markdown (settings: Settings): TotalParser =
                 String.dropStart (String.length listItemPrefix) firstLine
 
             let prefixWithSpace =
-                if String.takeEnd 1 listItemPrefix = " " then
+                if listItemPrefix.EndsWith(" ") then
                     listItemPrefix
                 else
                     listItemPrefix + " "

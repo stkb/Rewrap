@@ -1,4 +1,4 @@
-﻿namespace Extensions
+namespace Extensions
 
 // Some extra functions
 
@@ -84,16 +84,12 @@ module internal String =
 
     // Error-safe drops up to n chars from start of string
     let dropStart n (str: string) =
-        if n > str.Length then "" else str.Substring(n)
+        if n > str.Length then "" else str.Substring(max n 0)
 
 
     // Error-safe takes up to n chars from start of string
     let takeStart n (str: string) =
-        if n > str.Length then str else str.Substring(0, n)
-
-
-    let takeEnd n (str: string) =
-        if n > str.Length then str else str.Substring(str.Length - n)
+        if n > str.Length then str else str.Substring(0, max n 0)
 
 
     let trim (str: string) =
