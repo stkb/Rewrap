@@ -296,6 +296,7 @@ function runTests(tests)
                         .map(reformat => 
                             runTest({
                                 input,
+                                fileName,
                                 expected: reformat ? reformatted : expected,
                                 settings: Object.assign({}, settings, { reformat }),
                                 selections,
