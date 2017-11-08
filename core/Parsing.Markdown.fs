@@ -1,4 +1,4 @@
-module private rec Parsing.Markdown
+﻿module private rec Parsing.Markdown
 
 open System.Text.RegularExpressions
 open Extensions
@@ -10,24 +10,67 @@ open Parsing.Core
 
 let rec markdown (settings: Settings): TotalParser =
 
-    /// Ignores fenced code blocks (``` ... ```) 
-    let fencedCodeBlock (Nonempty(headLine, tailLines) as lines) =
-        Line.tryMatch (mdMarker "(`{3,}|~{3,})") headLine
-            |> Option.map String.trimStart
-            |> Option.map
-                (fun marker ->
-                    tailLines
-                        |> Nonempty.fromList
-                        |> Option.map
-                            (Nonempty.splitAfter (lineStartsWith marker)
-                                >> Tuple.mapFirst
-                                    (Nonempty.cons headLine
-                                        >> (Block.ignore >> Nonempty.singleton)
-                                    )
-                            )
-                        |> Option.defaultValue
-                            ( Block.ignore lines |> Nonempty.singleton, None )
-                )
+    let shrinkIndentTo n (lines: Lines) : Lines =
+        let minIndent =
+            Nonempty.toList lines
+                |> List.map (fun s -> s.Length - s.TrimStart().Length)
+                |> List.min
+
+        lines |> Nonempty.map (String.dropStart (minIndent - n))
+
+
+    /// Ignores fenced code blocks (``` ... ```)
+    ///
+    /// The ending marker:
+    /// - Must be on a separate line
+    /// - Must be no more than 3 spaces indented
+    /// - May be more than 3 `'s or ~'s
+    let fencedCodeBlock (Nonempty(headLine: string, tailLines: List<string>) as lines) =
+
+        let takeLinesTillEndMarker marker (startLineIndent: int) : Lines * Option<Lines> =
+                
+            let contentLines, otherLines =
+                List.span (not << lineStartsWith marker) tailLines
+            let maybeEndLine, maybeRemainingLines =
+                match otherLines with
+                    | [] -> ([], None)
+                    | x :: xs -> ([x], Nonempty.fromList xs)
+
+            let outputLines = 
+                if settings.reformat then
+                    let contentIndentShift: int = 
+                        contentLines
+                            |> List.map (fun l -> l.Length)
+                            |> List.min
+                            |> min startLineIndent
+                    Nonempty 
+                        ( String.trimStart headLine
+                        , List.map (String.dropStart contentIndentShift) contentLines
+                            @ (List.map String.trimStart maybeEndLine)
+                        )
+                else
+                    Nonempty (headLine, contentLines @ maybeEndLine)
+            
+            (outputLines, maybeRemainingLines)
+
+
+        let prefix, remainder = Line.split (mdMarker "(`{3,}|~{3,})") headLine
+        let hasStartMarker = String.length prefix > 0
+
+        if hasStartMarker then
+            let marker = String.trimStart prefix
+            // If another marker char is found later in the string, it's not a
+            // valid fenced code block
+            let markerChar = marker.Chars(0)
+            if remainder.IndexOf(markerChar) >= 0 then
+                None
+            else
+                takeLinesTillEndMarker marker (prefix.Length - marker.Length)
+                    |> Tuple.mapFirst (NoWrap >> Nonempty.singleton)
+                    |> Some
+        else
+            None
+        
 
     let htmlType1to6 =
         [ 
@@ -124,7 +167,13 @@ let rec markdown (settings: Settings): TotalParser =
 
     /// Ignores code block indented 4 spaces (or 1 tab)
     let indentedCodeBlock =
-        ignoreParser (Nonempty.span (Line.contains (Regex("^(\\s{4}|\\t)"))))
+        let takeLines =
+            Nonempty.span (Line.contains (Regex("^(\\s{4}|\\t)")))
+        let toBlocks =
+            if settings.reformat then shrinkIndentTo 4 else id
+                >> NoWrap >> Nonempty.singleton
+
+        optionParser takeLines toBlocks
 
     let listItem (Nonempty(firstLine, otherLines)) =
         let doStuff listItemPrefix =

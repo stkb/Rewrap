@@ -100,13 +100,13 @@ have the same indent.
     ··//     b c ¦             ······// c
 
 Here the second paragraph is indented 4 spaces, and therefore treated as a code
-block and not wrapped:
+block and not wrapped. The comment-marker misalignment is fixed however:
 
     // a   ¦        ->      // a b
     // b c ¦                // c
     //     ¦                //
-    ····// a                ····// a
-    ····// b c              ····// b c
+    ····// a                //     a
+    ····// b c              //     b c
 
 (The comment markers are also not fixed, because ignored lines don't get touched
 at all. This should probably be fixed but it's an edge case.)
@@ -115,5 +115,5 @@ Two other approaches could have been taken for these sorts of cases:
 * Line up the comment markers and then work with the whitespace between comment
   markers and text.
 * Have a difference in indent of comment markers mean a new comment block. 
-There weren't strong reasons for the approach chosen.
 
+There weren't strong reasons for the approach chosen.

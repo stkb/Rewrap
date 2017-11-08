@@ -5,6 +5,7 @@ open Extensions
 open Rewrap
 open Block
 
+
 // Private type used to represent line ranges, both of selections and blocks.
 [<Struct>]
 type private LineRange private (s: int, e: int) =
@@ -109,25 +110,35 @@ type ParseResult = {
     blocks : Blocks
 }
 
- 
-let private splitWrappable n ((pHead, pTail), lines) =
-    Nonempty.splitAt n lines
-        |> Tuple.mapFirst (Wrappable.fromLines (pHead, pTail))
-        |> Tuple.mapSecond (Option.map (Wrappable.fromLines (pTail, pTail)))
-
 
 let rec private processBlocks
-    (inComment: bool)
     (settings: Settings) 
     (selections: List<LineRange>) 
     (parseResult: ParseResult)
     : Lines =
+        // Splits a block into 2 parts at n lines
+        let splitBlock n block : (Block * Option<Block>) =
+            match block with
+                | Wrap ((pHead, pTail), lines) ->
+                    Nonempty.splitAt n lines
+                        |> Tuple.mapFirst 
+                            (fun ls -> Wrap ((pHead, pTail), ls))
+                        |> Tuple.mapSecond 
+                            (Option.map (fun ls -> Wrap ((pTail, pTail), ls)))
+                | NoWrap lines ->
+                    Nonempty.splitAt n lines
+                        |> Tuple.mapFirst NoWrap
+                        |> Tuple.mapSecond (Option.map NoWrap)
+                | Comment _ ->
+                    raise (System.Exception("Not going to split a comment"))
+        
 
-        let wrap =
-            Wrapping.wrap settings
-
-        let reindent =
-            Wrappable.toLines >> Nonempty.map String.trimEnd
+        // Processes a block as if it were completely selected
+        let rec processWholeBlock block : Lines =
+            match block with
+                | Wrap wrappable -> Wrapping.wrap settings wrappable
+                | NoWrap lines -> Nonempty.map String.trimEnd lines
+                | Comment subBlocks -> Nonempty.collect processWholeBlock subBlocks
 
         let rec loop output (sels: List<LineRange>) start (Nonempty(block, otherBlocks)) origLines =
 
@@ -144,48 +155,34 @@ let rec private processBlocks
                         (None, None)
 
                     | Some sel ->
-                        let applyToWrappable wrappable textType mapper =
-                            if hasEmptySelection then
-                                (Some (wrap wrappable), None)
-                            else
-                                let splitAt, mapFirst =
-                                    if sel.startLine > start then 
-                                        (sel.startLine - start, (fun _ -> None))
-                                    else
-                                        (sel.endLine - start + 1, mapper)
-                                
-                                splitWrappable splitAt wrappable
-                                    |> Tuple.mapFirst mapFirst
-                                    |> Tuple.mapSecond (Option.map (fun w -> Wrap (textType, w)))
-
                         match block with
-                            
+                            | Wrap _
                             | NoWrap _ ->
-                                (None, None)
+                                if hasEmptySelection then
+                                    (Some (processWholeBlock block), None)
+                                else
+                                    let splitAt, mapFirst =
+                                        if sel.startLine > start then 
+                                            (sel.startLine - start, (fun _ -> None))
+                                        else
+                                            (sel.endLine - start + 1, Some << processWholeBlock)
+                                
+                                    splitBlock splitAt block
+                                        |> Tuple.mapFirst mapFirst
 
                             | Comment subBlocks ->
-                                let commentSelections =
-                                    if hasEmptySelection && settings.wholeComment then
-                                        [ LineRange.fromStartLength start blockLength ]
-                                    else
-                                        sels
-                                let commentParseResult =
-                                    { startLine = start
-                                    ; originalLines = origLines
-                                    ; blocks = subBlocks
-                                    }
-
-
-                                ( Some (processBlocks true settings commentSelections commentParseResult)
-                                , None
-                                )
-
-
-                            | Wrap (Text, wrappable) ->
-                                applyToWrappable wrappable Text (Some << wrap)
-
-                            | Wrap (Code, wrappable) ->
-                                applyToWrappable wrappable Code (Some << reindent)
+                                if hasEmptySelection && settings.wholeComment then
+                                    (Some (processWholeBlock block), None)
+                                else
+                                    ( Some 
+                                        ( processBlocks settings sels
+                                            { startLine = start
+                                            ; originalLines = origLines
+                                            ; blocks = subBlocks
+                                            }
+                                        )
+                                    , None
+                                    )
 
             let consumedLineCount, nextBlocks =
                 match maybePartialBlock with
@@ -234,7 +231,7 @@ let wrapSelected
         }
     
     let newLines =
-        processBlocks false settings selectionRanges parseResult
+        processBlocks settings selectionRanges parseResult
             |> Nonempty.toList
             |> List.toArray
     

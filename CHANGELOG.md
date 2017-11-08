@@ -3,6 +3,8 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 
 ## Unreleased
 
+- With reformat on, code blocks in comments and markdown documents now have
+  indents normalized.
 - Code in a source file is no longer wrappable (#41, #51)
 
 

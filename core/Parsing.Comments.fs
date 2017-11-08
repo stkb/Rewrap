@@ -88,21 +88,53 @@ let blockComment
         let addHeadLine =
             Wrappable.mapPrefixes (Tuple.replaceFirst newHeadPrefix)
             >> Wrappable.mapLines (Nonempty.cons headRemainder)
+        
+        let tailLinesArray =
+            List.toArray tailLines
 
         Nonempty.fromList tailLines
             |> Option.map
-                (extractWrappable 
-                    tailMarker 
-                    false
-                    (fun _ -> Line.leadingWhitespace headLine + defaultTailMarker)
-                    settings
-                    >> addHeadLine
+                (fun neTailLines ->
+                    let endLine, middleLinesRev =
+                        match Nonempty.rev neTailLines with
+                            | Nonempty(h, t) -> (h, t)
+                    
+                    let contentLinesAndEndBlock = 
+                        if Line.startsWith endMarker endLine then
+                            These.maybeThis 
+                                (List.rev middleLinesRev |> Nonempty.fromList)
+                                (NoWrap (Nonempty.singleton endLine))
+                        else
+                            This neTailLines
+                    
+                    let contentBlocksAndEndBlock = 
+                        These.mapThis 
+                            (extractWrappable 
+                                tailMarker 
+                                false
+                                (fun _ -> Line.leadingWhitespace headLine + defaultTailMarker)
+                                settings
+                                >> addHeadLine
+                                >> Block.splitUp (contentParser settings)
+                            )
+                            contentLinesAndEndBlock
+
+                    match contentBlocksAndEndBlock with
+                        | This contentBlocks -> 
+                            contentBlocks
+                        | That endBlock -> 
+                            Nonempty.singleton endBlock
+                        | These (contentBlocks, endBlock) ->
+                            contentBlocks |> Nonempty.snoc endBlock
+                    
                 )
             |> Option.defaultValue
-                ( (newHeadPrefix, (Line.leadingWhitespace headLine + defaultTailMarker))
-                , Nonempty.singleton headRemainder
+                (Block.splitUp (contentParser settings)
+                    ( (newHeadPrefix, (Line.leadingWhitespace headLine + defaultTailMarker))
+                    , Nonempty.singleton headRemainder
+                    )
                 )
-            |> (Block.comment (contentParser settings) >> Nonempty.singleton)
+            |> (Block.Comment >> Nonempty.singleton)
  
 
     optionParser

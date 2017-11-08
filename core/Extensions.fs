@@ -1,6 +1,28 @@
-namespace Extensions
+﻿namespace Extensions
 
 // Some extra functions
+
+// Fabel compiler doesn't like the `type These ... module These` pattern, so we
+// use static members instead
+type These<'A, 'B> =
+    | This of 'A
+    | That of 'B
+    | These of 'A * 'B
+    with
+    static member maybeThis (maybeA: Option<'A>) (b: 'B) : These<'A, 'B> =
+        match maybeA with
+            | Some a -> These(a, b)
+            | None -> That b
+    static member maybeThat a maybeB =
+        match maybeB with
+            | Some b -> These(a, b)
+            | None -> This a
+    static member mapThis<'C> (f: 'A -> 'C) (these: These<'A, 'B>) : These<'C, 'B> =
+        match these with
+            | This a -> This (f a)
+            | That b -> That b
+            | These (a, b) -> These (f a, b)
+
 
 module internal Tuple =
 
