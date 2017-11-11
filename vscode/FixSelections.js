@@ -12,7 +12,12 @@ const fd = require('fast-diff');
 /** Given lines of original text, a set of selections and a set of edits,
  *  returns the positions of the selections for after the edits have been
  *  applied. */
-function adjustSelections(lines, selections, edits) {
+function adjustSelections(lines, selections, edits) 
+{
+    selections = selections.map(s =>
+        new vscode_1.Selection(s.anchor.line, s.anchor.character, s.active.line, s.active.character)
+    )
+
     let runningLineGrowth = 0;
     for (let edit of edits) {
         if(!edit || !edit.lines.length) continue;
@@ -55,7 +60,6 @@ function newOffsetFromOld(offset, diff) {
     }
     return offset + delta;
 }
-
 
 function offsetAt(lines, position) {
     return (lines

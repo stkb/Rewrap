@@ -1,4 +1,5 @@
-const createEdit = require('./compiled/Core/Main').rewrap
+const Rewrap = require('./compiled/Core/Rewrap')
+const Core = require('./compiled/Core/Main')
 
 let doWrap
 
@@ -19,53 +20,12 @@ exports.activate = function activate(context)
             ( 'rewrap.rewrapCommentAt', rewrapCommentAtCommand )
         )
 
-
-    // Table of document wrapping columns
-    const docWrappingColumns = {}
-
-    let lastWrap = {
-        uri: null,
-        version: null,
-        selections: null,
-    }
-
     /**
      * Standard rewrap command
      */
     function rewrapCommentCommand(editor) 
     {
-        const document = editor.document
-        const uri = document.uri
-        const settings = Environment.getSettings(editor)
-        const columns = settings.columns
-
-        if(columns.length > 1) {
-            if( uri == lastWrap.uri 
-                && document.version == lastWrap.version
-                && JSON.stringify(editor.selections) == lastWrap.selections
-            ) {
-                const nextColIndex = 
-                    (columns.indexOf(docWrappingColumns[uri]) + 1) % columns.length
-                docWrappingColumns[uri] = columns[nextColIndex]
-            } else if (!docWrappingColumns[uri]) {
-                docWrappingColumns[uri] = columns[0]
-            }
-
-            settings.column = docWrappingColumns[uri]
-        } else {
-            settings.column = settings.columns[0]
-        }
-
-        doWrap(editor, validateSettings(settings))
-            .then(saveWrapInfo)
-
-        function saveWrapInfo() {
-            lastWrap = { 
-                uri, 
-                version: document.version, 
-                selections: JSON.stringify(editor.selections), 
-            } 
-        }
+        doWrap(editor).then(Core.saveDocState)
     }
 
 
@@ -75,23 +35,10 @@ exports.activate = function activate(context)
     function rewrapCommentAtCommand(editor)
     {
         return getCustomColumn(customWrappingColumn.toString())
-            .then(customColumn => 
-                    customColumn 
-                        ? Object.assign
-                            ( Environment.getSettings(editor)
-                            , { column: customColumn }
-                            )
-                        : null
-                )
-            .then(options => 
-                    options ? doWrap(editor, options).catch(catchErr) : null
-                )
+            .then(wrapWithCustomColumn)
 
-        /**
-         * Prompts the user for a column value.
-         * @param {string} initialValue - Value to prepopulate the input box
-         * with. Can be undefined.
-         */
+
+        // Prompts the user for a value. initialValue {string} may be undefined.
         function getCustomColumn(initialValue)
         {
             return window.showInputBox({
@@ -109,38 +56,63 @@ exports.activate = function activate(context)
                     }
                 })
         }
+
+        function wrapWithCustomColumn(customColumn) 
+        {
+            if(!customColumn) return
+
+            doWrap(editor, { columns: [customColumn] })
+        }
     }
 
     /** Used in the rewrapCommmentAt command */
     let customWrappingColumn = 99
 
 
-    /** 
+    /**
      * Collects the information for a wrap from the editor, passes it to the
-     * wrapping code, and then applies the result to the document.
+     * wrapping code, and then applies the result to the document. Returns an
+     * updated DocState object.
      */
-    function doWrap(editor, options)
+    function doWrap(editor, settingOverrides)
     {
         const document = editor.document
-        const selections = editor.selections
+        const docState = getDocState()
         const lines = 
             Array.from(new Array(document.lineCount))
                 .map((_, i) => document.lineAt(i).text)
+        const settings = 
+            validateSettings(Object.assign(Environment.getSettings(editor), settingOverrides))
 
-        return Promise.resolve(
-            createEdit
-                ( document.languageId
-                , document.fileName
-                , selections
-                , options
-                , lines
-                )
-            )
+        return Promise.resolve()
+            .then(() => Core.rewrap(docState, settings, lines))
             .then(applyEdit)
-            .then(edit =>
-                editor.selections = adjustSelections(lines, selections, [edit])
-            )
+            .then(edit => {
+                editor.selections = adjustSelections(lines, docState.selections, [edit])
+                return getDocState()
+            })
             .catch(catchErr)
+
+
+        function getDocState() 
+        {
+            // Conversion of selections is needed for equality operations within
+            // Fable code
+            return new Rewrap.DocState
+                ( document.fileName
+                , document.languageId
+                , document.version
+                , editor.selections.map(vscodeToRewrapSelection)
+                )
+
+            function vscodeToRewrapSelection(s) 
+            {
+                return new Rewrap.Selection
+                    ( new Rewrap.Position(s.anchor.line, s.anchor.character)
+                    , new Rewrap.Position(s.active.line, s.active.character)
+                    )
+            }
+        }
 
         function applyEdit(edit) 
         {
@@ -180,20 +152,8 @@ exports.activate = function activate(context)
 
     function validateSettings(settings) 
     {
-        // Check wrapping column
-        if(!Number.isInteger(settings.column) || settings.column < 1) {
-            console.warn(
-                "Rewrap: wrapping column is an invalid value (%o). " +
-                "Using the default of (80) instead.", settings.column
-            )
-            settings.column = 80
-        }
-        else if(settings.column > 120) {
-            console.warn(
-                "Rewrap: wrapping column is a rather large value (%d).",
-                settings.column
-            )
-        }
+        // Check all columns
+        settings.columns = settings.columns.map(checkWrappingColumn)
 
         // Check tab width
         if(!Number.isInteger(settings.tabWidth) || settings.tabWidth < 1) {
@@ -203,13 +163,24 @@ exports.activate = function activate(context)
             )
             settings.tabWidth = 4
         }
-        if(settings.tabWidth > settings.column / 2) {
-            console.warn(
-                "Rewrap: tabSize is (%d) and wrappingColumn is (%d). " +
-                "Unexpected results may occur.", settings.tabWidth, settings.column
-            )
-        }
 
         return settings;
+
+        function checkWrappingColumn(col)
+        {
+            if(!Number.isInteger(col) || col < 1) {
+                console.warn(
+                    "Rewrap: wrapping column is an invalid value (%o). " +
+                    "Using a default of (80) instead.", col
+                )
+                col = 80
+            }
+            else if(col > 120) {
+                console.warn(
+                    "Rewrap: wrapping column is a rather large value (%d).", col
+                )
+            }
+            return col
+        }
     }
 }

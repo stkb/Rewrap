@@ -2,6 +2,7 @@ const Path = require('path')
 const FS = require('fs')
 const Assert = require('assert')
 const Core = require('./vscode/compiled/Core/Main')
+const {DocState} = require('./vscode/compiled/Core/Rewrap')
 
 const specsDir = Path.join(__dirname, 'specs')
 const defaultSettings = 
@@ -312,12 +313,12 @@ function runTests(tests)
         }
 
         try {
+            const docState =
+                new DocState('', settings.language, 0, selections)
             const edit =
                 Core.rewrap
-                    ( settings.language
-                    , ''
-                    , selections
-                    , Object.assign(settings, { column: wrappingColumn })
+                    ( docState
+                    , Object.assign(settings, { columns: [wrappingColumn] })
                     , input
                     )
             actual = applyEdit(edit, input)

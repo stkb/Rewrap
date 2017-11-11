@@ -7,6 +7,7 @@ const { workspace } = require('vscode')
 function getSettings(editor)
 {
     return {
+        column: 0, // Not used and will later be removed
         columns: getWrappingColumns(editor),
         tabWidth: editor.options.tabSize,
         doubleSentenceSpacing: getSetting(editor, 'rewrap.doubleSentenceSpacing'),
@@ -27,7 +28,7 @@ function getWrappingColumns(editor)
     else if((rulers = getSetting(editor, 'editor.rulers'))[0])
         return rulers
     else
-        return getSetting(editor, 'editor.wordWrapColumn')
+        return [getSetting(editor, 'editor.wordWrapColumn')]
         // The default for this is already 80
 }
 

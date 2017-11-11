@@ -2,7 +2,8 @@
 
 /// Settings passed in from the editor
 type Settings = {
-    column : int
+    column : int // To be removed
+    columns: int[]
     tabWidth : int
     doubleSentenceSpacing : bool
     reformat : bool
@@ -25,6 +26,14 @@ type Position = {
     
 
 type Selection = { 
-    active : Position
     anchor : Position 
+    active : Position
 }
+
+
+type DocState = 
+    { filePath: string
+    ; language : string
+    ; version: int
+    ; selections: Selection[]
+    }

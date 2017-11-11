@@ -7,7 +7,6 @@ using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Editor.OptionsExtensionMethods;
 using Rewrap;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using VS.Options;
 
@@ -24,27 +23,54 @@ namespace VS
         /// </summary>
         public static void ExecRewrap(IWpfTextView textView)
         {
-            var snapshot = textView.TextSnapshot;
-            var language = GetLanguage( snapshot.TextBuffer );
-            var filePath = GetFilePath( snapshot.TextBuffer );
+            // Prerequisites
+            var textBuffer = textView.TextBuffer;
+            var snapshot = textBuffer.CurrentSnapshot;
+            var filePath = GetFilePath(textBuffer);
+            var language = GetLanguage(textBuffer);
+            var options = OptionsPage.GetOptions( language, filePath );
 
-            var edit =
-                Core.rewrap
-                    ( language: language
-                    , filePath: filePath
-                    , selections: GetSelections( textView, snapshot )
-                    , settings: GetSettings( textView, language, filePath )
-                    , lines: snapshot.Lines.Select( l => l.GetText() )
-                    );
+            // Info for wrap
+            var docState = GetDocState();
+            var lines = snapshot.Lines.Select( l => l.GetText() );
+            var settings = GetSettings();
+            // Create edit
+            var edit = Core.rewrap( docState, settings, lines );
 
+            // Apply edit
             ApplyEdit( textView, snapshot, edit );
 
-            var afterSnapshot = textView.TextSnapshot;
-            LastWrap = 
-                ( filePath
-                , afterSnapshot.Version.VersionNumber
-                , GetSelections( textView, afterSnapshot )
-                );
+            // Save new doc state (selections will have changed)
+            snapshot = textBuffer.CurrentSnapshot;
+            Core.saveDocState(GetDocState());
+
+
+            DocState GetDocState()
+            {
+                return new DocState
+                    ( filePath
+                    , language
+                    , snapshot.Version.VersionNumber
+                    , GetSelections( textView, snapshot )
+                    );
+            }
+
+            Settings GetSettings()
+            {
+                int[] wrappingColumns =
+                    options.WrappingColumn.HasValue
+                        ? new[] { options.WrappingColumn.Value }
+                        : GetRulers();
+
+                return new Settings
+                    ( 0 // WrappingColumn will later be removed
+                    , wrappingColumns
+                    , textView.Options.GetTabSize()
+                    , options.DoubleSentenceSpacing
+                    , options.Reformat
+                    , options.WholeComment
+                    );
+            }
         }
 
 
@@ -79,54 +105,6 @@ namespace VS
             }
         }
 
-
-        static Dictionary<string, int> DocWrappingColumns = new Dictionary<string, int>();
-
-        static ValueTuple<string, int, Selection[]> LastWrap = ("", 0, new Selection[] { });
-
-        static int? GetRuler(IWpfTextView editor, string filePath)
-        {
-            int[] rulers = GetRulers();
-            if ( rulers.Length == 0 ) return null;
-            if ( rulers.Length == 1 ) return rulers[0];
-
-            var (lastPath, lastVersion, lastSelections) = LastWrap;
-            var snapshot = editor.TextBuffer.CurrentSnapshot;
-
-            if (
-                lastPath == filePath
-                    && lastVersion == snapshot.Version.VersionNumber
-                    && Enumerable.SequenceEqual
-                        ( lastSelections
-                        , GetSelections( editor, snapshot ) 
-                        )
-            )
-            {
-                int nextRulerIndex =
-                    ( Array.IndexOf<int>( rulers, DocWrappingColumns[filePath] ) + 1 ) 
-                        % rulers.Length;
-                DocWrappingColumns[filePath] = rulers[nextRulerIndex];
-            }
-            else if(!DocWrappingColumns.ContainsKey(filePath)) {
-                DocWrappingColumns[filePath] = rulers[0];
-            }
-
-            return DocWrappingColumns[filePath];
-        }
-
-
-        static Settings GetSettings(IWpfTextView editor, string language, string filePath)
-        {
-            var options = OptionsPage.GetOptions( language, filePath );
-
-            return new Settings
-                ( options.WrappingColumn ?? GetRuler(editor, filePath) ?? 80 
-                , editor.Options.GetTabSize()
-                , options.DoubleSentenceSpacing
-                , options.Reformat
-                , options.WholeComment
-                );
-        }
 
         /// <summary>
         /// Gets the document type (language) for the given text buffer.
@@ -178,8 +156,8 @@ namespace VS
         {
             return new Selection[]
                 { new Selection
-                    ( GetPosition(snapshot, textView.Selection.ActivePoint)
-                    , GetPosition(snapshot, textView.Selection.AnchorPoint)
+                    ( GetPosition(snapshot, textView.Selection.AnchorPoint)
+                    , GetPosition(snapshot, textView.Selection.ActivePoint)
                     )
                 };
         }
@@ -232,6 +210,8 @@ namespace VS
 
         static OptionsPage _OptionsPage;
 
+
+        /// Gets editor rulers (guides) from the registry
         static int[] GetRulers()
         {
             var dte = (EnvDTE.DTE)Package.GetGlobalService( typeof( EnvDTE.DTE ) );
