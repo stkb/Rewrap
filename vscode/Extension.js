@@ -1,7 +1,5 @@
-const Rewrap = require('./compiled/Core/Rewrap')
+const Rewrap = require('./compiled/Core/Types')
 const Core = require('./compiled/Core/Main')
-
-let doWrap
 
 /**
  * Function to activate the extension.

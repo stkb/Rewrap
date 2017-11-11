@@ -54,7 +54,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Extensions.fs" />
     <Compile Include="Nonempty.fs" />
-    <Compile Include="Rewrap.fs" />
+    <Compile Include="Types.fs" />
     <Compile Include="Line.fs" />
     <Compile Include="Block.fs" />
     <Compile Include="Parsing.Core.fs" />

@@ -1,8 +1,8 @@
 const Path = require('path')
 const FS = require('fs')
 const Assert = require('assert')
+const {DocState} = require('./vscode/compiled/Core/Types')
 const Core = require('./vscode/compiled/Core/Main')
-const {DocState} = require('./vscode/compiled/Core/Rewrap')
 
 const specsDir = Path.join(__dirname, 'specs')
 const defaultSettings = 
