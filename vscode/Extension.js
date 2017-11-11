@@ -1,9 +1,7 @@
 const Rewrap = require('./compiled/Core/Types')
 const Core = require('./compiled/Core/Main')
 
-/**
- * Function to activate the extension.
- */
+/** Function to activate the extension. */
 exports.activate = function activate(context)
 {
     const { Range, commands, workspace, window } = require('vscode')
@@ -18,23 +16,20 @@ exports.activate = function activate(context)
             ( 'rewrap.rewrapCommentAt', rewrapCommentAtCommand )
         )
 
-    /**
-     * Standard rewrap command
-     */
-    function rewrapCommentCommand(editor) 
-    {
-        doWrap(editor).then(Core.saveDocState)
+        
+        /** Standard rewrap command */
+        function rewrapCommentCommand(editor) 
+        {
+            doWrap(editor).then(Core.saveDocState)
     }
-
-
-    /**
-     * Does a rewrap, but first prompts for a custom wrapping column to use.
-     */
+    
+    
+    let customWrappingColumn = 99
+    /** Does a rewrap, but first prompts for a custom wrapping column to use. */
     function rewrapCommentAtCommand(editor)
     {
         return getCustomColumn(customWrappingColumn.toString())
             .then(wrapWithCustomColumn)
-
 
         // Prompts the user for a value. initialValue {string} may be undefined.
         function getCustomColumn(initialValue)
@@ -63,34 +58,30 @@ exports.activate = function activate(context)
         }
     }
 
-    /** Used in the rewrapCommmentAt command */
-    let customWrappingColumn = 99
 
-
-    /**
-     * Collects the information for a wrap from the editor, passes it to the
-     * wrapping code, and then applies the result to the document. Returns an
-     * updated DocState object.
+    /** Collects the information for a wrap from the editor, passes it to the
+     *  wrapping code, and then applies the result to the document. Returns an
+     *  updated DocState object.
      */
     function doWrap(editor, settingOverrides)
     {
         const document = editor.document
         const docState = getDocState()
+        const settings = 
+            Object.assign(Environment.getSettings(editor), settingOverrides)
         const lines = 
             Array.from(new Array(document.lineCount))
                 .map((_, i) => document.lineAt(i).text)
-        const settings = 
-            Object.assign(Environment.getSettings(editor), settingOverrides)
 
         return Promise.resolve()
             .then(() => Core.rewrap(docState, settings, lines))
             .then(applyEdit)
             .then(edit => {
-                editor.selections = adjustSelections(lines, docState.selections, [edit])
+                editor.selections = 
+                    adjustSelections(lines, docState.selections, [edit])
                 return getDocState()
             })
             .catch(catchErr)
-
 
         function getDocState() 
         {
@@ -126,24 +117,22 @@ exports.activate = function activate(context)
             }
             else return edit
         }
-    }
 
-
-    /**
-     * Catches an error and displays a friendly message to the user.
-     */
-    function catchErr(err)
-    {
-        console.error("Rewrap: Something happened.")
-        console.log(err)
-        console.error(
-            "Rewrap: Please report this (with a screenshot of this log) at " +
-            "https://github.com/stkb/vscode-rewrap/issues"
-        )       
-        vscode.window.showInformationMessage(
-            "Sorry, there was an error in Rewrap. " +
-            "Go to: Help -> Toggle Developer Tools -> Console " +
-            "for more information."
-        )
+        // Catches any error and displays a friendly message to the user.
+        function catchErr(err)
+        {
+            console.error("==Rewrap==")
+            console.log(err)
+            console.error(
+                "Rewrap: Please report this (with a screenshot of this log) at " +
+                "https://github.com/stkb/vscode-rewrap/issues"
+            )       
+            console.error("==========")
+            vscode.window.showInformationMessage(
+                "Sorry, there was an error in Rewrap. " +
+                "Go to: Help -> Toggle Developer Tools -> Console " +
+                "for more information."
+            )
+        }
     }
 }
