@@ -80,7 +80,7 @@ exports.activate = function activate(context)
             Array.from(new Array(document.lineCount))
                 .map((_, i) => document.lineAt(i).text)
         const settings = 
-            validateSettings(Object.assign(Environment.getSettings(editor), settingOverrides))
+            Object.assign(Environment.getSettings(editor), settingOverrides)
 
         return Promise.resolve()
             .then(() => Core.rewrap(docState, settings, lines))
@@ -145,40 +145,5 @@ exports.activate = function activate(context)
             "Go to: Help -> Toggle Developer Tools -> Console " +
             "for more information."
         )
-    }
-
-
-    function validateSettings(settings) 
-    {
-        // Check all columns
-        settings.columns = settings.columns.map(checkWrappingColumn)
-
-        // Check tab width
-        if(!Number.isInteger(settings.tabWidth) || settings.tabWidth < 1) {
-            console.warn(
-                "Rewrap: tab width is an invalid value (%o). " +
-                "Using the default of (4) instead.", settings.tabWidth
-            )
-            settings.tabWidth = 4
-        }
-
-        return settings;
-
-        function checkWrappingColumn(col)
-        {
-            if(!Number.isInteger(col) || col < 1) {
-                console.warn(
-                    "Rewrap: wrapping column is an invalid value (%o). " +
-                    "Using a default of (80) instead.", col
-                )
-                col = 80
-            }
-            else if(col > 120) {
-                console.warn(
-                    "Rewrap: wrapping column is a rather large value (%d).", col
-                )
-            }
-            return col
-        }
     }
 }
