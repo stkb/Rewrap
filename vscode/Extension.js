@@ -4,7 +4,8 @@ const Core = require('./compiled/Core/Main')
 /** Function to activate the extension. */
 exports.activate = function activate(context)
 {
-    const { Range, commands, workspace, window } = require('vscode')
+    const vscode = require('vscode')
+    const { Position, Range, Selection, commands, workspace, window } = vscode
     const Environment = require('./Environment')
     const { adjustSelections } = require('./FixSelections')
 
@@ -14,13 +15,15 @@ exports.activate = function activate(context)
             ( 'rewrap.rewrapComment', rewrapCommentCommand )
         , commands.registerTextEditorCommand
             ( 'rewrap.rewrapCommentAt', rewrapCommentAtCommand )
+        , commands.registerCommand
+            ( 'rewrap.toggleAutoWrap', toggleAutoWrapCommand )
         )
 
         
-        /** Standard rewrap command */
-        function rewrapCommentCommand(editor) 
-        {
-            doWrap(editor).then(Core.saveDocState)
+    /** Standard rewrap command */
+    function rewrapCommentCommand(editor) 
+    {
+        doWrap(editor, Core.rewrap).then(Core.saveDocState)
     }
     
     
@@ -53,35 +56,98 @@ exports.activate = function activate(context)
         function wrapWithCustomColumn(customColumn) 
         {
             if(!customColumn) return
-
-            doWrap(editor, { columns: [customColumn] })
+            doWrap(editor, Core.rewrap, customColumn)
         }
     }
 
 
+    let changeHook, statusBarItem
+    /** Auto-wrap automatically wraps the current line when space or enter is
+     *  pressed after the wrapping column. */
+    function toggleAutoWrapCommand()
+    {
+        if(changeHook) {
+            changeHook.dispose()
+            changeHook = null
+            statusBarItem.hide()
+        }
+        else {
+            changeHook = workspace.onDidChangeTextDocument(checkChange)
+            if(!statusBarItem) {
+                statusBarItem = 
+                    window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100)
+                statusBarItem.text = "Auto-wrap"
+            }
+            statusBarItem.show()
+        }
+
+        function checkChange(e)
+        {
+            // Make sure we're in the active document
+            const editor = window.activeTextEditor
+            if(editor.document !== e.document) return
+
+            // Haven't come across a case where # of changes is != 1 but if it
+            // happens we can't handle it.
+            if(e.contentChanges.length != 1) return
+
+            // Trigger only on space or enter pressed
+            const lastChange = e.contentChanges[e.contentChanges.length - 1]
+            const triggers = [' ', '\n', '\r\n']
+            if(!triggers.includes(lastChange.text)) return
+            
+            // Multiple selections aren't supported atm
+            if(editor.selections.length > 1) return
+            if(!editor.selection.isEmpty) return
+
+            // Here editor.selection is still at the position it would be before
+            // the typed character is added. After the wrap we need to move it
+            // the equivalent of a space or enter press.
+            doWrap(editor, Core.autoWrap).then(adjustSelection)
+
+            function adjustSelection(docState) 
+            {
+                if(!docState) return
+
+                const {line, character} = docState.selections[0].active
+                const newPos = lastChange.text == " "
+                    ? new Position(line, character + 1)
+                    : new Position(line + 1, 0)
+                editor.selection = new Selection(newPos, newPos)
+            }
+        }
+    }
+    
+    
     /** Collects the information for a wrap from the editor, passes it to the
-     *  wrapping code, and then applies the result to the document. Returns an
-     *  updated DocState object.
+     *  wrapping code, and then applies the result to the document. If an edit
+     *  is applied, returns an updated DocState object, else returns null.
      */
-    function doWrap(editor, settingOverrides)
+    function doWrap(editor, wrapFn, customColumn = undefined)
     {
         const document = editor.document
-        const docState = getDocState()
-        const settings = 
-            Object.assign(Environment.getSettings(editor), settingOverrides)
-        const lines = 
-            Array.from(new Array(document.lineCount))
+        try {
+            let settings = Environment.getSettings(editor)
+            if(customColumn) Object.assign(settings, {columns: [customColumn]})
+            
+            const docState = getDocState()
+            const lines = Array.from(new Array(document.lineCount))
                 .map((_, i) => document.lineAt(i).text)
 
-        return Promise.resolve()
-            .then(() => Core.rewrap(docState, settings, lines))
-            .then(applyEdit)
-            .then(edit => {
-                editor.selections = 
+            // Don't call wrapFn in a promise: it causes performance/race
+            // conditions when using auto-wrap
+            const edit = wrapFn(docState, settings, lines)
+            if(!edit.lines.length) return Promise.resolve()
+            
+            return applyEdit(edit)
+                .then(() => {
+                    editor.selections =
                     adjustSelections(lines, docState.selections, [edit])
-                return getDocState()
-            })
-            .catch(catchErr)
+                    return getDocState()
+                })
+                .then(null, catchErr)
+        }
+        catch(err) { catchErr(err) }
 
         function getDocState() 
         {
@@ -105,17 +171,13 @@ exports.activate = function activate(context)
 
         function applyEdit(edit) 
         {
-            if(edit.lines.length) {
-                const range =
-                    document.validateRange
-                        ( new Range(edit.startLine, 0, edit.endLine, Number.MAX_VALUE) )
-                const text = 
-                    edit.lines.join('\n')
+            const range =
+                document.validateRange
+                    ( new Range(edit.startLine, 0, edit.endLine, Number.MAX_VALUE) )
 
-                return editor.edit(editBuilder => editBuilder.replace(range, text))
-                    .then(_ => edit)
-            }
-            else return edit
+            // vscode takes care of converting to \r\n if necessary
+            const text = edit.lines.join('\n')
+            return editor.edit(editBuilder => editBuilder.replace(range, text))
         }
 
         // Catches any error and displays a friendly message to the user.

@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Editor.OptionsExtensionMethods;
 using Rewrap;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using VS.Options;
 
@@ -18,10 +19,24 @@ namespace VS
     /// </summary>
     static class Editor
     {
-        /// <summary>
-        /// Executes the Rewrap command for the given text view.
-        /// </summary>
-        public static void ExecRewrap(IWpfTextView textView)
+        /// Does a standard wrap for the given text view.
+        public static void StandardWrap(IWpfTextView textView)
+        {
+            var docState = ExecRewrap( Core.rewrap, textView );
+            // Save new doc state (selections will have changed)
+            if(docState != null) Core.saveDocState( docState );
+        }
+
+        /// Does an auto-wrap for the given text view.
+        public static void AutoWrap(IWpfTextView textView)
+        {
+            ExecRewrap( Core.autoWrap, textView );
+        }
+
+        static DocState ExecRewrap
+            ( Func<DocState, Settings, IEnumerable<String>, Edit> wrapFn
+            , IWpfTextView textView
+            )
         {
             // Prerequisites
             var textBuffer = textView.TextBuffer;
@@ -30,19 +45,24 @@ namespace VS
             var language = GetLanguage(textBuffer);
             var options = OptionsPage.GetOptions( language, filePath );
 
+
             // Info for wrap
-            var docState = GetDocState();
-            var lines = snapshot.Lines.Select( l => l.GetText() );
             var settings = GetSettings();
+            var lineCount = snapshot.LineCount;
+            var docState = GetDocState();       
+            var lines = snapshot.Lines.Select( l => l.GetText() );
+
             // Create edit
-            var edit = Core.rewrap( docState, settings, lines );
+            var edit = wrapFn( docState, settings, lines );
 
             // Apply edit
-            ApplyEdit( textView, snapshot, edit );
+            if (ApplyEdit( textView, snapshot, edit ))
+            {
+                snapshot = textBuffer.CurrentSnapshot;
+                return GetDocState();
+            }
+            else return null;
 
-            // Save new doc state (selections will have changed)
-            snapshot = textBuffer.CurrentSnapshot;
-            Core.saveDocState(GetDocState());
 
 
             DocState GetDocState()
@@ -77,32 +97,33 @@ namespace VS
         /// <summary>
         /// Applies the given Edit to the given text view snapshot.
         /// </summary>
-        static void ApplyEdit(IWpfTextView textView, ITextSnapshot snapshot, Edit edit)
+        static bool ApplyEdit(IWpfTextView textView, ITextSnapshot snapshot, Edit edit)
         {
-            if ( edit.lines.Length > 0 )
+            if (edit.lines.Length == 0) return false;
+
+            using
+                (var textEdit =
+                    snapshot.TextBuffer.CreateEdit
+                        ( EditOptions.DefaultMinimalChange, null, null
+                        )
+                )
             {
-                using
-                    ( var textEdit =
-                        snapshot.TextBuffer.CreateEdit
-                            ( EditOptions.DefaultMinimalChange, null, null
-                            )
-                    )
-                {
-                    var eol = snapshot.Lines.First().GetLineBreakText();
-                    if ( String.IsNullOrEmpty( eol ) )
-                        eol = textView.Options.GetNewLineCharacter();
+                var eol = snapshot.Lines.First().GetLineBreakText();
+                if (String.IsNullOrEmpty( eol ))
+                    eol = textView.Options.GetNewLineCharacter();
 
-                    var startPos =
-                        snapshot.GetLineFromLineNumber( edit.startLine ).Start.Position;
-                    var endPos =
-                        snapshot.GetLineFromLineNumber( edit.endLine ).End.Position;
-                    var wrappedText =
-                        String.Join( eol, edit.lines );
+                var startPos =
+                    snapshot.GetLineFromLineNumber( edit.startLine ).Start.Position;
+                var endPos =
+                    snapshot.GetLineFromLineNumber( edit.endLine ).End.Position;
+                var wrappedText =
+                    String.Join( eol, edit.lines );
 
-                    textEdit.Replace( startPos, endPos - startPos, wrappedText );
-                    textEdit.Apply();
-                }
+                textEdit.Replace( startPos, endPos - startPos, wrappedText );
+                textEdit.Apply();
             }
+
+            return true;
         }
 
 
@@ -185,24 +206,19 @@ namespace VS
             {
                 if(_OptionsPage == null)
                 {
-                    var shell = (IVsShell)ServiceProvider.GlobalProvider.GetService( typeof( IVsShell ) );
-                    if ( shell == null )
-                        throw new Exception( "Rewrap: Couldn't get IVsShell instance" );
+                    var shell = (IVsShell)ServiceProvider.GlobalProvider.GetService( typeof( IVsShell ) )
+                        ?? throw new Exception( "Rewrap: Couldn't get IVsShell instance" );
 
-                    IVsPackage vsPackage = null;
-                    if ( shell.IsPackageLoaded( RewrapPackage.Guid, out vsPackage ) != VSConstants.S_OK )
+                    var packageGuid = new Guid( RewrapPackage.GuidString );
+                    if ( shell.IsPackageLoaded( packageGuid, out IVsPackage vsPackage ) != VSConstants.S_OK )
                     {
-                        shell.LoadPackage( RewrapPackage.Guid, out vsPackage );
+                        shell.LoadPackage( packageGuid, out vsPackage );
                     }
-                    Package package = vsPackage as Package;
-                    if ( package == null )
-                        throw new Exception( "Rewrap: Couldn't get package instance" );
+                    Package package = vsPackage as Package 
+                        ?? throw new Exception( "Rewrap: Couldn't get package instance" );
 
-                    var page = package.GetDialogPage( typeof( OptionsPage ) ) as OptionsPage;
-                    if ( page == null )
-                        throw new Exception( "Rewrap: Couldn't get OptionsPage instance" );
-
-                    _OptionsPage = page;
+                    _OptionsPage = package.GetDialogPage( typeof( OptionsPage ) ) as OptionsPage
+                        ?? throw new Exception( "Rewrap: Couldn't get OptionsPage instance" );
                 }
                 return _OptionsPage;
             }

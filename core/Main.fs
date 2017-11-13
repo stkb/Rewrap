@@ -30,10 +30,11 @@ let private columnFromColumns (docState: DocState) (rulers: int[]) : int =
             docWrappingColumns.[filePath] <- rulers.[nextRulerIndex]
 
         docWrappingColumns.[filePath]
- 
+
 
 let saveDocState docState =
     lastDocState <- docState
+
 
 let findLanguage name filePath : string =
     Parsing.Documents.findLanguage name filePath
@@ -59,9 +60,38 @@ let rewrap
         List.ofSeq lines |> Nonempty.fromListUnsafe
 
     let newSettings =
-        { settings with column = columnFromColumns docState settings.columns }
+        { settings with
+            column = 
+                if settings.column > 0 then settings.column
+                else columnFromColumns docState settings.columns
+        }
 
     originalLines
         |> parser settings
         |> Selections.wrapSelected 
             originalLines (List.ofSeq docState.selections) newSettings
+
+
+let autoWrap
+    (docState: DocState)
+    (settings: Settings)
+    (lines: seq<string>) =
+    
+    let wrappingCol =
+        columnFromColumns docState settings.columns
+
+    let {line=line; character=col} = 
+        docState.selections.[0].active
+
+    if col < wrappingCol then
+        { startLine = 0; endLine = 0; lines = [||] }
+     else
+        let lineSelection = {
+            anchor = { line = line; character = 0 }
+            active = { line = line; character = col }
+        }
+
+        rewrap
+            { docState with selections = [| lineSelection |] }
+            { settings with column = wrappingCol }
+            (Seq.take (line + 1) lines)

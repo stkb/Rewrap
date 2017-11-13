@@ -62,7 +62,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CommandFilter.cs" />
     <Compile Include="Editor.cs" />
     <Compile Include="Options\ViewModel.cs" />
     <Compile Include="Options\OptionsPage.cs" />
@@ -70,7 +69,7 @@
       <DependentUpon>OptionsPageControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StdCommand.cs" />
+    <Compile Include="Commands.cs" />
     <Compile Include="RewrapPackage.cs" />
   </ItemGroup>
   <ItemGroup>

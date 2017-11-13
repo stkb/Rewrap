@@ -41,6 +41,12 @@
           <ButtonText>Rewrap Lines</ButtonText>
         </Strings>
       </Button>
+      <Button guid="CommandSetID" id="ToggleAutoWrapCommandID" priority="0x0101" type="Button">
+        <Parent guid="CommandSetID" id="MenuGroup" />
+        <Strings>
+          <ButtonText>Toggle Auto-&amp;Wrap</ButtonText>
+        </Strings>
+      </Button>
     </Buttons>
   </Commands>
 
@@ -60,6 +66,7 @@
     <GuidSymbol name="CommandSetID" value="{03647b07-e8ca-4d6e-9aae-5b89bbd3276d}">
       <IDSymbol name="MenuGroup" value="0x1020" />
       <IDSymbol name="RewrapCommandID" value="0x0100" />
+      <IDSymbol name="ToggleAutoWrapCommandID" value="0x0200" />
     </GuidSymbol>
   </Symbols>
 </CommandTable>
