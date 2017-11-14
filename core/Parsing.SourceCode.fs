@@ -10,14 +10,13 @@ let sourceCode
     (settings: Settings)
     : TotalParser =
 
-    let otherParsers =
-        tryMany
-            (blankLines :: (List.map (fun cp -> cp settings) commentParsers))
+    let commentParsers =
+        tryMany (List.map (fun cp -> cp settings) commentParsers)
 
     let codeParser =
-        takeLinesUntil otherParsers (Block.ignore >> Nonempty.singleton)
-
-    repeatUntilEnd otherParsers codeParser
+        (Block.ignore >> Nonempty.singleton)
+        
+    takeUntil commentParsers codeParser |> repeatToEnd
 
 
 /// Line comment parser that takes a custom content parser

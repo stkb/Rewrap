@@ -54,6 +54,6 @@ let latex (settings: Settings) : TotalParser =
         ]
 
     and paragraphs =
-        takeLinesUntil otherParsers paragraphBlocks
+        takeUntil otherParsers paragraphBlocks
 
-    repeatUntilEnd otherParsers paragraphs
+    repeatToEnd paragraphs

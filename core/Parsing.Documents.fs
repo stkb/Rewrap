@@ -30,7 +30,7 @@ let plainText settings =
         splitIntoChunks (onIndent settings.tabWidth)
             >> Nonempty.map (indentSeparatedParagraphBlock Block.text)
 
-    repeatUntilEnd blankLines (takeLinesUntil blankLines paragraphs)
+    takeUntil blankLines paragraphs |> repeatToEnd
 
 
 let private configFile =
@@ -166,9 +166,7 @@ let languages : Language[] = [|
             let comments =
                 line "#" settings
 
-            repeatUntilEnd 
-                comments 
-                (takeLinesUntil comments (plainText settings))
+            takeUntil comments (plainText settings) |> repeatToEnd
         )
     |]
 

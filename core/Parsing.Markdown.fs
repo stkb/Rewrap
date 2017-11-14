@@ -217,11 +217,11 @@ let rec markdown (settings: Settings): TotalParser =
         
         Line.tryMatch listItemRegex firstLine |> Option.map doStuff
   
-    let paragraphBlocks =
+    let paragraph =
         splitIntoChunks (afterRegex (Regex(@"(\\|\s{2})$")))
             >> Nonempty.map (firstLineIndentParagraphBlock settings.reformat)
 
-    let paragraphTerminatingParsers =
+    let paragraphTerminator =
         tryMany [
             blankLines
             fencedCodeBlock
@@ -230,10 +230,7 @@ let rec markdown (settings: Settings): TotalParser =
             blockQuote
         ]
 
-    let paragraphs =
-        takeLinesUntil paragraphTerminatingParsers paragraphBlocks
-
-    let allParsers =
+    let allParsers lines =
         tryMany [
             blankLines
             fencedCodeBlock
@@ -243,10 +240,14 @@ let rec markdown (settings: Settings): TotalParser =
             indentedCodeBlock
             listItem
             blockQuote
-        ]
+        ] lines
+            |> Option.defaultWith 
+                (fun () -> takeUntil paragraphTerminator paragraph lines)
+      
 
     Nonempty.map (Line.tabsToSpaces settings.tabWidth)
-        >> repeatUntilEnd allParsers paragraphs
+        >> (repeatToEnd allParsers)
+
 
 
         

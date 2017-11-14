@@ -58,39 +58,42 @@ let rec tryMany (parsers: list<OptionParser>) (lines: Lines): Option<Blocks * Op
                 | result ->
                     result
 
-             
-let rec repeatUntilEnd optionParser partialParser lines: Blocks =
 
-    let (blocks, maybeRemainingLines) =
-        optionParser lines
-            |> Option.defaultWith (fun unit -> partialParser lines)
+/// Searches lines until an OptionParser matches. Parses those lines with the
+/// given TotalParser. Returns blocks from both parsers.
+let takeUntil 
+    (otherParser: OptionParser) 
+    (totalParser: TotalParser)
+    : PartialParser =
 
-    match maybeRemainingLines with
-        | None ->
-            blocks
-        | Some(remainingLines) ->
-            blocks + (repeatUntilEnd optionParser partialParser remainingLines)
-
-
-let takeLinesUntil otherParser parser (Nonempty(headLine, tailLines)) =
-
-    let bufferToBlocks =
-        Nonempty.rev >> parser
-
-    let rec loopFrom2ndLine buffer lines =
-        match Nonempty.fromList lines with
-            | None ->
-                ( bufferToBlocks buffer, None)
-
-            | Some (Nonempty(head, tail) as neLines) ->
-                match otherParser neLines with
+    let rec loop buffer (Nonempty(headLine, tailLines) as lines) =
+        match otherParser lines with
+            | Some (blocks, remainingLines) ->
+                match Nonempty.fromList (List.rev buffer) with
+                    | Some bufferLines ->
+                        (Nonempty.append (totalParser bufferLines) blocks, remainingLines)
                     | None ->
-                        loopFrom2ndLine (Nonempty.cons head buffer) tail
+                        (blocks, remainingLines)
+            | None ->
+                match Nonempty.fromList tailLines with
+                    | Some neLines ->
+                        loop (headLine :: buffer) neLines
+                    | None ->
+                        ( Nonempty(headLine, buffer) |> Nonempty.rev |> totalParser
+                        , None
+                        )
+    loop []
 
-                    | Some result ->
-                        result |> Tuple.mapFirst (Nonempty.append (bufferToBlocks buffer))
 
-    loopFrom2ndLine (Nonempty.singleton headLine) tailLines
+// Repeats a PartialParser until all lines are consumed
+let repeatToEnd partialParser : TotalParser =
+    let rec loop blocks lines =
+        match partialParser lines with
+            | (newBlocks, Some remainingLines) ->
+                loop (blocks @ Nonempty.toList newBlocks) remainingLines
+            | (newBlocks, None) ->
+                Nonempty.appendToList blocks newBlocks
+    loop []
 
 
 //-----------------------------------------------------------------------------

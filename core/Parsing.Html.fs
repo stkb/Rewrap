@@ -53,8 +53,5 @@ let html
                 (splitIntoChunks (afterRegex (regex "\\>\\s*$")))
             >> Nonempty.map (indentSeparatedParagraphBlock Block.text)
 
-    let paragraphs =
-        takeLinesUntil otherParsers paragraphBlocks
-    
-    repeatUntilEnd otherParsers paragraphs
+    takeUntil otherParsers paragraphBlocks |> repeatToEnd
 
