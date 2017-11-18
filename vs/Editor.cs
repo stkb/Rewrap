@@ -30,6 +30,21 @@ namespace VS
         /// Does an auto-wrap for the given text view.
         public static void AutoWrap(IWpfTextView textView)
         {
+            var tabSize = textView.Options.GetTabSize();
+            var pos = GetSelections( textView, textView.TextBuffer.CurrentSnapshot )[0].active;
+            if
+                (Core.cursorBeforeWrappingColumn
+                    ( GetFilePath( textView.TextBuffer )
+                    , tabSize
+                    , textView.TextBuffer.CurrentSnapshot.GetLineFromLineNumber(pos.line).GetText()
+                    , pos.character
+                    , () => GetRulers()[0]
+                    )
+                )
+            {
+                return;
+            }
+
             ExecRewrap( Core.autoWrap, textView );
         }
 

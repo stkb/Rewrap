@@ -35,6 +35,21 @@ let private columnFromColumns (docState: DocState) (rulers: int[]) : int =
 let saveDocState docState =
     lastDocState <- docState
 
+let cursorBeforeWrappingColumn 
+    (filePath: string)
+    (tabSize: int)
+    (line: string)
+    (character: int)
+    (getWrappingColumn: System.Func<int>) 
+    =
+    let wrappingColumn = 
+        if not (docWrappingColumns.ContainsKey(filePath)) then
+            docWrappingColumns.[filePath] <- getWrappingColumn.Invoke()
+        docWrappingColumns.[filePath]
+    let cursorColumn =
+        line |> String.takeStart character |> Line.tabsToSpaces tabSize |> String.length
+    cursorColumn <= wrappingColumn
+
 
 let findLanguage name filePath : string =
     Parsing.Documents.findLanguage name filePath
@@ -76,22 +91,16 @@ let autoWrap
     (docState: DocState)
     (settings: Settings)
     (lines: seq<string>) =
-    
-    let wrappingCol =
-        columnFromColumns docState settings.columns
 
     let {line=line; character=col} = 
         docState.selections.[0].active
 
-    if col < wrappingCol then
-        { startLine = 0; endLine = 0; lines = [||] }
-     else
-        let lineSelection = {
-            anchor = { line = line; character = 0 }
-            active = { line = line; character = col }
-        }
+    let lineSelection = {
+        anchor = { line = line; character = 0 }
+        active = { line = line; character = col }
+    }
 
-        rewrap
-            { docState with selections = [| lineSelection |] }
-            { settings with column = wrappingCol }
-            (Seq.take (line + 1) lines)
+    rewrap
+        { docState with selections = [| lineSelection |] }
+        settings
+        (Seq.take (line + 1) lines)

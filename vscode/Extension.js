@@ -83,6 +83,7 @@ exports.activate = function activate(context)
 
         function checkChange(e)
         {
+            const document = e.document;
             // Make sure we're in the active document
             const editor = window.activeTextEditor
             if(editor.document !== e.document) return
@@ -103,6 +104,23 @@ exports.activate = function activate(context)
             // Here editor.selection is still at the position it would be before
             // the typed character is added. After the wrap we need to move it
             // the equivalent of a space or enter press.
+
+            // Check if cursor is past the wrapping column
+            const pos = editor.selection.active
+            if
+                ( Core.cursorBeforeWrappingColumn
+                    ( document.fileName
+                    , editor.options.tabSize
+                    , document.lineAt(pos.line).text
+                    , pos.character
+                    , () => Environment.getWrappingColumns(editor)[0]
+                    )
+                )
+            {
+                return
+            }
+
+            // If we got this far, do the wrap
             doWrap(editor, Core.autoWrap).then(adjustSelection)
 
             function adjustSelection(docState) 
