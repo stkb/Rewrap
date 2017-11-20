@@ -11,6 +11,29 @@ open Parsing.Core
 let private markerRegex marker =
     Regex(@"^\s*" + marker + @"\s*")
 
+let private extractPrefix prefixRegex lines : string =
+    Nonempty.tryFind Line.containsText lines
+        |> Option.defaultValue (Nonempty.head lines)
+        |> (Line.split prefixRegex >> fst)
+
+let private stripLines prefixRegex prefix tabWidth eraseIndentedMarker : Lines -> Lines =
+    let prefixLength = 
+        prefix |> Line.tabsToSpaces tabWidth |> String.length
+
+    let stripLine = 
+        Line.tabsToSpaces tabWidth
+            >> Line.split prefixRegex
+            >> Tuple.mapFirst 
+                (fun pre -> 
+                    if eraseIndentedMarker then
+                        String.replicate pre.Length " " 
+                            |> String.dropStart prefixLength
+                    else String.dropStart prefixLength pre
+                )
+            >> fun (pre, rest) -> pre + rest
+    Nonempty.map stripLine
+
+
 let extractWrappable 
     (marker: string)
     (eraseIndentedMarker: bool)
@@ -23,45 +46,65 @@ let extractWrappable
             markerRegex marker
 
         let prefix =
-            Nonempty.tryFind Line.containsText lines
-                |> Option.orElseWith 
-                    (fun () -> Nonempty.tryFind (Line.contains (Regex(@"\S"))) lines)
-                |> Option.defaultValue (Nonempty.head lines)
-                |> Line.tryMatch regex |> Option.defaultValue marker
+            extractPrefix regex lines
                 
         let prefixLength =
             prefix |> Line.tabsToSpaces settings.tabWidth |> String.length
 
-        let stripLine =
-            Line.tabsToSpaces settings.tabWidth
-                >> Line.split regex
-                >> Tuple.mapFirst 
-                    (fun pre -> 
-                        if eraseIndentedMarker then
-                            String.replicate pre.Length " " 
-                                |> String.dropStart prefixLength
-                        else String.dropStart prefixLength pre
-                    )
-                >> fun (pre, rest) -> pre + rest
 
         let newPrefix =
             if settings.reformat then (reformatPrefix prefix) else prefix
 
-        ((newPrefix, newPrefix), Nonempty.map stripLine lines)
+        ( (newPrefix, newPrefix)
+        , stripLines regex prefix settings.tabWidth eraseIndentedMarker lines
+        )
 
 
 /// Creates a line comment parser, given a content parser and marker.
-let lineComment 
+let lineComment
     (contentParser: Settings -> TotalParser)
     (marker: string)
-    (settings: Settings) 
+    (settings: Settings)
     : OptionParser =
 
-    optionParser
-        (Nonempty.span (Line.startsWith marker))
-        (extractWrappable marker true (fun p -> p.TrimEnd() + " ") settings
-            >> (Block.comment (contentParser settings) >> Nonempty.singleton)
-        )
+    let prefixRegex =
+        markerRegex marker
+    
+    let linesToComment lines : Nonempty<Block> =
+        let prefix =
+            extractPrefix prefixRegex lines
+
+        let isDecorationLine line : bool =
+            let prefix, rest =
+                Line.split prefixRegex line
+            not (rest = "")
+                && prefix = String.trimEnd prefix
+                && not (Line.containsText rest)
+
+        let decorationLinesParser =
+            let dlPrefix =
+                prefix.TrimEnd()
+            optionParser
+                (Nonempty.span isDecorationLine)
+                (Nonempty.map (fun s -> dlPrefix + (snd (Line.split prefixRegex s)))
+                    >> (NoWrap >> Nonempty.singleton)
+                )
+
+        let otherLinesParser =
+            let newPrefix =
+                if settings.reformat then prefix.TrimEnd() + " " else prefix
+
+            Wrappable.fromLines (newPrefix, newPrefix)
+                >> Block.splitUp
+                    (stripLines prefixRegex prefix settings.tabWidth true
+                        >> contentParser settings
+                    )
+
+        lines
+            |> (takeUntil decorationLinesParser otherLinesParser |> repeatToEnd)
+            |> (Comment >> Nonempty.singleton)
+            
+    optionParser (Nonempty.span (Line.contains prefixRegex)) linesToComment
 
 
 /// Creates a block comment parser, given a content parser and markers.
