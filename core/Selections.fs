@@ -137,7 +137,7 @@ let rec private processBlocks
         let rec processWholeBlock block : Lines =
             match block with
                 | Wrap wrappable -> Wrapping.wrap settings wrappable
-                | NoWrap lines -> Nonempty.map String.trimEnd lines
+                | NoWrap lines -> lines
                 | Comment subBlocks -> Nonempty.collect processWholeBlock subBlocks
 
         let rec loop output (sels: List<LineRange>) start (Nonempty(block, otherBlocks)) origLines =

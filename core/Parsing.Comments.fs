@@ -1,4 +1,4 @@
-﻿module private Parsing.Comments
+module private Parsing.Comments
 
 open Nonempty
 open System.Text.RegularExpressions
@@ -74,14 +74,13 @@ let lineComment
         let prefix =
             extractPrefix prefixRegex lines
 
+        let decorationLinesParser =
         let isDecorationLine line : bool =
-            let prefix, rest =
+                let pre, rest =
                 Line.split prefixRegex line
             not (rest = "")
-                && prefix = String.trimEnd prefix
+                    && pre = String.trimEnd pre
                 && not (Line.containsText rest)
-
-        let decorationLinesParser =
             let dlPrefix =
                 prefix.TrimEnd()
             optionParser

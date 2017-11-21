@@ -77,6 +77,9 @@ let splitUp (parser: Lines -> Blocks) ((pHead, pTail), lines) =
     let concatPrefixes (head1, tail1) (head2, tail2) =
         (head1 + head2, tail1 + tail2)
 
+    let prependPrefixTrimEndOfBlankLine (p: string) (s: string) : string =
+        if Line.isBlank s then p.TrimEnd() else p + s
+
     let prependPrefixes p block =
         match block with
             | Comment subBlocks ->
@@ -87,8 +90,8 @@ let splitUp (parser: Lines -> Blocks) ((pHead, pTail), lines) =
 
             | NoWrap ls ->
                 ls 
-                    |> Nonempty.mapHead ((+) (fst p))
-                    |> Nonempty.mapTail ((+) (snd p))
+                    |> Nonempty.mapHead (prependPrefixTrimEndOfBlankLine (fst p))
+                    |> Nonempty.mapTail (prependPrefixTrimEndOfBlankLine (snd p))
                     |> NoWrap
     
     parser lines
