@@ -67,52 +67,38 @@ function getSpecFiles(dir)
 function readSamplesInFile(fileName) 
 {
     const lines = FS.readFileSync(fileName, { encoding: 'utf8' }).split(/\r?\n/)
-    return loop([], defaultSettings, [], lines)
+    return loop([], defaultSettings, null, lines)
 
     function loop(output, settings, sampleLines, remainingLines)
     {
         const [line, ...nextRemainingLines] = remainingLines
+        const hasSampleLines = sampleLines && sampleLines.length
+        const thisLineIsNotASampleLine = line == null || !line.startsWith("    ")
+        const nextOutput = 
+            hasSampleLines && thisLineIsNotASampleLine
+                ? [...output, {fileName, settings, lines: sampleLines} ]
+                : output
 
+        // End of file
         if(line == null) {
-            if(sampleLines.length > 0) {
-                return [...output, {fileName, settings, lines: sampleLines} ]
-            }
-            else {
-                return output
-            }
+            return nextOutput
         }
+        // Blank line: allow sample to start after this
+        else if(line.length < 4 && line === line.trim()) {
+            return loop(nextOutput, settings, [], nextRemainingLines)
+        }
+        // Possible sample line: add it to buffer if was following a blank line
+        else if(line.startsWith("    ")) {
+            const nextSampleLines = sampleLines ? [...sampleLines, line] : null
+            return loop(nextOutput, settings, nextSampleLines, nextRemainingLines)
+        }
+        // Settings line
+        else if(line.startsWith("> ")) {
+            return loop(nextOutput, readSettings(line), null, nextRemainingLines)
+        }
+        // Any other line
         else {
-            // Sample line: add it to buffer
-            if(line.startsWith("    ")) {
-                return loop
-                    ( output
-                    , settings
-                    , [...sampleLines, line]
-                    , nextRemainingLines
-                    )
-            }
-            // End of sample: add it to output
-            else if(sampleLines.length > 0) {
-                return loop
-                    ( [...output, {fileName, settings, lines: sampleLines} ]
-                    , settings
-                    , []
-                    , remainingLines
-                    )
-            }
-            // Settings line
-            else if(line.startsWith("> ")) {
-                return loop
-                    ( output
-                    , readSettings(line)
-                    , []
-                    , nextRemainingLines
-                    )
-            }
-            // Any other line
-            else {
-                return loop(output, settings, sampleLines, nextRemainingLines)
-            }
+            return loop(nextOutput, settings, null, nextRemainingLines)
         }
     }
 }
