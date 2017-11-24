@@ -61,7 +61,7 @@ exports.activate = function activate(context)
     }
 
 
-    let changeHook, statusBarItem
+    let changeHook
     /** Auto-wrap automatically wraps the current line when space or enter is
      *  pressed after the wrapping column. */
     function toggleAutoWrapCommand()
@@ -69,16 +69,11 @@ exports.activate = function activate(context)
         if(changeHook) {
             changeHook.dispose()
             changeHook = null
-            statusBarItem.hide()
+            window.setStatusBarMessage("Auto-wrap: Off", 5000)
         }
         else {
             changeHook = workspace.onDidChangeTextDocument(checkChange)
-            if(!statusBarItem) {
-                statusBarItem = 
-                    window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100)
-                statusBarItem.text = "Auto-wrap"
-            }
-            statusBarItem.show()
+            window.setStatusBarMessage("Auto-wrap: On", 5000)
         }
 
         function checkChange(e)
