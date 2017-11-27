@@ -196,13 +196,12 @@ exports.activate = function activate(context)
         // Catches any error and displays a friendly message to the user.
         function catchErr(err)
         {
-            console.error("==Rewrap==")
+            console.error("====== Rewrap: Error ======")
             console.log(err)
             console.error(
-                "Rewrap: Please report this (with a screenshot of this log) at " +
-                "https://github.com/stkb/vscode-rewrap/issues"
+                "^^^^^^ Rewrap: Please report this (with a copy of the above lines) ^^^^^^\n" +
+                "at https://github.com/stkb/vscode-rewrap/issues"
             )       
-            console.error("==========")
             vscode.window.showInformationMessage(
                 "Sorry, there was an error in Rewrap. " +
                 "Go to: Help -> Toggle Developer Tools -> Console " +
