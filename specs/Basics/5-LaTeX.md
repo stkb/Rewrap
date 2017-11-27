@@ -13,6 +13,13 @@ Line comments begin with a `%`
 
 Most commands will begin a new paragraph for wrapping.
 
+    \begin{enumerate}      ->      \begin{enumerate}
+    \item Item one ¦               \item Item one
+    \item Item     ¦               \item Item two
+    two            ¦               \item Item
+    \item Item three               three
+    \end{enumerate}¦               \end{enumerate}
+
 Some commands have no content. These are all kept on separate lines
 
     \begin{abstract}        ¦      ->      \begin{abstract}        ¦

@@ -1,5 +1,6 @@
 ﻿module private Parsing.Latex
 
+open Extensions
 open Nonempty
 open Rewrap
 open Block
@@ -18,6 +19,29 @@ let private emptyCommands =
 
 let private inlineCommands =
     [| "cite"; "dots"; "emph"; "href"; "latex"; "latexe"; "ref"; "verb" |]
+
+
+/// Like Core.takeUntil, but checks from the 2nd line.
+let private takeFrom2ndLineUntil otherParser parser (Nonempty(headLine, tailLines)) =
+
+    let bufferToBlocks =
+        Nonempty.rev >> parser
+
+    let rec loopFrom2ndLine buffer lines =
+        match Nonempty.fromList lines with
+            | None ->
+                ( bufferToBlocks buffer, None)
+
+            | Some (Nonempty(head, tail) as neLines) ->
+                match otherParser neLines with
+                    | None ->
+                        loopFrom2ndLine (Nonempty.cons head buffer) tail
+
+                    | Some result ->
+                        result |> Tuple.mapFirst (Nonempty.append (bufferToBlocks buffer))
+
+    loopFrom2ndLine (Nonempty.singleton headLine) tailLines
+
 
 let latex (settings: Settings) : TotalParser =
     
@@ -43,7 +67,7 @@ let latex (settings: Settings) : TotalParser =
     let rec blockCommand lines =
         startsWithCommand (Nonempty.head lines)
             |> Option.filter (fun c -> not (Array.contains c inlineCommands))
-            |> Option.map (fun _ -> paragraphs lines)
+            |> Option.map (fun _ -> takeFrom2ndLineUntil otherParsers paragraphBlocks lines)
 
     and otherParsers =
         tryMany [
@@ -53,7 +77,4 @@ let latex (settings: Settings) : TotalParser =
             blockCommand
         ]
 
-    and paragraphs =
-        takeUntil otherParsers paragraphBlocks
-
-    repeatToEnd paragraphs
+    takeUntil otherParsers paragraphBlocks |> repeatToEnd
