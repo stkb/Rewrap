@@ -76,7 +76,7 @@ function validateSettings(settings)
 function getSetting(editor, setting)
 {
     const language = editor.document.languageId
-        , config = workspace.getConfiguration()
+        , config = workspace.getConfiguration('', editor.document.uri)
         , languageSection = config.get('[' + language + ']')
 
     return languageSetting(languageSection, setting.split('.')) 
