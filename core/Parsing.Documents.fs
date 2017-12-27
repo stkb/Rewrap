@@ -101,6 +101,8 @@ let languages : Language[] = [|
         java
     lang "LaTeX" "tex" ".bbx|.cbx|.cls|.sty|.tex"
         Latex.latex
+    lang "Lean" "" ".lean"
+        ( sourceCode [ line "--"; block ( "/-[-!]?", "-/" ) ] )
     lang "Less" "" ".less"
         java
     lang "Lua" "" ".lua"
