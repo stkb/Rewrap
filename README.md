@@ -51,9 +51,9 @@ The full list of types currently supported is:
 
 AutoHotKey, Bash/shell script, Batch file, C, C#, C++, CoffeeScript, CSS, Dart,
 Docker file, Elixir, Elm, F#, Go, GraphQL, Groovy, Haskell, Html, Ini, Jade,
-Java, JavaScript, LaTeX, Less, Lua, Makefile, Markdown, Objective-C, Perl, PHP,
-PowerShell, Protobuf, PureScript, Python, R, Ruby, Rust, Sass, SQL, Swift, Tcl, 
-Toml, TypeScript, Visual Basic, Xml, Xsl, Yaml.
+Java, JavaScript, LaTeX, Lean, Less, Lua, Makefile, Markdown, Objective-C, Perl,
+PHP, PowerShell, Protobuf, PureScript, Python, R, Ruby, Rust, Sass, SQL, Swift,
+Tcl, Toml, TypeScript, Visual Basic, Xml, Xsl, Yaml.
 
 For any other type of file, plain-text paragraph wrapping is still supported.
 
