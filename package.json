@@ -7,7 +7,8 @@
     "comments",
     "column",
     "length",
-    "fill"
+    "fill",
+    "multi-root ready"
   ],
   "version": "1.6.0-beta2",
   "publisher": "stkb",
