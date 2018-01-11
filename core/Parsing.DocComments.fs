@@ -130,3 +130,8 @@ let psdoc =
                             >> Block.splitUp (markdown settings)
                     )
         )
+
+
+/// DDoc for D. Stub until it's implemented. https://dlang.org/spec/ddoc.html
+let ddoc =
+    markdown

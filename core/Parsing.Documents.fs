@@ -63,6 +63,17 @@ let languages : Language[] = [|
         )
     lang "CSS" "" ".css"
         css
+    // Special rules for DDoc need adding
+    lang "D" "" ".d"
+        ( sourceCode
+            [ customLine ddoc "///"
+              cLine
+              customBlock ddoc ( "\*", " * " ) javadocMarkers
+              customBlock ddoc ( "\+", " + " ) ("/\+\+", "\+/")
+              cBlock
+              block ( "/\+", "\+/" )
+            ]
+        )
     lang "Dart" "" ".dart"
         ( sourceCode
             [ customLine dartdoc "///"
