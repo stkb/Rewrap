@@ -46,7 +46,7 @@ let cBlock =
 
 /// Markers for javadoc
 let javadocMarkers =
-    (@"/\*\*", @"\*/")
+    (@"/\*[*!]", @"\*/")
 
 
 /// Parser for java/javascript (also used in html)
@@ -54,6 +54,7 @@ let java =
     sourceCode
         [ customBlock DocComments.javadoc ( "\\*?", " * " ) javadocMarkers
           cBlock
+          customLine DocComments.javadoc "//[/!]"
           cLine
         ]
 
