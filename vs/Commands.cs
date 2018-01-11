@@ -161,10 +161,15 @@ namespace VS
 
         public void TextViewCreated(IWpfTextView textView)
         {
+            // Some IWpfTextViews that get created aren't code windows (eg
+            // tooltips in the "Find all references" pane). In these cases the
+            // retrieved IVsTextView will be null, and we ignore it.
             var vsTextView = editorFactory.GetViewAdapter( textView );
-
-            RewrapCommand.AttachToTextView( textView, vsTextView );
-            AutoWrapCommand.AttachToTextView( textView );
+            if (vsTextView != null)
+            {
+                RewrapCommand.AttachToTextView(textView, vsTextView);
+                AutoWrapCommand.AttachToTextView(textView);
+            }
         }
     }
 }
