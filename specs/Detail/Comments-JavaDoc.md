@@ -44,3 +44,5 @@ as leading *'s.
 * Item B
 */
 ```
+
+Relevant: http://www.stack.nl/~dimitri/doxygen/manual/markdown.html#mddox_stars
