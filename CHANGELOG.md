@@ -1,13 +1,13 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
 
-## Unreleased
+## 1.6.0
 
-- Added auto-wrap feature (#45).
-- Added languages Lean and D (extra support for D doc-comments still to come)
+- **Added auto-wrap feature (#45)** ([more info](https://github.com/stkb/Rewrap/wiki/Auto-wrap)).
+- Added languages: Lean and D (extra support for D doc-comments still to come)
 
-- With reformat on, code blocks in comments and markdown documents now have
-  indents normalized.
+- Fixed: With reformat setting on, code blocks in comments and markdown documents now have
+  indents corrected.
 - Code in a source file is no longer wrappable (#41, #51)
 
 
