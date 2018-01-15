@@ -67,27 +67,11 @@ module List =
      
         loop []
 
-    
-    // List.truncate has a bug in Fable.
-    // https://github.com/fable-compiler/Fable/issues/1187
-    let truncate<'T> : int -> list: List<'T> -> List<'T> =
-        let rec loop output n input =
-            match input with
-                | [] -> 
-                    output
-                | x :: xs ->
-                    if n > 0 then
-                        loop (x :: output) (n - 1) xs 
-                    else
-                        output
-        
-        fun n -> loop [] n >> List.rev
-
 
     /// splitAt that doesn't throw an error if n is too great; it just returns
     /// (list, []).
     let safeSplitAt (n: int) (list: List<'T>): List<'T> * List<'T> =
-        (truncate n list, safeSkip n list)
+        (List.truncate n list, safeSkip n list)
 
 
     let tryTail (list: List<'T>) : Option<List<'T>> =
