@@ -1,6 +1,11 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
 
+### 1.6.1
+
+- Fixes leading '|'s in Purescript doc comments.
+
+
 ## 1.6.0
 
 - **Added auto-wrap feature (#45)** ([more info](https://github.com/stkb/Rewrap/wiki/Auto-wrap)).
