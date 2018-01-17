@@ -87,7 +87,7 @@ let languages : Language[] = [|
     lang "Elixir" "" ".ex|.exs"
         configFile
     lang "Elm" "" ".elm"
-        ( sourceCode [ line "--"; block ( "{-\\|?", "-}" ) ] )
+        ( sourceCode [ line "--"; block ( "{-\|?", "-}" ) ] )
     lang "F#" "fsharp" ".fs|.fsx"
         ( sourceCode [ customLine html "///"; cLine; block ( @"\(\*", @"\*\)" ) ] )
     lang "Go" "" ".go"
@@ -99,7 +99,7 @@ let languages : Language[] = [|
     lang "Groovy" "" ".groovy"
         java
     lang "Haskell" "" ".hs"
-        ( sourceCode [ line "--\\|?"; block ( "{-\\|?", "-}" ) ] )
+        ( sourceCode [ line "--"; block ( "{-\s*\|?", "-}" ) ] )
     lang "HTML" "" ".htm|.html"
         html
     lang "INI" "" ".ini"
@@ -143,7 +143,15 @@ let languages : Language[] = [|
     lang "Pug" "jade" ".jade|.pug"
         ( sourceCode [ cLine ] )
     lang "PureScript" "" ".purs"
-        ( sourceCode [ line "--\\|?"; block ( "{-\\|?", "-}" ) ] )
+        ( sourceCode
+            // Treat blocks with and without leading pipes as separate blocks,
+            // otherwise pipes will be added to those without, possibly adding
+            // those lines to documentation where it wasn't intended.
+            [ line "--\s*\|"
+              line "--"
+              block ( "{-\s*\|?", "-}" ) 
+            ] 
+        )    
     lang "Python" "" ".py"
         ( sourceCode [ line "#"; block ( "('''|\"\"\")", "('''|\"\"\")" ) ] )
     lang "R" "" ".r"
