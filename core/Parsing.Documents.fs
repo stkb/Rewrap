@@ -61,6 +61,8 @@ let languages : Language[] = [|
               line "#"
             ]
         )
+    lang "Crystal" "" ".cr"
+        ( sourceCode [ line "#"; block ( "=begin", "=end" ) ] )
     lang "CSS" "" ".css"
         css
     // Special rules for DDoc need adding
