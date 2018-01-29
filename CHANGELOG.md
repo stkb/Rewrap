@@ -3,6 +3,7 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 
 ## Unreleased
 
+- Latex: Don't wrap verbatim and math sections (#68, #69)
 - Added Crystal language support
 
 
