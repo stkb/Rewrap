@@ -1,6 +1,11 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
 
+## Unreleased
+
+- Added Crystal language support
+
+
 ### 1.6.1
 
 - Fixes leading '|'s in Purescript doc comments.
