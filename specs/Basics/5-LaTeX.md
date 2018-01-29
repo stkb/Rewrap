@@ -2,32 +2,30 @@
 
 > language: "latex"
 
-LaTeX has its own special wrapping behaviors. In LaTeX both comments and content
-are wrapped.
+LaTeX has its own special wrapping behaviors. Both comments and content are
+wrapped.
 
-Line comments begin with a `%`
+## Line breaks ##
 
-    % one two       ¦      ->      % one two three ¦
-    % three four    ¦              % four          ¦
-
-Most lines that start with a command (except "inline" commands) will begin a new
-paragraph for wrapping.
-
-    \begin{enumerate}      ->      \begin{enumerate}
-    \item Item one ¦               \item Item one
-    \item Item     ¦               \item Item two
-    two            ¦               \item Item
-    \item Item three               three
-    \end{enumerate}¦               \end{enumerate}
-
-Also, if the command is alone on a line, then the line-break after will also be
-kept.
+For any command, if it's alone on a line (including args), then line breaks
+before and after will be kept.
 
     \begin{abstract}        ¦      ->      \begin{abstract}        ¦
     The abstract.           ¦              The abstract.           ¦
     \end{abstract}          ¦              \end{abstract}          ¦
 
-A line break will also be preserved after a line-break command. Eg:
+Also some commands (eg *item*), will always keep a line break before them.
+
+    \begin{enumerate}      ->      \begin{enumerate}
+    \item Item one ¦               \item Item one ¦
+    \item Item     ¦               \item Item two ¦
+    two            ¦               \item Item     ¦
+    \item Item three               three          ¦
+    \end{enumerate}¦               \end{enumerate}¦
+
+
+A line break will also be kept after a line break command (*\\\\*, *\newline*
+etc.). Eg:
 
     a b c d e f     ¦      ->      a b c d e f g h ¦
     g h i j \\      ¦              i j \\          ¦
@@ -37,9 +35,10 @@ A line break will also be preserved after a line-break command. Eg:
     b \\linebreak[4]¦              \\linebreak[4]  ¦
     a               ¦              a               ¦
 
+
 ## Preserved sections ##
 
-Anything in a `\begin{verbatim} ... \end{verbatim} section is preserved without
+Anything within a *verbatim* environment is preserved without
 wrapping. Text before/after it is wrapped normally.
 
     Normal text       ¦      ->      Normal text normal¦
@@ -53,7 +52,8 @@ wrapping. Text before/after it is wrapped normally.
 
 This also applies to *alltt*, and source code environments *listing* and
 *lstlisting*, as well as all * variants. Note: to get this behavior, the
-`\begin{...}` tag must be alone on a line and not inline in a paragraph.
+`\begin{...}` command must be alone on a line and not inline within a paragraph.
+
 
 ### Math sections ###
 
@@ -67,7 +67,7 @@ Used within a paragraph, they are wrapped normally.
     theorem is $a^2 + b^2 =                 Pythagorean theorem is¦ 
     c^2$.                 ¦                 $a^2 + b^2 = c^2$.    ¦
 
-But with the beginning section marker alone on a line, the section is preserved.
+But with the opening section marker alone on a line, the section is preserved.
 
     One of the double angle      ->      One of the double   ¦
     formulas is:        ¦                angle formulas is:  ¦
@@ -76,3 +76,14 @@ But with the beginning section marker alone on a line, the section is preserved.
             \cos^2 \theta                        \cos^2 \theta
           - \sin^2 \theta                      - \sin^2 \theta
     $                   ¦                $                   ¦
+
+
+## Comments ##
+
+Line comments begin with a `%`
+
+    % one two       ¦      ->      % one two three ¦
+    % three four    ¦              % four          ¦
+
+End-of-line comments are not supported yet. (They are just wrapped with the text
+before them).

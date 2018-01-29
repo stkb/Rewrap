@@ -12,8 +12,12 @@ open System.Text.RegularExpressions
 let private newlineRegex: Regex =
     Regex(@"\\(\\\*?|hline|newline|break|linebreak)(\[.*?\])?(\{.*?\})?\s*$")
 
-let private inlineCommands =
-    [| "cite"; "dots"; "emph"; "href"; "latex"; "latexe"; "ref"; "verb" |]
+/// Commands that, when starting a line, should always preserve the line break
+/// before them, even if text comes right after. For other commands, the rule
+/// that a command being alone on a line preserves breaks before and after is
+/// enough. 
+let private blockCommands =
+    [| "["; "begin"; "item" |]
 
 let private preserveEnvironments =
     [| "align"; "alltt"; "displaymath"; "equation"; "gather"; "listing"; 
@@ -48,21 +52,19 @@ let private takeFrom2ndLineUntil otherParser parser (Nonempty(headLine, tailLine
 /// Regex that matches a command at the beginning of a line. Matches alphabetic
 /// command names (with an optional *), as well as the shortcuts \[ and $$.
 /// (These shortcuts are included because they must also preserve a line break
-/// before them.) The alphabetic command name and first argument are captured as
-/// groups 1 and 2.
+/// before them.) The command name and first argument are captured as groups 1
+/// and 2.
 ///
 /// This approach will have some false positives (anything can follow the
 /// command name as long as the line ends with a '}'. A proper parser (that can
 /// deal with nested '{}' would be better.
 let private commandRegex: Regex =
-    Regex(@"^" // Must be at beginning of string
-        + @"(?:\$\$|\\\["       // Include $$ or \[
-        + @"|\\(\[|[a-z]+)\*?"  // Or alphabetic command name with optional '*'
-        + @")\s*"               // End of name group + whitespace
-        + @"(?:\[[^\]]*\]\s*)?" // Optional [options] section, + whitespace
-                                // Doesn't allow ']' (can this occur?)
-        + @"(?:\{([a-z]+))?"    // Optional first {arg}, only leading letters are captured
-        + @"(?:.*\})?"          // Capture the rest of the line if it ends with a '}'
+    Regex(@"^"                   // Must be at beginning of string
+        + @"\\(\[|[a-z]+)\*?\s*" // Command name with optional '*', + whitespace
+        + @"(?:\[[^\]]*\]\s*)?"  // Optional [options] section, + whitespace
+                                 // Doesn't allow ']' (can this occur?)
+        + @"(?:\{([a-z]+))?"     // Optional first {arg}, only leading letters are captured
+        + @"(?:.*\})?"           // Capture the rest of the line if it ends with a '}'
         )
 
 
@@ -104,33 +106,37 @@ let latex (settings: Settings) : TotalParser =
     let rec command (Nonempty(headLine, tailLines) as lines) : Option<Blocks * Option<Lines>> =
         let trimmedLine = headLine |> String.trim
         let cmdMatch = commandRegex.Match(trimmedLine)
-        let cmdName, cmdArg = 
+        let cmdName, cmdArg, isWholeLine = 
             if cmdMatch.Success then
-                (cmdMatch.Groups.Item(1).Value, cmdMatch.Groups.Item(2).Value)
+                ( cmdMatch.Groups.Item(1).Value
+                , cmdMatch.Groups.Item(2).Value
+                , cmdMatch.Length = trimmedLine.Length
+                )
             else
-                ("", "")
+                ("", "", false)
 
         // Check for preserved section
         if Array.contains trimmedLine preserveShortcuts then
             Some (findPreserveSection trimmedLine lines)
         else if cmdName = "begin" && Array.contains cmdArg preserveEnvironments then
             Some (findPreserveSection cmdArg lines)
-            
-
-        // Inline commands or normal text don't start or end a paragraph
-        else if not cmdMatch.Success || Array.contains cmdName inlineCommands then
-            None
 
         // Whole line is command: preserve break before & after
-        else if cmdMatch.Length = trimmedLine.Length then
+        else if isWholeLine then
             Some 
                 ( Nonempty.singleton (NoWrap (Nonempty(headLine, [])))
                 , Nonempty.fromList tailLines
                 )
-
-        // Else start new paragraph and take lines until next
-        else
+            
+        // For some 'block' commands, keep line break before
+        else if trimmedLine.StartsWith("$$") 
+            || Array.contains cmdName blockCommands 
+        then
             Some (takeFrom2ndLineUntil otherParsers plainText lines)
+
+        // Else we don't match: don't start or end the paragraph
+        else
+            None
 
     /// Plain paragraph parser for paragraphs that don't start with commands
     and plainText: Lines -> Blocks =
