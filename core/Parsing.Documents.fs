@@ -124,6 +124,8 @@ let languages : Language[] = [|
         configFile
     lang "Markdown" "" ".md"
         Markdown.markdown
+    lang "MATLAB" "" "" // MATLAB uses .m but that's already taken for Objective-C
+        ( sourceCode [ line "%(?![%{}])"; block ( "%\{", "%\}" ) ] )
     lang "Objective-C" "" ".m|.mm"
         java
     lang "Perl" "perl6" ".p6|.pl|.pl6|.pm|.pm6"
