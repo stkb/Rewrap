@@ -62,6 +62,10 @@ exports.activate = function activate(context)
 
 
     let changeHook
+    if(context.globalState.get('autoWrap')) {
+        toggleAutoWrapCommand();
+    }
+
     /** Auto-wrap automatically wraps the current line when space or enter is
      *  pressed after the wrapping column. */
     function toggleAutoWrapCommand()
@@ -69,11 +73,13 @@ exports.activate = function activate(context)
         if(changeHook) {
             changeHook.dispose()
             changeHook = null
-            window.setStatusBarMessage("Auto-wrap: Off", 5000)
+            context.globalState.update('autoWrap', false)
+                .then(() => window.setStatusBarMessage("Auto-wrap: Off", 7000))
         }
         else {
             changeHook = workspace.onDidChangeTextDocument(checkChange)
-            window.setStatusBarMessage("Auto-wrap: On", 5000)
+            context.globalState.update('autoWrap', true)
+                .then(() => window.setStatusBarMessage("Auto-wrap: On", 7000))
         }
 
         function checkChange(e)
