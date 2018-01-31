@@ -111,11 +111,15 @@ namespace VS
                 ToggleEnabled(null, null);
         }
 
-        // Gets if auto-wrap is enabled
-        static bool Enabled { get { return MenuCommand.Checked; } }
-
+        // MenuCommand vs OleMenuCommand: OleMenuCommand, which has a query
+        // method, could be used to query an enabled state held elsewhere. But
+        // MenuCommand is enough for us here. It has its own checked state,
+        // which we use as the source of the enable state.
         static readonly MenuCommand MenuCommand =
             new MenuCommand(ToggleEnabled, new CommandID( RewrapPackage.CmdSetGuid, ID ));
+
+        // Gets if auto-wrap is enabled
+        static bool Enabled { get { return MenuCommand.Checked; } }
 
         static void ToggleEnabled(object _, EventArgs e)
         {
