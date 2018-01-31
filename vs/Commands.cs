@@ -2,8 +2,10 @@
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.OLE.Interop;
+using Microsoft.VisualStudio.Settings;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Shell.Settings;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.TextManager.Interop;
@@ -101,6 +103,12 @@ namespace VS
             commandService.AddCommand( MenuCommand );
 
             StatusBar = package.GetService( typeof( SVsStatusbar ) ) as IVsStatusbar;
+
+            // Restore if enabled in settings
+            SettingsStore = (new ShellSettingsManager(package))
+                .GetWritableSettingsStore(SettingsScope.UserSettings);
+            if (SettingsStore.GetBoolean("Rewrap\\*", "autoWrap", false))
+                ToggleEnabled(null, null);
         }
 
         // Gets if auto-wrap is enabled
@@ -109,19 +117,22 @@ namespace VS
         static readonly MenuCommand MenuCommand =
             new MenuCommand(ToggleEnabled, new CommandID( RewrapPackage.CmdSetGuid, ID ));
 
-        static void ToggleEnabled(object sender, EventArgs e)
+        static void ToggleEnabled(object _, EventArgs e)
         {
             MenuCommand.Checked = !MenuCommand.Checked;
+            SettingsStore.SetBoolean("Rewrap\\*", "autoWrap", Enabled);
 
-            // Show a brief message in sttus bar when toggling on/off. Would
+            // Show a brief message in status bar when toggling on/off. Would
             // like something permanent that shows the status but it's not
             // possible without dirty hacks https://stackoverflow.com/q/30096546 
             if (StatusBar != null)
             {
-                var msg = MenuCommand.Checked ? "Auto-wrap: On" : "Auto-wrap: Off";
+                var msg = Enabled ? "Auto-wrap: On" : "Auto-wrap: Off";
                 StatusBar.SetText( msg );
             }
         }
+
+        static WritableSettingsStore SettingsStore;
 
         static IVsStatusbar StatusBar;
 
