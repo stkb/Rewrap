@@ -1,4 +1,4 @@
-module private rec Parsing.Markdown
+﻿module private rec Parsing.Markdown
 
 open System.Text.RegularExpressions
 open Extensions
@@ -134,6 +134,8 @@ let rec markdown (settings: Settings): TotalParser =
             (Nonempty.span (fun s -> not (Line.containsText s || Line.isBlank s)))
 
     /// Ignores ATX headings (### Heading ###)
+    ///
+    /// A space is required in the commonmark spec, though not in all others.
     let atxHeading =
         ignoreParser (Nonempty.span (lineStartsWith "#{1,6} "))
 
@@ -228,6 +230,8 @@ let rec markdown (settings: Settings): TotalParser =
             nonText
             listItem
             blockQuote
+            atxHeading
+            htmlType1to6
         ]
 
     let allParsers lines =
