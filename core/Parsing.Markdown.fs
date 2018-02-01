@@ -1,4 +1,4 @@
-﻿module private rec Parsing.Markdown
+module private rec Parsing.Markdown
 
 open System.Text.RegularExpressions
 open Extensions
@@ -79,7 +79,7 @@ let rec markdown (settings: Settings): TotalParser =
                 , Regex("</(script|pre|style)>", RegexOptions.IgnoreCase)
                 )
             takeLinesBetweenMarkers (mdMarker "<!--", Regex("-->"))
-            takeLinesBetweenMarkers (mdMarker "<?", Regex("\\?>"))
+            takeLinesBetweenMarkers (mdMarker "<\\?", Regex("\\?>"))
             takeLinesBetweenMarkers (mdMarker "<![A-Z]", Regex(">"))
             takeLinesBetweenMarkers (mdMarker "<!\\[CDATA\\[", Regex("]]>"))
             takeLinesBetweenMarkers
