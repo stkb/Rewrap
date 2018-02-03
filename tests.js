@@ -86,7 +86,7 @@ function readSamplesInFile(fileName)
             return nextOutput
         }
         // Blank line: allow sample to start after this
-        else if(line.length < 4 && line === line.trim()) {
+        else if(line.trim().length === 0) {
             return loop(nextOutput, settings, [], nextRemainingLines)
         }
         // Possible sample line: add it to buffer if was following a blank line
