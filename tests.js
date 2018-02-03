@@ -66,6 +66,8 @@ function getSpecFiles(dir)
 
 function readSamplesInFile(fileName) 
 {
+    // Files should not have a BOM, or detecting a test or settings line on the
+    // first line will fail.
     const lines = FS.readFileSync(fileName, { encoding: 'utf8' }).split(/\r?\n/)
     return loop([], defaultSettings, null, lines)
 
