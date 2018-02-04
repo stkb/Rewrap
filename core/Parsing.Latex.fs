@@ -1,4 +1,4 @@
-﻿module private Parsing.Latex
+module private Parsing.Latex
 
 open Extensions
 open Nonempty

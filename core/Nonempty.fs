@@ -1,4 +1,4 @@
-﻿module rec Nonempty
+module rec Nonempty
 
 open Extensions
 

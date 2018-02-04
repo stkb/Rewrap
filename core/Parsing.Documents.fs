@@ -1,4 +1,4 @@
-﻿module internal Parsing.Documents
+module internal Parsing.Documents
 
 open System
 open Extensions

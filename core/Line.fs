@@ -1,4 +1,4 @@
-﻿module rec Line
+module rec Line
 
 open System.Text.RegularExpressions
 open Extensions

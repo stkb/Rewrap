@@ -1,4 +1,4 @@
-﻿module private Parsing.Core
+module private Parsing.Core
 
 open System.Text.RegularExpressions
 open Nonempty

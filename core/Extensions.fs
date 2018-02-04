@@ -1,4 +1,4 @@
-﻿namespace Extensions
+namespace Extensions
 
 // Some extra functions
 

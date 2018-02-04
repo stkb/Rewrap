@@ -1,4 +1,4 @@
-﻿module Rewrap.Core
+module Rewrap.Core
 
 open Extensions
 

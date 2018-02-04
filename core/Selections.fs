@@ -1,4 +1,4 @@
-﻿module internal Selections
+module internal Selections
 
 open Nonempty
 open Extensions

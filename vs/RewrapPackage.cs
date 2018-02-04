@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // <copyright file="RewrapCommandPackage.cs" company="Company">
 //     Copyright (c) Company.  All rights reserved.
 // </copyright>

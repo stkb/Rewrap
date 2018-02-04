@@ -1,4 +1,4 @@
-﻿namespace Rewrap
+namespace Rewrap
 
 /// Settings passed in from the editor
 type Settings = {

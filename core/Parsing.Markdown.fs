@@ -1,4 +1,4 @@
-﻿module private rec Parsing.Markdown
+module private rec Parsing.Markdown
 
 open System.Text.RegularExpressions
 open Extensions

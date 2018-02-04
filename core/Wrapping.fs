@@ -1,4 +1,4 @@
-﻿module internal Wrapping
+module internal Wrapping
 
 open System
 open Nonempty

@@ -1,4 +1,4 @@
-﻿module internal rec Block
+module internal rec Block
 
 open Nonempty
 open Extensions

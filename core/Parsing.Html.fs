@@ -1,4 +1,4 @@
-﻿module private Parsing.Html
+module private Parsing.Html
 
 open Extensions
 open Rewrap

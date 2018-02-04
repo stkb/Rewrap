@@ -1,4 +1,4 @@
-﻿module private Parsing.DocComments
+module private Parsing.DocComments
 
 open Extensions
 open Nonempty
