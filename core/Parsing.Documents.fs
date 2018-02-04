@@ -93,7 +93,13 @@ let languages : Language[] = [|
     lang "F#" "fsharp" ".fs|.fsx"
         ( sourceCode [ customLine html "///"; cLine; block ( @"\(\*", @"\*\)" ) ] )
     lang "Go" "" ".go"
-        java
+        ( sourceCode
+            [ customBlock DocComments.godoc ( "", "" ) javadocMarkers
+              cBlock
+              customLine DocComments.godoc "//"
+              cLine
+            ]
+        )
     lang "Git commit" "git-commit" "tag_editmsg"
         Markdown.markdown
     lang "GraphQL" "" ".graphql|.gql"

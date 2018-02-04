@@ -7,6 +7,9 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 - Added Crystal language support
 - VSCode extension now activates on startup
 - Added MATLAB language support
+- Go: comment parsing changed to work the same as godoc
+  - Markdown no longer used; instead simply all indented lines are preserved.
+  - Leading '*'s no longer allowed in block comments 
 
 
 ### 1.6.1

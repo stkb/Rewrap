@@ -135,3 +135,19 @@ let psdoc =
 /// DDoc for D. Stub until it's implemented. https://dlang.org/spec/ddoc.html
 let ddoc =
     markdown
+
+
+/// Godoc comments use a godoc compatible parser instead of markdown.
+/// Here, any lines that are indented more than the "standard" aren't wrapped.
+///
+/// https://blog.golang.org/godoc-documenting-go-code
+let godoc settings =
+    let indentedLines = 
+        ignoreParser
+            (Nonempty.span (fun line -> line.[0] = ' ' || line.[0] = '\t'))
+    let textLines = 
+        (Nonempty.singleton << Wrap << Wrappable.fromLines ("", ""))
+
+    textLines 
+        |> takeUntil (tryMany [blankLines; indentedLines])
+        |> repeatToEnd
