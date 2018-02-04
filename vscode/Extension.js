@@ -84,10 +84,11 @@ exports.activate = function activate(context)
 
         function checkChange(e)
         {
-            const document = e.document;
             // Make sure we're in the active document
             const editor = window.activeTextEditor
-            if(editor.document !== e.document) return
+            if(!editor || !e || editor.document !== e.document) return
+            
+            const document = e.document;
 
             // Haven't come across a case where # of changes is != 1 but if it
             // happens we can't handle it.
