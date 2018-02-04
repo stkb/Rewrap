@@ -21,6 +21,13 @@
 			"isShellCommand": true
 		},
 		{
+			"taskName": "dev",
+			"args": ["run", "dev", "--loglevel", "silent"],
+			"suppressTaskName": true,
+			"isBuildCommand": false,
+			"isShellCommand": true
+		},
+		{
 			"taskName": "test",
 			"args": ["test", "--loglevel", "silent"],
 			"isTestCommand": true,

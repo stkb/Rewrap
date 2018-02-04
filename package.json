@@ -89,6 +89,7 @@
     "test": "node tests",
     "postinstall": "node ./node_modules/vscode/bin/install && dotnet restore vscode",
     "compile": "cd vscode && dotnet fable npm-run fable-splitter",
+    "dev": "cd vscode && dotnet fable npm-run fable-splitter -- --watch",
     "fable-splitter": "fable-splitter --config vscode/FableConfig.js",
     "clean": "rimraf vscode/compiled",
     "vscode:prepublish": "npm run clean && npm run compile"
