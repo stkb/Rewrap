@@ -44,7 +44,7 @@
       <Button guid="CommandSetID" id="ToggleAutoWrapCommandID" priority="0x0101" type="Button">
         <Parent guid="CommandSetID" id="MenuGroup" />
         <Strings>
-          <ButtonText>Toggle Auto-&amp;Wrap</ButtonText>
+          <ButtonText>Auto-&amp;Wrap</ButtonText>
         </Strings>
       </Button>
     </Buttons>
