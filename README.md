@@ -1,5 +1,9 @@
-**Latest version: 1.6.1 ([view
-changes](https://github.com/stkb/vscode-rewrap/releases))**
+**Latest version: 1.7.0.** New in this version ([full 
+changelog](https://github.com/stkb/vscode-rewrap/releases)):
+- Auto-wrap setting (on/off) now persists between sessions.
+- LaTeX: Preserve verbatim and math sections.
+- Go: comment parsing changed to work the same as godoc: simply all indented lines are preserved.
+- Crystal and MATLAB languages added.
 
 # Rewrap
 

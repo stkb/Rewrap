@@ -1,15 +1,14 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
 
-## Unreleased
+## 1.7.0
 
-- Latex: Don't wrap verbatim and math sections (#68, #69)
-- Added Crystal language support
-- VSCode extension now activates on startup
-- Added MATLAB language support
-- Go: comment parsing changed to work the same as godoc
+- Auto-wrap setting (on/off) now persists between sessions.
+- LaTeX: Preserve verbatim and math sections (#68, #69)
+- Go: comment parsing changed to work the same as godoc (#70)
   - Markdown no longer used; instead simply all indented lines are preserved.
   - Leading '*'s no longer allowed in block comments 
+- Crystal and MATLAB languages added. (#71, #72)
 
 
 ### 1.6.1
