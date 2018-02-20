@@ -23,6 +23,7 @@ let private preserveEnvironments =
     [| "align"; "alltt"; "displaymath"; "equation"; "gather"; "listing"; 
        "lstlisting"; "math"; "multline"; "verbatim"
     |]
+        |> Array.collect (fun x -> [| x; x + "*" |])
 
 let private preserveShortcuts = [| "\(" ; "\[" ; "$" ; "$$" |]
 
@@ -63,7 +64,7 @@ let private commandRegex: Regex =
         + @"\\(\[|[a-z]+)\*?\s*" // Command name with optional '*', + whitespace
         + @"(?:\[[^\]]*\]\s*)?"  // Optional [options] section, + whitespace
                                  // Doesn't allow ']' (can this occur?)
-        + @"(?:\{([a-z]+))?"     // Optional first {arg}, only leading letters are captured
+        + @"(?:\{([a-z]+\*?))?"  // Optional first {arg}, only letters + optional * are captured
         + @"(?:.*\})?"           // Capture the rest of the line if it ends with a '}'
         )
 

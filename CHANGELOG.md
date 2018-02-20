@@ -1,6 +1,11 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
 
+## Unreleased
+
+- LaTeX: Fix wrapping after * environments (#77)
+
+
 ## 1.7.0
 
 - Auto-wrap setting (on/off) now persists between sessions.
