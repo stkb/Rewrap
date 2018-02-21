@@ -87,7 +87,7 @@ let languages : Language[] = [|
     lang "Dockerfile" "docker" "dockerfile"
         configFile
     lang "Elixir" "" ".ex|.exs"
-        configFile
+        ( sourceCode [ line "#"; block ("@(module|type|)doc\s+\"\"\"", "\"\"\"") ] )
     lang "Elm" "" ".elm"
         ( sourceCode [ line "--"; block ( "{-\|?", "-}" ) ] )
     lang "F#" "fsharp" ".fs|.fsx"

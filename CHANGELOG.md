@@ -3,6 +3,7 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 
 ## Unreleased
 
+- Elixir: Support @doc, @moduledoc and @typedoc comments
 - Yaml: Allow up to 3 #'s as line comment prefixes.
 
 
