@@ -61,6 +61,8 @@ let languages : Language[] = [|
               line "#"
             ]
         )
+    lang "Configuration" "properties" ".conf|.gitconfig"
+        configFile
     lang "Crystal" "" ".cr"
         ( sourceCode [ line "#" ] )
     lang "CSS" "" ".css"
