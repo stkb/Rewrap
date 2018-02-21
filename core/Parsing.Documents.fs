@@ -195,7 +195,7 @@ let languages : Language[] = [|
         /// file at once will mess it up.
         (fun settings -> 
             let comments =
-                line "#" settings
+                line "#{1,3}" settings
 
             takeUntil comments (plainText settings) |> repeatToEnd
         )

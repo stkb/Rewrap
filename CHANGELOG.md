@@ -1,6 +1,11 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
 
+## Unreleased
+
+- Yaml: Allow up to 3 #'s as line comment prefixes.
+
+
 ### 1.7.1
 
 - LaTeX: Fix wrapping after * environments (#77)
