@@ -213,6 +213,30 @@ let rec private processBlocks
         loop [] selections parseResult.startLine parseResult.blocks parseResult.originalLines
 
 
+
+let private trimEdit (originalLines: Lines) (edit : Edit) : Edit =
+
+    let editNotZeroLength x =
+        edit.endLine - edit.startLine > x && edit.lines.Length > x
+
+    let originalLinesArray = originalLines |> Nonempty.toList |> List.toArray
+    
+    let mutable s = 0
+    while editNotZeroLength s
+        && originalLinesArray.[edit.startLine + s] = edit.lines.[s]
+        do s <- s + 1
+
+    let mutable e = 0
+    while editNotZeroLength (s + e)
+        && originalLinesArray.[edit.endLine - e] = edit.lines.[edit.lines.Length - e - 1]
+        do e <- e + 1
+
+    { startLine = edit.startLine + s
+      endLine = edit.endLine - e
+      lines = edit.lines |> Array.skip s |> Array.truncate (edit.lines.Length - s - e)
+    }
+
+
 let wrapSelected
     (originalLines: Lines)
     (selections: List<Selection>) 
@@ -236,3 +260,4 @@ let wrapSelected
             |> List.toArray
     
     { startLine = 0; endLine = Nonempty.length originalLines - 1; lines = newLines }
+        |> trimEdit originalLines
