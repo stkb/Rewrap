@@ -83,7 +83,7 @@ function getSetting(editor, setting)
         || config.get(setting)
 
     function languageSetting(obj, pathParts)
-        {
+    {
         if(!pathParts.length) return undefined
 
         const [next, ...rest] = pathParts
