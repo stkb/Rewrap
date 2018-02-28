@@ -306,11 +306,12 @@ let private findListItemEnd indent: MarkdownState -> List<string> -> List<string
                     else
                         Paragraph
 
-    
     let rec loop (output: List<string>) (state: MarkdownState) (lines: List<string>) =
         match lines with
             | line :: otherLines ->
-                if (line |> Line.leadingWhitespace |> String.length) < indent then
+                if Line.isBlank line then
+                    loop (line :: output) (modifyState state line) otherLines
+                else if (line |> Line.leadingWhitespace |> String.length) < indent then
                     if
                         Line.contains blockQuoteRegex line
                             || Line.contains listItemRegex line
