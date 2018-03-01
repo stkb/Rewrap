@@ -54,7 +54,7 @@ let rec markdown (settings: Settings): TotalParser =
             (outputLines, maybeRemainingLines)
 
 
-        let prefix, remainder = Line.split (mdMarker "(`{3,}|~{3,})") headLine
+        let prefix, remainder = Line.split fencedCodeBlockRegex headLine
         let hasStartMarker = String.length prefix > 0
 
         if hasStartMarker then
@@ -253,18 +253,17 @@ let rec markdown (settings: Settings): TotalParser =
         >> (repeatToEnd allParsers)
 
 
-
-        
-
-
 let private mdMarker marker =
     Regex(@"^ {0,3}" + marker, RegexOptions.IgnoreCase)
 
 let private listItemRegex =
-        mdMarker @"([-+*]|[0-9]+[.)])(\s+|$)"
+    mdMarker @"([-+*]|[0-9]+[.)])(\s+|$)"
 
 let private blockQuoteRegex =
-        mdMarker ">"
+    mdMarker ">"
+
+let private fencedCodeBlockRegex =
+    mdMarker "(`{3,}|~{3,})"
 
 let private lineStartsWith =
         Line.contains << mdMarker
@@ -274,10 +273,16 @@ type private MarkdownState =
     | Paragraph
     | NonParagraph
 
+
+/// This is getting repetitious and messy. Plan to try writing the whole
+/// markdown parser in a line-by-line, state-based way like below. But will do
+/// it slowly if possible.
 let private findListItemEnd indent: MarkdownState -> List<string> -> List<string> * Option<Lines> =
 
-    let combine output remaining =
-            ( List.rev output, Nonempty.fromList remaining )
+    let trimIndent (line: string) : string =
+        let mutable p = 0
+        while p < indent && p < line.Length && line.[p] = ' ' do p <- p + 1
+        line.Substring(p)
 
     let modifyState state line =
             // Need to fix fencedCodeBlock start/end markers
@@ -306,28 +311,40 @@ let private findListItemEnd indent: MarkdownState -> List<string> -> List<string
                     else
                         Paragraph
 
-    let rec loop (output: List<string>) (state: MarkdownState) (lines: List<string>) =
+    let rec loop (output: List<string>) (state: MarkdownState) (lines: List<string>) : List<string> * Option<Lines> =
+        
+        let exitLoop () =
+            ( List.rev output, Nonempty.fromList lines )
+
         match lines with
             | line :: otherLines ->
+                let trimmedLine = trimIndent line
+                let continueLoop () =
+                    loop (line :: output) (modifyState state trimmedLine) otherLines
+
                 if Line.isBlank line then
-                    loop (line :: output) (modifyState state line) otherLines
-                else if (line |> Line.leadingWhitespace |> String.length) < indent then
-                    if
-                        Line.contains blockQuoteRegex line
-                            || Line.contains listItemRegex line
-                    then
-                        combine output lines
-                    else
-                        match state with
-                            | Paragraph ->
-                                loop (line :: output) (modifyState state line) otherLines
-
-                            | _ ->
-                                combine output lines
+                    continueLoop ()
+                    
                 else
-                    loop (line :: output) (modifyState state line) otherLines
-
+                    let indentIsLess = line.Length - trimmedLine.Length < indent
+                    if indentIsLess then
+                        match state with
+                            | FencedCodeBlock ->
+                                continueLoop ()
+                            | Paragraph ->
+                                if
+                                    Line.contains blockQuoteRegex line
+                                        || Line.contains listItemRegex line
+                                        || Line.contains fencedCodeBlockRegex line
+                                then
+                                    exitLoop ()
+                                else
+                                    continueLoop ()
+                            | NonParagraph ->
+                                exitLoop ()
+                    else
+                        continueLoop ()
             | [] ->
-                combine output lines
+                exitLoop ()
 
     loop []
