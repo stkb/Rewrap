@@ -1,12 +1,14 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
 
-## Unreleased
+## 1.8.0
 
-- Elixir: Support @doc, @moduledoc and @typedoc comments
-- Yaml: Allow up to 3 #'s as line comment prefixes.
-- Config files (.conf, .gitconfig etc): restore support
+Mostly bugfixes:
+- Fix to entire file being re-syntax highlighted (#78)
+- Elixir: Support doc, moduledoc and typedoc comments (#76)
+- Yaml: Allow up to 3 #'s as line comment prefixes (#74)
 - Markdown: Fix a list item bug (#79)
+- Config files (.conf, .gitconfig etc): restore support (was broken)
 
 
 ### 1.7.1

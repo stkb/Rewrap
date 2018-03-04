@@ -1,12 +1,12 @@
-**Latest version: 1.7.1.** New in this version ([full 
+**Latest version: 1.8.0.** New in this version ([full 
 changelog](https://github.com/stkb/vscode-rewrap/releases)):
-- LaTeX: Fix wrapping after * environments
 
-New in version 1.7.0:
-- Auto-wrap setting (on/off) now persists between sessions.
-- LaTeX: Preserve verbatim and math sections.
-- Go: comment parsing changed to work the same as godoc: simply all indented lines are preserved.
-- Crystal and MATLAB languages added.
+Mostly bugfixes:
+- Fix to entire file being re-syntax highlighted
+- Elixir: Support doc, moduledoc and typedoc comments
+- Yaml: Allow multiple #'s as line comment prefixes
+- Markdown: Fix a list item bug
+- Config files (.conf, .gitconfig etc): restore support (was broken)
 
 # Rewrap
 
