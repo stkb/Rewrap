@@ -110,7 +110,7 @@ let languages : Language[] = [|
         java
     lang "Haskell" "" ".hs"
         ( sourceCode [ line "--"; block ( "{-\s*\|?", "-}" ) ] )
-    lang "HTML" "" ".htm|.html"
+    lang "HTML" "vue" ".htm|.html|.vue"
         html
     lang "INI" "" ".ini"
         ( sourceCode [ line "[#;]" ] )
