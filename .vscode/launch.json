@@ -9,6 +9,13 @@
             "runtimeExecutable": "${execPath}",
             "args": ["--extensionDevelopmentPath=${workspaceRoot}" ],
             "stopOnEntry": false
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Run Tests",
+            "program": "${workspaceFolder}/tests.js",
+            "args": [ ]
         }
     ]
 }
