@@ -1,6 +1,7 @@
 const Path = require('path')
 const FS = require('fs')
 const Assert = require('assert')
+const {performance} = require('perf_hooks')
 const {DocState} = require('./vscode/compiled/Core/Types')
 const Core = require('./vscode/compiled/Core/Main')
 
@@ -29,7 +30,9 @@ const tests =
             )
         )
 
+const startTime = performance.now()
 const failures = runTests(tests)
+const timeTaken = Math.round(performance.now() - startTime)
 
 if(failures.length) {
     failures
@@ -43,7 +46,7 @@ if(failures.length) {
 }
 else {
     console.log(`${tests.length} ${testOrTests(tests.length)} run`)
-    console.log(`All ${testOrTests(tests.length)} passed.`)
+    console.log(`All ${testOrTests(tests.length)} passed (${timeTaken} ms).`)
 }
 
 function testOrTests(n)
