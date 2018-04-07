@@ -1,7 +1,7 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
 
-## Unreleased
+### 1.8.1
 
 - Support Vue HTML templates (#82)
 
