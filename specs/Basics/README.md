@@ -14,3 +14,4 @@ Contents:
 5. [LaTeX](5-LaTeX.md)
 6. [Selections](6-Selections.md)
 7. [Other features](7-OtherFeatures.md)
+8. [East Asian Characters](8-EastAsianCharacters.md)

@@ -2,7 +2,7 @@ const Path = require('path')
 const FS = require('fs')
 const Assert = require('assert')
 const {performance} = require('perf_hooks')
-let DocState, Core // loaded later
+let DocState, Core, charWidth // loaded later
 
 exports.run = run
 exports.getBench = getBench
@@ -16,10 +16,30 @@ const defaultSettings =
     , wholeComment: true
     }
 
+const strWidth = s => 
+    (new Array(s.length)).fill(0)
+        .map((_, i) => charWidth(s.charCodeAt(i)))
+        .reduce((x, y) => x + y, 0)
+
+const strWidthBefore = marker => s => {
+    const p = s.indexOf(marker)
+    return p < 0 ? -1 : strWidth(s.substr(0, p))
+}
+
+/** Splits a string at a given column and returns a string tuple */
+const splitAtWidth = c => s => {
+    let width = 0, i
+    for(i = 0; i < s.length; i++) {
+        width += charWidth(s.charCodeAt(i))
+        if(width > c) break
+    }
+    return [s.substr(0, i), s.substr(i)]
+}
+
 
 if(require.main === module) {
-const cmdlineFileNames =
-    process.argv.length > 2 ? process.argv.slice(2) : null
+    const cmdlineFileNames =
+        process.argv.length > 2 ? process.argv.slice(2) : null
 
     if(!run(cmdlineFileNames)) { process.exitCode = -1 }
 }
@@ -44,7 +64,7 @@ function run(fileNames)
         console.log(`${failures.length} ${testOrTests(failures.length)} failed.`)
     }
     else {
-            console.log()       
+        console.log()       
         console.log(`${tests.length} ${testOrTests(tests.length)} run`)
         console.log(`All ${testOrTests(tests.length)} passed (${timeTaken} ms).`)
     }
@@ -83,11 +103,11 @@ function reloadModules()
     charWidth = require('./vscode/compiled/Core/Wrapping').charWidth
 }
 
+
 function testOrTests(n)
 {
     return n == 1 ? "test" : "tests"
 }
-
 
 
 function getSpecFiles(dir)
@@ -195,28 +215,14 @@ function readTestLines(lines)
     function splitLines(marker, lines)
     {
         const splitPoint = 
-            Math.max(...lines.map(l => l.indexOf(marker)))
-
-        if(splitPoint == -1) {
-            return [lines, null]
-        }
-        else {
-            return lines
-                .map(line => splitAt(splitPoint + marker.length, line))
+            Math.max(...lines.map(strWidthBefore(marker)))
+        return splitPoint < 0
+            ? [lines, null]
+            : lines
+                .map(splitAtWidth(splitPoint + marker.length))
                 // Convert list of tuples to tuple of lists
-                .reduce
-                    ( ([xs, ys], [x, y]) =>
-                        [[...xs, x], [...ys, y]]
-                    , [[], []]
-                    )
+                .reduce(([xs, ys], [x, y]) => [[...xs, x], [...ys, y]], [[], []])
                 .map(removeIndent)
-        }
-
-        /** Splits a string at a given points and returns a string tuple */
-        function splitAt(p, s) 
-        {
-            return [s.substr(0, p), s.substr(p)]
-        }
     }
 
     /** Removes any indent whitespace that is common to all lines */
@@ -234,19 +240,11 @@ function readTestLines(lines)
 
     function getWrappingColumn(lines)
     {
-        const positions =
-            lines
-                .map(l => l.indexOf('¦'))
-                .filter(x => x > 0)
+        const positions = lines.map(strWidthBefore('¦')).filter(x => x > 0)
 
-        if(positions.length > 0 
-            && positions.every(p => p == positions[0]))
-        {
-            return positions[0]
-        }
-        else {
-            return -1
-        }
+        return positions.length && positions.every(p => p == positions[0])
+            ? positions[0] 
+            : -1
     }
 
     function getSelections(lines) 
@@ -440,8 +438,8 @@ function printTest(input, expected, actual, width, tabWidth)
     }
 
     function padRight(s) {
-        s = s.substr(0, width)
-        return s + " ".repeat(width - s.length)
+        s = splitAtWidth(width)(s)[0]
+        return s + " ".repeat(width - strWidth(s))
     }
 
     function showTabs(str)
