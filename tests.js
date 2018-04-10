@@ -2,8 +2,10 @@ const Path = require('path')
 const FS = require('fs')
 const Assert = require('assert')
 const {performance} = require('perf_hooks')
-const {DocState} = require('./vscode/compiled/Core/Types')
-const Core = require('./vscode/compiled/Core/Main')
+let DocState, Core // loaded later
+
+exports.run = run
+exports.getBench = getBench
 
 const specsDir = Path.join(__dirname, 'specs')
 const defaultSettings = 
@@ -14,39 +16,71 @@ const defaultSettings =
     , wholeComment: true
     }
 
+
+if(require.main === module) {
 const cmdlineFileNames =
     process.argv.length > 2 ? process.argv.slice(2) : null
 
-const fileNames =
-    cmdlineFileNames || getSpecFiles()
-
-const tests =
-    fileNames
-        .map(readSamplesInFile)
-        .reduce((xs, x) => [...xs, ...x], []) // Concat tests
-        .map(({fileName, settings, lines}) => 
-            Object.assign(
-                { fileName, settings }, readTestLines(lines)
-            )
-        )
-
-const startTime = performance.now()
-const failures = runTests(tests)
-const timeTaken = Math.round(performance.now() - startTime)
-
-if(failures.length) {
-    failures
-        .reduce((xs, x) => [...xs, '', ...x], [])
-        .forEach(s => console.log(s))
-
-    console.log()
-    console.log(`${tests.length} ${testOrTests(tests.length)} run`)
-    console.log(`${failures.length} ${testOrTests(failures.length)} failed.`)
-    process.exitCode = -1
+    if(!run(cmdlineFileNames)) { process.exitCode = -1 }
 }
-else {
-    console.log(`${tests.length} ${testOrTests(tests.length)} run`)
-    console.log(`All ${testOrTests(tests.length)} passed (${timeTaken} ms).`)
+
+function run(fileNames) 
+{
+    reloadModules()
+
+    const tests = getTests(fileNames)
+
+    const startTime = performance.now()
+    const failures = runTests(tests)
+    const timeTaken = Math.round(performance.now() - startTime)
+
+    if(failures.length) {
+        failures
+            .reduce((xs, x) => [...xs, '', ...x], [])
+            .forEach(s => console.log(s))
+
+        console.log()
+        console.log(`${tests.length} ${testOrTests(tests.length)} run`)
+        console.log(`${failures.length} ${testOrTests(failures.length)} failed.`)
+    }
+    else {
+            console.log()       
+        console.log(`${tests.length} ${testOrTests(tests.length)} run`)
+        console.log(`All ${testOrTests(tests.length)} passed (${timeTaken} ms).`)
+    }
+
+    return !failures.length
+}
+
+
+function getBench() {
+    reloadModules()
+    const tests = getTests()
+    
+    return function() {
+        runTests(tests)
+    }
+}
+
+
+function reloadModules() 
+{
+    function deleteModule(moduleName)
+    {
+        const solvedName = require.resolve(moduleName)
+        const nodeModule = require.cache[solvedName]
+        if (nodeModule) {
+            delete require.cache[solvedName]
+            for (let i = nodeModule.children.length - 1; i >= 0; i--) {
+                deleteModule(nodeModule.children[i].filename);
+            }
+        }
+    }
+
+    deleteModule('./vscode/compiled/Core/Main')
+    Core = require('./vscode/compiled/Core/Main')
+    DocState = require('./vscode/compiled/Core/Types').DocState
+    charWidth = require('./vscode/compiled/Core/Wrapping').charWidth
 }
 
 function testOrTests(n)
@@ -64,6 +98,20 @@ function getSpecFiles(dir)
     const specFiles = children.filter(n => n.match(/\.md$/))
     const subDirs = children.filter(n => FS.statSync(n).isDirectory())
     return subDirs.map(getSpecFiles).reduce((xs, x) => [...xs, ...x], specFiles)
+}
+
+
+function getTests(fileNames) 
+{
+    fileNames = fileNames || getSpecFiles()
+    return fileNames
+        .map(readSamplesInFile)
+        .reduce((xs, x) => [...xs, ...x], []) // Concat tests
+        .map(({fileName, settings, lines}) => 
+            Object.assign(
+                { fileName, settings }, readTestLines(lines)
+            )
+        )
 }
 
 
