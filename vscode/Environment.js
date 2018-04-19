@@ -3,36 +3,37 @@ module.exports = { getSettings, getWrappingColumns }
 
 const { workspace } = require('vscode')
 
-
 function getSettings(editor)
 {
+    const setting = settingGetter(editor)
     const settings = {
         column: 0, // Not used and will later be removed
         columns: getWrappingColumns(editor),
         tabWidth: editor.options.tabSize,
-        doubleSentenceSpacing: getSetting(editor, 'rewrap.doubleSentenceSpacing'),
-        wholeComment: getSetting(editor, 'rewrap.wholeComment'),
-        reformat: getSetting(editor, 'rewrap.reformat'),
+        doubleSentenceSpacing: setting('rewrap.doubleSentenceSpacing'),
+        wholeComment: setting('rewrap.wholeComment'),
+        reformat: setting('rewrap.reformat'),
     }
     return validateSettings(settings)
 }
-
 
 /** Gets an array of the available wrapping column(s) from the user's settings.
  */
 function getWrappingColumns(editor) 
 {
+    const setting = settingGetter(editor)
     let extensionColumn, rulers
 
-    if(extensionColumn = getSetting(editor, 'rewrap.wrappingColumn'))
+    if(extensionColumn = setting('rewrap.wrappingColumn'))
         return [extensionColumn]
-    else if((rulers = getSetting(editor, 'editor.rulers'))[0])
+    else if((rulers = setting('editor.rulers'))[0])
         return rulers
     else
-        return [getSetting(editor, 'editor.wordWrapColumn')]
+        return [setting('editor.wordWrapColumn')]
         // The default for this is already 80
-}
 
+    
+}
 
 /** Since the settings come from the user's own settings.json file, there may be
  *  invalid values. */
@@ -71,24 +72,24 @@ function validateSettings(settings)
 }
 
 
-/** Gets a setting from vscode. Tries to find a setting for the appropriate
- *  language for the editor. */
-function getSetting(editor, setting)
+/** Returns a function for getting a setting. That function looks first for a
+ *  language-specific setting before finding the general. */
+function settingGetter(editor)
 {
     const language = editor.document.languageId
         , config = workspace.getConfiguration('', editor.document.uri)
         , languageSection = config.get('[' + language + ']')
 
-    return languageSetting(languageSection, setting.split('.')) 
-        || config.get(setting)
+    return setting =>
+        langSetting(languageSection, setting.split('.')) || config.get(setting)
 
-    function languageSetting(obj, pathParts)
+    function langSetting(obj, pathParts)
     {
         if(!pathParts.length) return undefined
 
         const [next, ...rest] = pathParts
         if(obj) {
-            return obj[pathParts.join('.')] || languageSetting(obj[next], rest)
+            return obj[pathParts.join('.')] || langSetting(obj[next], rest)
         }
         else {
             return undefined
