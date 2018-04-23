@@ -62,9 +62,9 @@ namespace VS
 
 
             // Info for wrap
+            var docState = GetDocState();       
             var settings = GetSettings();
             var lineCount = snapshot.LineCount;
-            var docState = GetDocState();       
             var lines = snapshot.Lines.Select( l => l.GetText() );
 
             // Create edit
@@ -92,14 +92,13 @@ namespace VS
 
             Settings GetSettings()
             {
-                int[] wrappingColumns =
+                int[] rulers =
                     options.WrappingColumn.HasValue
                         ? new[] { options.WrappingColumn.Value }
                         : GetRulers();
 
                 return new Settings
-                    ( 0 // WrappingColumn will later be removed
-                    , wrappingColumns
+                    ( Core.getDocWrappingColumn(docState, rulers)
                     , textView.Options.GetTabSize()
                     , options.DoubleSentenceSpacing
                     , options.Reformat

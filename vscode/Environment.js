@@ -7,7 +7,6 @@ function getSettings(editor)
 {
     const setting = settingGetter(editor)
     const settings = {
-        column: 0, // Not used and will later be removed
         columns: getWrappingColumns(editor),
         tabWidth: editor.options.tabSize,
         doubleSentenceSpacing: setting('rewrap.doubleSentenceSpacing'),

@@ -140,10 +140,11 @@ const applyEdit = (editor, selections, edit) => {
 const doWrap = (editor, wrapFn, customColumn = undefined) => {
     const document = editor.document
     try {
-        let settings = Environment.getSettings(editor)
-        if(customColumn) Object.assign(settings, {columns: [customColumn]})
-        
         const docState = getDocState(document, editor.selections)
+        let settings = Environment.getSettings(editor)
+        settings.column = customColumn
+            || Core.getDocWrappingColumn(docState, settings.columns)
+        
         const lines = Array.from(new Array(document.lineCount))
             .map((_, i) => document.lineAt(i).text)
 

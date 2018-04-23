@@ -2,8 +2,7 @@ namespace Rewrap
 
 /// Settings passed in from the editor
 type Settings = {
-    column : int // To be removed
-    columns: int[]
+    column : int
     tabWidth : int
     doubleSentenceSpacing : bool
     reformat : bool

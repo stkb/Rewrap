@@ -355,7 +355,7 @@ function runTests(tests)
             const edit =
                 Core.rewrap
                     ( docState
-                    , Object.assign(settings, { columns: [wrappingColumn] })
+                    , Object.assign(settings, { column: wrappingColumn })
                     , input
                     )
             actual = applyEdit(edit, input)

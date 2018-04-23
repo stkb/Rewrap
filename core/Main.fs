@@ -9,7 +9,7 @@ let mutable private lastDocState : DocState =
 let private docWrappingColumns =
     new System.Collections.Generic.Dictionary<string, int>()
 
-let private columnFromColumns (docState: DocState) (rulers: int[]) : int =
+let getDocWrappingColumn (docState: DocState) (rulers: int[]) : int =
     let filePath = docState.filePath
 
     if rulers.Length = 0 then
@@ -74,18 +74,10 @@ let rewrap
     let originalLines =
         List.ofSeq lines |> Nonempty.fromListUnsafe
 
-    let newSettings =
-        { settings with
-            column = 
-                if settings.column > 0 then settings.column
-                else columnFromColumns docState settings.columns
-        }
-
     originalLines
         |> parser settings
         |> Selections.wrapSelected 
-            originalLines (List.ofSeq docState.selections) newSettings
-
+            originalLines (List.ofSeq docState.selections) settings
 
 let autoWrap
     (docState: DocState)
