@@ -2,7 +2,6 @@ module Rewrap.Core
 
 open Extensions
 
-
 let mutable private lastDocState : DocState = 
     { filePath = ""; language = ""; version = 0; selections = [||] }
 
@@ -12,10 +11,8 @@ let private docWrappingColumns =
 let getDocWrappingColumn (docState: DocState) (rulers: int[]) : int =
     let filePath = docState.filePath
 
-    if rulers.Length = 0 then
-        80
-    else if rulers.Length = 1 then
-        rulers.[0]
+    if rulers.Length = 0 then 80
+    else if rulers.Length = 1 then rulers.[0]
     else
         if not (docWrappingColumns.ContainsKey(filePath)) then
             docWrappingColumns.[filePath] <- rulers.[0]
@@ -30,7 +27,6 @@ let getDocWrappingColumn (docState: DocState) (rulers: int[]) : int =
             docWrappingColumns.[filePath] <- rulers.[nextRulerIndex]
 
         docWrappingColumns.[filePath]
-
 
 let saveDocState docState =
     lastDocState <- docState
@@ -50,18 +46,14 @@ let cursorBeforeWrappingColumn
         line |> String.takeStart character |> Line.tabsToSpaces tabSize |> String.length
     cursorColumn <= wrappingColumn
 
-
 let findLanguage name filePath : string =
     Parsing.Documents.findLanguage name filePath
         |> Option.map (fun l -> l.name)
         |> Option.defaultValue null
 
-
 let languages : string[] =
     Parsing.Documents.languages
         |> Array.map (fun l -> l.name)
-
-
 
 let rewrap
     (docState: DocState)
