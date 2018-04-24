@@ -350,13 +350,13 @@ function runTests(tests)
         }
 
         try {
-            const docState =
-                new DocState('', settings.language, 0, selections)
+            const docState = new DocState('', settings.language, 0, selections)
+            const getLine = i => i < input.length ? input[i] : null
             const edit =
                 Core.rewrap
                     ( docState
                     , Object.assign(settings, { column: wrappingColumn })
-                    , input
+                    , getLine
                     )
             actual = applyEdit(edit, input)
         }

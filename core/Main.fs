@@ -1,5 +1,6 @@
 module Rewrap.Core
 
+open System
 open Extensions
 
 let mutable private lastDocState : DocState = 
@@ -55,36 +56,27 @@ let languages : string[] =
     Parsing.Documents.languages
         |> Array.map (fun l -> l.name)
 
-let rewrap
-    (docState: DocState)
-    (settings: Settings)
-    (lines: seq<string>) =
-    
-    let parser = 
-        Parsing.Documents.select docState.language docState.filePath
-
-    let originalLines =
-        List.ofSeq lines |> Nonempty.fromListUnsafe
-
-    originalLines
+/// The main rewrap function, to be called by clients
+let rewrap docState settings (getLine: Func<int, string>) =
+    let parser = Parsing.Documents.select docState.language docState.filePath
+    let linesList =
+        Seq.unfold 
+            (fun i -> Option.ofObj (getLine.Invoke(i)) |> Option.map (fun l -> (l,i+1)))
+            0
+            |> List.ofSeq |> Nonempty.fromListUnsafe
+    linesList
         |> parser settings
         |> Selections.wrapSelected 
-            originalLines (List.ofSeq docState.selections) settings
+            linesList (List.ofSeq docState.selections) settings
 
-let autoWrap
-    (docState: DocState)
-    (settings: Settings)
-    (lines: seq<string>) =
-
+/// The autowrap function, to be called by clients
+let autoWrap docState settings (getLine: Func<int, string>) =
     let {line=line; character=col} = 
         docState.selections.[0].active
-
     let lineSelection = {
         anchor = { line = line; character = 0 }
         active = { line = line; character = col }
     }
-
-    rewrap
-        { docState with selections = [| lineSelection |] }
-        settings
-        (Seq.take (line + 1) lines)
+    let getLine' = 
+        Func<int, string>(fun i -> if i > line then null else getLine.Invoke(i))
+    rewrap { docState with selections = [| lineSelection |] } settings getLine'

@@ -144,13 +144,12 @@ const doWrap = (editor, wrapFn, customColumn = undefined) => {
         let settings = Environment.getSettings(editor)
         settings.column = customColumn
             || Core.getDocWrappingColumn(docState, settings.columns)
-        
-        const lines = Array.from(new Array(document.lineCount))
-            .map((_, i) => document.lineAt(i).text)
+        const docLine = i =>
+            i < document.lineCount ? document.lineAt(i).text : null
 
         // Don't call wrapFn in a promise: it causes performance/race
         // conditions when using auto-wrap
-        const edit = wrapFn(docState, settings, lines)
+        const edit = wrapFn(docState, settings, docLine)
         if(!edit.lines.length) return Promise.resolve()
         
         return applyEdit(editor, docState.selections, edit).then(null, catchErr)

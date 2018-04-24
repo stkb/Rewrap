@@ -49,7 +49,7 @@ namespace VS
         }
 
         static DocState ExecRewrap
-            ( Func<DocState, Settings, IEnumerable<String>, Edit> wrapFn
+            ( Func<DocState, Settings, Func<int, string>, Edit> wrapFn
             , IWpfTextView textView
             )
         {
@@ -62,13 +62,12 @@ namespace VS
 
 
             // Info for wrap
-            var docState = GetDocState();       
+            var docState = GetDocState();
             var settings = GetSettings();
             var lineCount = snapshot.LineCount;
-            var lines = snapshot.Lines.Select( l => l.GetText() );
 
             // Create edit
-            var edit = wrapFn( docState, settings, lines );
+            var edit = wrapFn( docState, settings, GetLine );
 
             // Apply edit
             if (ApplyEdit( textView, snapshot, edit ))
@@ -77,7 +76,6 @@ namespace VS
                 return GetDocState();
             }
             else return null;
-
 
 
             DocState GetDocState()
@@ -104,6 +102,13 @@ namespace VS
                     , options.Reformat
                     , options.WholeComment
                     );
+            }
+
+            string GetLine(int i)
+            {
+                return i < lineCount 
+                    ? snapshot.GetLineFromLineNumber(i).GetText()
+                    : null;
             }
         }
 
