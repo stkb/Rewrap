@@ -1,7 +1,7 @@
 const vscode = require('vscode')
 const { Position, Range, Selection, commands, workspace, window } = vscode
 const Environment = require('./Environment')
-const { adjustSelections } = require('./FixSelections')
+const fixSelections = require('./FixSelections')
 const Rewrap = require('./compiled/Core/Types')
 const Core = require('./compiled/Core/Main')
 
@@ -120,15 +120,14 @@ const applyEdit = (editor, selections, edit) => {
     const doc = editor.document
     const range = doc.validateRange
             ( new Range(edit.startLine, 0, edit.endLine, Number.MAX_VALUE) )
-    const lines = Array.from(new Array(doc.lineCount))
-        .map((_, i) => doc.lineAt(i).text)
+    const oldLines = Array(edit.endLine - edit.startLine + 1).fill()
+            .map((_, i) => doc.lineAt(edit.startLine + i).text)
 
     // vscode takes care of converting to \r\n if necessary
     const text = edit.lines.join('\n')
     return editor.edit(editBuilder => editBuilder.replace(range, text))
         .then(() => {
-            editor.selections =
-                adjustSelections(lines, selections, [edit])
+            editor.selections = fixSelections(oldLines, selections, edit)
             return getDocState(doc, editor.selections)
         })
 }

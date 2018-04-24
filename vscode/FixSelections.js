@@ -7,43 +7,47 @@
 // fast-diff), and uses it to calculate where the selections should be after
 // wrapping, so they can be re-applied in the editor after the edit(s) have been
 // done.
-const vscode_1 = require("vscode");
+const vscode = require("vscode");
 const fd = require('fast-diff');
+
 /** Given lines of original text, a set of selections and a set of edits,
  *  returns the positions of the selections for after the edits have been
  *  applied. */
-function adjustSelections(lines, selections, edits) 
+module.exports = function (oldLines, selections, edit)
 {
+    if(!edit || !edit.lines.length) return selections
+
     selections = selections.map(s =>
-        new vscode_1.Selection(s.anchor.line, s.anchor.character, s.active.line, s.active.character)
+        new vscode.Selection(s.anchor.line, s.anchor.character, s.active.line, s.active.character)
     )
 
     let runningLineGrowth = 0;
-    for (let edit of edits) {
-        if(!edit || !edit.lines.length) continue;
-
-        const { startLine, endLine } = edit, newStartLine = startLine + runningLineGrowth, oldLines = lines.slice(startLine, endLine + 1), diff = fd(oldLines.join('\n'), edit.lines.join('\n')), oldLineCount = endLine - startLine + 1, newLineCount = edit.lines.length, rangeLineGrowth = newLineCount - oldLineCount;
-        selections = selections.map(s => {
-            const points = [s.anchor, s.active]
-                .map(p => {
-                // For selection points in the edit range, adjust from the diff
-                if (p.line >= newStartLine && p.line <= endLine + runningLineGrowth) {
-                    const oldOffset = offsetAt(oldLines, p.translate(-newStartLine)), newOffset = newOffsetFromOld(oldOffset, diff);
-                    p = positionAt(edit.lines, newOffset).translate(newStartLine);
-                }
-                else if (p.line > endLine + runningLineGrowth) {
-                    p = p.translate(rangeLineGrowth);
-                }
-                return p;
-            });
-            return new vscode_1.Selection(points[0], points[1]);
+    const { startLine, endLine } = edit
+         , newStartLine = startLine + runningLineGrowth
+         , oldLineCount = endLine - startLine + 1
+         , diff = fd(oldLines.join('\n'), edit.lines.join('\n'))
+         , newLineCount = edit.lines.length
+         , rangeLineGrowth = newLineCount - oldLineCount;
+    selections = selections.map(s => {
+        const points = [s.anchor, s.active]
+            .map(p => {
+            // For selection points in the edit range, adjust from the diff
+            if (p.line >= newStartLine && p.line <= endLine + runningLineGrowth) {
+                const oldOffset = offsetAt(oldLines, p.translate(-newStartLine)), newOffset = newOffsetFromOld(oldOffset, diff);
+                p = positionAt(edit.lines, newOffset).translate(newStartLine);
+            }
+            else if (p.line > endLine + runningLineGrowth) {
+                p = p.translate(rangeLineGrowth);
+            }
+            return p;
         });
-        runningLineGrowth += rangeLineGrowth;
-    }
+        return new vscode.Selection(points[0], points[1]);
+    });
+    runningLineGrowth += rangeLineGrowth;
 
     return selections;
 }
-exports.adjustSelections = adjustSelections;
+
 /** Gets the new offset of a position, given and old offset and a diff between
  *  old and new text. */
 function newOffsetFromOld(offset, diff) {
@@ -73,7 +77,7 @@ function positionAt(lines, offset) {
     for (let i = 0; i < lines.length; i++) {
         const lineLength = lines[i].length + 1;
         if (offset < lineLength)
-            return new vscode_1.Position(i, offset);
+            return new vscode.Position(i, offset);
         else
             offset -= lineLength;
     }
