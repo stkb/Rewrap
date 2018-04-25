@@ -2,6 +2,7 @@ module Rewrap.Core
 
 open System
 open Extensions
+open Wrapping
 
 let mutable private lastDocState : DocState = 
     { filePath = ""; language = ""; version = 0; selections = [||] }
@@ -68,6 +69,13 @@ let rewrap docState settings (getLine: Func<int, string>) =
         |> parser settings
         |> Selections.wrapSelected 
             linesList (List.ofSeq docState.selections) settings
+
+/// Gets the visual width of a string, taking tabs into account
+let strWidth tabSize (str: string) =
+    let rec loop acc i =
+        if i >= str.Length then acc
+        else loop (acc + charWidthEx tabSize i ((uint16) str.[i])) (i + 1)
+    loop 0 0
 
 /// The autowrap function, to be called by clients
 let autoWrap docState settings (getLine: Func<int, string>) =

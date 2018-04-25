@@ -2,7 +2,7 @@ const Path = require('path')
 const FS = require('fs')
 const Assert = require('assert')
 const {performance} = require('perf_hooks')
-let DocState, Core, charWidth // loaded later
+let DocState, Core // loaded later
 
 exports.run = run
 exports.getBench = getBench
@@ -16,21 +16,16 @@ const defaultSettings =
     , wholeComment: true
     }
 
-const strWidth = s => 
-    (new Array(s.length)).fill(0)
-        .map((_, i) => charWidth(s.charCodeAt(i)))
-        .reduce((x, y) => x + y, 0)
-
 const strWidthBefore = marker => s => {
     const p = s.indexOf(marker)
-    return p < 0 ? -1 : strWidth(s.substr(0, p))
+    return p < 0 ? -1 : Core.strWidth(1, s.substr(0, p))
 }
 
 /** Splits a string at a given column and returns a string tuple */
 const splitAtWidth = c => s => {
     let width = 0, i
     for(i = 0; i < s.length; i++) {
-        width += charWidth(s.charCodeAt(i))
+        width += Core.strWidth(1, s[i])
         if(width > c) break
     }
     return [s.substr(0, i), s.substr(i)]
@@ -100,7 +95,6 @@ function reloadModules()
     deleteModule('./vscode/compiled/Core/Main')
     Core = require('./vscode/compiled/Core/Main')
     DocState = require('./vscode/compiled/Core/Types').DocState
-    charWidth = require('./vscode/compiled/Core/Wrapping').charWidth
 }
 
 
@@ -439,7 +433,7 @@ function printTest(input, expected, actual, width, tabWidth)
 
     function padRight(s) {
         s = splitAtWidth(width)(s)[0]
-        return s + " ".repeat(width - strWidth(s))
+        return s + " ".repeat(width - Core.strWidth(1, s))
     }
 
     function showTabs(str)

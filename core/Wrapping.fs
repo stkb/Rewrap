@@ -8,12 +8,19 @@ open System.Text.RegularExpressions
 open System
 
 
-let charWidth charCode =
-    if (charCode >= 0x2E80us && charCode <= 0xD7AFus)
-        || (charCode >= 0xF900us && charCode <= 0xFAFFus)
-        || (charCode >= 0xFF01us && charCode <= 0xFF5Eus)
-    then 2
-    else 1
+let charWidthEx tabSize index charCode =
+    match charCode with
+        | 0x0009us -> tabSize - (index % tabSize)
+        | 0x0000us -> 1 // We use this as a placeholder for non breaking spaces
+        | x when x < 0x0020us -> 0
+        | x when x < 0x2E80us -> 1
+        | x when x >= 0x2E80us && x <= 0xD7AFus -> 2
+        | x when x >= 0xF900us && x <= 0xFAFFus -> 2
+        | x when x >= 0xFF01us && x <= 0xFF5Eus -> 2
+        | _ -> 1
+
+let private charWidth =
+    charWidthEx 1 0
 
 let private isWhitespace (charCode: uint16) =
     charCode = 0x0020us || charCode = 0x0009us
