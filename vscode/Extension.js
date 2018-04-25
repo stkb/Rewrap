@@ -1,6 +1,6 @@
 const vscode = require('vscode')
 const { Position, Range, Selection, commands, workspace, window } = vscode
-const Environment = require('./Environment')
+const Environment = require('./Settings')
 const fixSelections = require('./FixSelections')
 const Rewrap = require('./compiled/Core/Types')
 const Core = require('./compiled/Core/Main')
