@@ -2,25 +2,32 @@
 module.exports = { getSettings, getWrappingColumns }
 
 const { workspace } = require('vscode')
+const cache = {}
 
+/** Gets a settings object from vscode's configuration. Doing this is not
+ *  normally expensive, but an object for each document is cached to prevent the
+ *  console being flooded with warnings (vscode issue #48225). */
 function getSettings(editor)
 {
-    const setting = settingGetter(editor)
-    const settings = {
-        columns: getWrappingColumns(editor),
-        tabWidth: editor.options.tabSize,
-        doubleSentenceSpacing: setting('rewrap.doubleSentenceSpacing'),
-        wholeComment: setting('rewrap.wholeComment'),
-        reformat: setting('rewrap.reformat'),
+    const key = editor.document.uri
+    if(!cache[key]) {
+        const setting = settingGetter(editor)
+        const settings = {
+            columns: getWrappingColumns(setting),
+            doubleSentenceSpacing: setting('rewrap.doubleSentenceSpacing'),
+            wholeComment: setting('rewrap.wholeComment'),
+            reformat: setting('rewrap.reformat'),
+        }
+        cache[key] = validateSettings(settings)
     }
-    return validateSettings(settings)
+    return Object.assign
+        ({tabWidth: validateTabSize(editor.options.tabSize)}, cache[key])
 }
 
 /** Gets an array of the available wrapping column(s) from the user's settings.
  */
-function getWrappingColumns(editor) 
+function getWrappingColumns(setting) 
 {
-    const setting = settingGetter(editor)
     let extensionColumn, rulers
 
     if(extensionColumn = setting('rewrap.wrappingColumn'))
@@ -30,8 +37,6 @@ function getWrappingColumns(editor)
     else
         return [setting('editor.wordWrapColumn')]
         // The default for this is already 80
-
-    
 }
 
 /** Since the settings come from the user's own settings.json file, there may be
@@ -40,16 +45,6 @@ function validateSettings(settings)
 {
     // Check all columns
     settings.columns = settings.columns.map(checkWrappingColumn)
-
-    // Check tab width
-    if(!Number.isInteger(settings.tabWidth) || settings.tabWidth < 1) {
-        console.warn(
-            "Rewrap: tab width is an invalid value (%o). " +
-            "Using the default of (4) instead.", settings.tabWidth
-        )
-        settings.tabWidth = 4
-    }
-
     return settings;
 
     function checkWrappingColumn(col)
@@ -70,6 +65,17 @@ function validateSettings(settings)
     }
 }
 
+function validateTabSize(size) {
+    // Check tab width
+    if(!Number.isInteger(size) || size < 1) {
+        console.warn(
+            "Rewrap: tab size is an invalid value (%o). " +
+            "Using the default of (4) instead.", size
+        )
+        return 4
+    }
+    else return size
+}
 
 /** Returns a function for getting a setting. That function looks first for a
  *  language-specific setting before finding the general. */
@@ -94,4 +100,8 @@ function settingGetter(editor)
             return undefined
         }
     }
-}    
+}
+
+// Invalidate cache if configuration changed. This is pretty crude and we could
+// use e.affectsConfiguration(section, uri) to be a bit smarter.
+workspace.onDidChangeConfiguration(e => cache = {})
