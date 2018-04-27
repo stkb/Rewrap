@@ -22,96 +22,56 @@ namespace VS
         /// Does a standard wrap for the given text view.
         public static void StandardWrap(IWpfTextView textView)
         {
-            var docState = ExecRewrap( Core.rewrap, textView );
-            // Save new doc state (selections will have changed)
-            if(docState != null) Core.saveDocState( docState );
-        }
-
-        /// Does an auto-wrap for the given text view.
-        public static void AutoWrap(IWpfTextView textView)
-        {
-            var tabSize = textView.Options.GetTabSize();
-            var pos = GetSelections( textView, textView.TextBuffer.CurrentSnapshot )[0].active;
-            if
-                (Core.cursorBeforeWrappingColumn
-                    ( GetFilePath( textView.TextBuffer )
-                    , tabSize
-                    , textView.TextBuffer.CurrentSnapshot.GetLineFromLineNumber(pos.line).GetText()
-                    , pos.character
-                    , () => GetRulers()[0]
-                    )
-                )
-            {
-                return;
-            }
-
-            ExecRewrap( Core.autoWrap, textView );
-        }
-
-        static DocState ExecRewrap
-            ( Func<DocState, Settings, Func<int, string>, Edit> wrapFn
-            , IWpfTextView textView
-            )
-        {
-            // Prerequisites
             var textBuffer = textView.TextBuffer;
             var snapshot = textBuffer.CurrentSnapshot;
-            var filePath = GetFilePath(textBuffer);
-            var language = GetLanguage(textBuffer);
-            var options = OptionsPage.GetOptions( language, filePath );
+            var file = new File(GetLanguage(textBuffer), GetFilePath(textBuffer));
+            DocState getDocState(ITextSnapshot ss) =>
+                new DocState(file.path, ss.Version.VersionNumber, GetSelections(textView, ss));
 
+            var settings = GetSettings
+                (textView, rs => Core.maybeChangeWrappingColumn(getDocState(snapshot), rs));
 
-            // Info for wrap
-            var docState = GetDocState();
-            var settings = GetSettings();
-            var lineCount = snapshot.LineCount;
-
-            // Create edit
-            var edit = wrapFn( docState, settings, GetLine );
-
-            // Apply edit
-            if (ApplyEdit( textView, snapshot, edit ))
-            {
-                snapshot = textBuffer.CurrentSnapshot;
-                return GetDocState();
-            }
-            else return null;
-
-
-            DocState GetDocState()
-            {
-                return new DocState
-                    ( filePath
-                    , language
-                    , snapshot.Version.VersionNumber
-                    , GetSelections( textView, snapshot )
-                    );
-            }
-
-            Settings GetSettings()
-            {
-                int[] rulers =
-                    options.WrappingColumn.HasValue
-                        ? new[] { options.WrappingColumn.Value }
-                        : GetRulers();
-
-                return new Settings
-                    ( Core.getDocWrappingColumn(docState, rulers)
-                    , textView.Options.GetTabSize()
-                    , options.DoubleSentenceSpacing
-                    , options.Reformat
-                    , options.WholeComment
-                    );
-            }
-
-            string GetLine(int i)
-            {
-                return i < lineCount 
-                    ? snapshot.GetLineFromLineNumber(i).GetText()
-                    : null;
-            }
+            var edit = Core.rewrap
+                (file, settings, GetSelections(textView, snapshot), DocLine(snapshot));
+            if (ApplyEdit(textView, snapshot, edit))
+                Core.saveDocState(getDocState(textBuffer.CurrentSnapshot));
         }
 
+        /// If conditions are met, does an auto-wrap for the given text view.
+        public static void AutoWrap(IWpfTextView textView, int pos, string newText)
+        {
+            var textBuffer = textView.TextBuffer;
+            var snapshot = textBuffer.CurrentSnapshot;
+            var file = new File(GetLanguage(textBuffer), GetFilePath(textBuffer));
+
+            var settings = GetSettings
+                (textView, rs => Core.getWrappingColumn(file.path, rs));
+
+            var ssPos = GetPosition(snapshot, pos);
+            var edit = Core.maybeAutoWrap(file, settings, newText, ssPos, DocLine(snapshot));
+            ApplyEdit(textView, snapshot, edit);
+        }
+
+        private static Settings GetSettings
+            (IWpfTextView textView, Func<int[], int> getColumn)
+        {
+            var textBuffer = textView.TextBuffer;
+            var file = new File(GetLanguage(textBuffer), GetFilePath(textBuffer));
+            var options = OptionsPage.GetOptions(file);
+
+            int[] rulers =
+                options.WrappingColumn.HasValue
+                    ? new[] { options.WrappingColumn.Value }
+                    : GetRulers();
+
+            return new Settings
+                ( getColumn(rulers)
+                , textView.Options.GetTabSize()
+                , options.DoubleSentenceSpacing
+                , options.Reformat
+                , options.WholeComment
+                );
+        }
 
         /// <summary>
         /// Applies the given Edit to the given text view snapshot.
@@ -145,7 +105,6 @@ namespace VS
             return true;
         }
 
-
         /// <summary>
         /// Gets the document type (language) for the given text buffer.
         /// </summary>
@@ -164,7 +123,6 @@ namespace VS
 
             return language;
         }
-
 
         /// <summary>
         /// Gets the file path of the document in the given text buffer.
@@ -188,7 +146,6 @@ namespace VS
             return "";
         }
 
-
         /// <summary>
         /// Gets the selection positions in the given text snapshot.
         /// </summary>
@@ -202,19 +159,27 @@ namespace VS
                 };
         }
 
-
-        /// <summary>
         /// Gets a Rewrap Position object from a snapshot point.
-        /// </summary>
         static Position GetPosition(ITextSnapshot snapshot, VirtualSnapshotPoint point)
         {
-            var offset = point.Position.Position;
-            var line = snapshot.GetLineFromPosition( offset );
+            return GetPosition(snapshot, point.Position.Position);
+        }
+        static Position GetPosition(ITextSnapshot snapshot, int offset)
+        {
+            var line = snapshot.GetLineFromPosition(offset);
             var column = offset - line.Start.Position;
-
-            return new Position( line.LineNumber, column );
+            return new Position(line.LineNumber, column);
         }
 
+
+        /// Given a snapshot, returns a function that gets a text line for the
+        /// given line index.
+        private static Func<int,string> DocLine(ITextSnapshot snapshot)
+        {
+            var lineCount = snapshot.LineCount;
+            return i => i < lineCount ?
+                    snapshot.GetLineFromLineNumber(i).GetText() : null;
+        }
 
         /// <summary>
         /// Gets the OptionsPage from the package.
@@ -244,7 +209,6 @@ namespace VS
         }
 
         static OptionsPage _OptionsPage;
-
 
         /// Gets editor rulers (guides) from the registry
         static int[] GetRulers()

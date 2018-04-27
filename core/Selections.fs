@@ -231,23 +231,24 @@ let private trimEdit (originalLines: Lines) (edit : Edit) : Edit =
         && originalLinesArray.[edit.endLine - e] = edit.lines.[edit.lines.Length - e - 1]
         do e <- e + 1
 
-    { startLine = edit.startLine + s
-      endLine = edit.endLine - e
-      lines = edit.lines |> Array.skip s |> Array.truncate (edit.lines.Length - s - e)
+    { edit with
+        startLine = edit.startLine + s
+        endLine = edit.endLine - e
+        lines = edit.lines |> Array.skip s |> Array.truncate (edit.lines.Length - s - e)
     }
 
 
 let wrapSelected
     (originalLines: Lines)
-    (selections: List<Selection>) 
+    (selections: array<Selection>) 
     (settings: Settings) 
     (blocks: Blocks) 
     : Edit =
 
     let selectionRanges = 
-        List.ofSeq selections 
-            |> List.map LineRange.fromSelection
-            |> normalizeRanges
+        Array.map LineRange.fromSelection selections
+            |> (List.ofArray >> normalizeRanges)
+
     let parseResult =
         { startLine = 0
         ; originalLines = originalLines
@@ -259,5 +260,9 @@ let wrapSelected
             |> Nonempty.toList
             |> List.toArray
     
-    { startLine = 0; endLine = Nonempty.length originalLines - 1; lines = newLines }
-        |> trimEdit originalLines
+    trimEdit originalLines <|
+        { startLine = 0
+          endLine = Nonempty.length originalLines - 1
+          lines = newLines
+          selections = selections
+        }

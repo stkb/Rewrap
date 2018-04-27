@@ -2,7 +2,7 @@ const Path = require('path')
 const FS = require('fs')
 const Assert = require('assert')
 const {performance} = require('perf_hooks')
-let DocState, Core // loaded later
+let Core // loaded later
 
 exports.run = run
 exports.getBench = getBench
@@ -94,7 +94,6 @@ function reloadModules()
 
     deleteModule('./vscode/compiled/Core/Main')
     Core = require('./vscode/compiled/Core/Main')
-    DocState = require('./vscode/compiled/Core/Types').DocState
 }
 
 
@@ -344,12 +343,12 @@ function runTests(tests)
         }
 
         try {
-            const docState = new DocState('', settings.language, 0, selections)
             const getLine = i => i < input.length ? input[i] : null
             const edit =
                 Core.rewrap
-                    ( docState
+                    ( { language: settings.language, path: '' }
                     , Object.assign(settings, { column: wrappingColumn })
+                    , selections
                     , getLine
                     )
             actual = applyEdit(edit, input)

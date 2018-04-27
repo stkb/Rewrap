@@ -23,14 +23,15 @@ let private charWidth =
     charWidthEx 1 0
 
 let private isWhitespace (charCode: uint16) =
-    charCode = 0x0020us || charCode = 0x0009us
+    // \0 is a special placeholder we use ourselves for non-breaking space
+    charCode <> 0x0000us && charCode <= 0x0020us
 
 let isCJK charCode = 
     (charCode >= 0x3040us && charCode <= 0x30FFus)
         || (charCode >= 0x3400us && charCode <= 0x4DBFus)
         || (charCode >= 0x4E00us && charCode <= 0x9FFFus)
 
-type private CanBreak = Always | Sometimes | Never
+type CanBreak = Always | Sometimes | Never
 
 let private specialChars = 
     [| (Never, Sometimes), "})]?,;¢°′″‰℃"
@@ -44,7 +45,7 @@ let private specialChars =
         |> Array.map 
             (Tuple.mapSecond (fun s -> s.ToCharArray() |> Array.map (uint16)))
 
-let private canBreak charCode =
+let canBreak charCode =
     if isWhitespace charCode then (Always, Always)
     else
         match Array.tryFind (snd >> Array.contains charCode) specialChars with

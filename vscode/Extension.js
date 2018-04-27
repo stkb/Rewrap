@@ -1,9 +1,9 @@
 const vscode = require('vscode')
-const { Position, Range, Selection, commands, workspace, window } = vscode
-const Environment = require('./Settings')
+const { Range, commands, workspace, window } = vscode
+const getSettings = require('./Settings')
 const fixSelections = require('./FixSelections')
-const Rewrap = require('./compiled/Core/Types')
-const Core = require('./compiled/Core/Main')
+const { DocState, Position, Selection } = require('./compiled/Core/Types')
+const Rewrap = require('./compiled/Core/Main')
 
 /** Function to activate the extension. */
 exports.activate = function activate(context)
@@ -19,9 +19,9 @@ exports.activate = function activate(context)
         )
 
     /** Standard rewrap command */
-    function rewrapCommentCommand(editor) 
+    function rewrapCommentCommand(editor)
     {
-        doWrap(editor, Core.rewrap).then(Core.saveDocState)
+        doWrap(editor).then(() => Rewrap.saveDocState(getDocState(editor)))
     }
     
     let customWrappingColumn = 99
@@ -53,7 +53,7 @@ exports.activate = function activate(context)
         function wrapWithCustomColumn(customColumn) 
         {
             if(!customColumn) return
-            doWrap(editor, Core.rewrap, customColumn)
+            doWrap(editor, customColumn)
         }
     }
 
@@ -95,28 +95,44 @@ const catchErr = err => {
     )
 }
 
-/** Gets an object representing the state of the document and selections */
-const getDocState = (document, selections) => {
-    // Conversion of selections is needed for equality operations within
-    // Fable code
-    return new Rewrap.DocState
-        ( document.fileName
-        , document.languageId
-        , document.version
-        , selections.map(vscodeToRewrapSelection)
+/** Gets the path and language of the document. These are used to determine the
+ *  parser used for it. */
+const docType = document =>
+    ({ path: document.fileName, language: document.languageId })
+
+/** Gets an object representing the state of the document and selections. When a
+ *  standard wrap is done, the state is compared with the state after the last
+ *  wrap. If they are equal, and there are multiple rulers for the document, the
+ *  next ruler is used for wrapping instead. */
+const getDocState = editor => {
+    const doc = editor.document
+    // Conversion of selections is needed for equality operations within Fable
+    // code
+    return new DocState
+        ( docType(doc).path
+        , doc.version
+        , editor.selections.map(vscodeToRewrapSelection)
         )
 
     function vscodeToRewrapSelection(s) 
     {
-        return new Rewrap.Selection
-            ( new Rewrap.Position(s.anchor.line, s.anchor.character)
-            , new Rewrap.Position(s.active.line, s.active.character)
+        return new Selection
+            ( new Position(s.anchor.line, s.anchor.character)
+            , new Position(s.active.line, s.active.character)
             )
     }
 }
 
-/** Applies an edit to the document. Also fixes the selections afterwards */
-const applyEdit = (editor, selections, edit) => {
+/** Returns a function for the given document, that gets the line at the given
+ *  index. */
+const docLine = 
+    document => i => i < document.lineCount ? document.lineAt(i).text : null
+
+/** Applies an edit to the document. Also fixes the selections afterwards. If
+ * the edit is empty this is a no-op */
+const applyEdit = (editor, edit) => {
+    if (!edit.lines.length) return Promise.resolve()
+
     const doc = editor.document
     const range = doc.validateRange
             ( new Range(edit.startLine, 0, edit.endLine, Number.MAX_VALUE) )
@@ -125,33 +141,34 @@ const applyEdit = (editor, selections, edit) => {
 
     // vscode takes care of converting to \r\n if necessary
     const text = edit.lines.join('\n')
-    return editor.edit(editBuilder => editBuilder.replace(range, text))
-        .then(() => {
-            editor.selections = fixSelections(oldLines, selections, edit)
-            return getDocState(doc, editor.selections)
+
+    //todo: the above code is run right after every call to onDidChangeTextDocument
+    return editor
+        .edit(editBuilder => {
+            //todo: but we don't know for sure when this is fired (more changes
+            //may have been made since and these edits are queued-up) We need to
+            //check everything's still valid first.
+            return editBuilder.replace(range, text)
         })
+        .then(() =>
+            editor.selections = fixSelections(oldLines, edit.selections, edit))
 }
 
 /** Collects the information for a wrap from the editor, passes it to the
  *  wrapping code, and then applies the result to the document. If an edit
  *  is applied, returns an updated DocState object, else returns null.
  */
-const doWrap = (editor, wrapFn, customColumn = undefined) => {
-    const document = editor.document
+const doWrap = (editor, customColumn) => {
+    const doc = editor.document
     try {
-        const docState = getDocState(document, editor.selections)
-        let settings = Environment.getSettings(editor)
+        const docState = getDocState(editor)
+        let settings = getSettings(editor)
         settings.column = customColumn
-            || Core.getDocWrappingColumn(docState, settings.columns)
-        const docLine = i =>
-            i < document.lineCount ? document.lineAt(i).text : null
+            || Rewrap.maybeChangeWrappingColumn(docState, settings.columns)
 
-        // Don't call wrapFn in a promise: it causes performance/race
-        // conditions when using auto-wrap
-        const edit = wrapFn(docState, settings, docLine)
-        if(!edit.lines.length) return Promise.resolve()
-        
-        return applyEdit(editor, docState.selections, edit).then(null, catchErr)
+        const edit = 
+            Rewrap.rewrap(docType(doc), settings, editor.selections, docLine(doc))
+        return applyEdit(editor, edit).then(null, catchErr)
     }
     catch(err) { catchErr(err) }
 }
@@ -160,52 +177,34 @@ const checkChange = e => {
     // Make sure we're in the active document
     const editor = window.activeTextEditor
     if(!editor || !e || editor.document !== e.document) return
-    
-    const document = e.document;
+    const doc = e.document;
 
-    // Haven't come across a case where # of changes is != 1 but if it
-    // happens we can't handle it.
-    if(e.contentChanges.length != 1) return
-
-    // Trigger only on space or enter pressed
-    const lastChange = e.contentChanges[e.contentChanges.length - 1]
-    const triggers = [' ', '\n', '\r\n']
-    if(!triggers.includes(lastChange.text)) return
-    
-    // Multiple selections aren't supported atm
-    if(editor.selections.length > 1) return
+    // We only want to trigger on normal typing and input with IME's, not other
+    // sorts of edits. With normal typing the range (text insertion point) and
+    // selection will be both empty and equal to each other (the selection state
+    // is still from *before* the edit). IME's make edits where the range is not
+    // empty (as text is replaced), but the selection should still be empty. We
+    // can also restrict it to single-line ranges (this filters out in
+    // particular undo edits immediately after an auto-wrap).
+    if(editor.selections.length != 1) return
     if(!editor.selection.isEmpty) return
+    // There's more than one change if there were multiple selections,
+    // or a whole line is moved up/down with alt+up/down
+    if(e.contentChanges.length != 1) return
+    const { text: newText, range } = e.contentChanges[0]
+    if(!range.isSingleLine) return
 
-    // Here editor.selection is still at the position it would be before
-    // the typed character is added. After the wrap we need to move it
-    // the equivalent of a space or enter press.
+    try {
+        const file = docType(doc)
+        let settings = getSettings(editor)
+        settings.column = Rewrap.getWrappingColumn(file.path, settings.columns)
 
-    // Check if cursor is past the wrapping column
-    const pos = editor.selection.active
-    if
-        ( Core.cursorBeforeWrappingColumn
-            ( document.fileName
-            , editor.options.tabSize
-            , document.lineAt(pos.line).text
-            , pos.character
-            , () => Environment.getWrappingColumns(editor)[0]
-            )
-        )
-    {
-        return
+        // maybeAutoWrap does more checks: that newText isn't empty, isn't
+        // multiline, but does contain break chars (eg whitespace or CJK chars).
+        // Don't call this in a promise: it causes timing issues.
+        const edit = 
+            Rewrap.maybeAutoWrap(file, settings, newText, range.start, docLine(doc))
+        return applyEdit(editor, edit).then(null, catchErr)
     }
-
-    // If we got this far, do the wrap
-    doWrap(editor, Core.autoWrap).then(adjustSelection)
-
-    function adjustSelection(docState) 
-    {
-        if(!docState) return
-
-        const {line, character} = docState.selections[0].active
-        const newPos = lastChange.text == " "
-            ? new Position(line, character + 1)
-            : new Position(line + 1, 0)
-        editor.selection = new Selection(newPos, newPos)
-    }
+    catch(err) { catchErr(err) }
 }

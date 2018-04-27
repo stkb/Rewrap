@@ -95,14 +95,14 @@ namespace VS
 
         public static void Initialize(System.IServiceProvider package)
         {
-            if (package == null) throw new ArgumentNullException( "package" );
+            if (package == null) throw new ArgumentNullException("package");
 
             var commandService =
-                package.GetService( typeof( IMenuCommandService ) ) as OleMenuCommandService
-                    ?? throw new Exception( "Couldn't get OleMenuCommandService" );
-            commandService.AddCommand( MenuCommand );
+                package.GetService(typeof(IMenuCommandService)) as OleMenuCommandService
+                    ?? throw new Exception("Couldn't get OleMenuCommandService");
+            commandService.AddCommand(MenuCommand);
 
-            StatusBar = package.GetService( typeof( SVsStatusbar ) ) as IVsStatusbar;
+            StatusBar = package.GetService(typeof(SVsStatusbar)) as IVsStatusbar;
 
             // Restore if enabled in settings
             SettingsStore = (new ShellSettingsManager(package))
@@ -116,7 +116,7 @@ namespace VS
         // MenuCommand is enough for us here. It has its own checked state,
         // which we use as the source of the enable state.
         static readonly MenuCommand MenuCommand =
-            new MenuCommand(ToggleEnabled, new CommandID( RewrapPackage.CmdSetGuid, ID ));
+            new MenuCommand(ToggleEnabled, new CommandID(RewrapPackage.CmdSetGuid, ID));
 
         // Gets if auto-wrap is enabled
         static bool Enabled { get { return MenuCommand.Checked; } }
@@ -132,7 +132,7 @@ namespace VS
             if (StatusBar != null)
             {
                 var msg = Enabled ? "Auto-wrap: On" : "Auto-wrap: Off";
-                StatusBar.SetText( msg );
+                StatusBar.SetText(msg);
             }
         }
 
@@ -151,15 +151,14 @@ namespace VS
 
                 // Change count can also be 0
                 if (e.Changes.Count != 1) return;
-
-                // Activate only when space or enter pressed
-                string[] triggers = { " ", "\n", "\r\n" };
-                if (Array.LastIndexOf<string>( triggers, e.Changes[0].NewText ) < 0) return;
-
+                var change = e.Changes[0];
                 // Make sure we're in the active document
                 if (!textView.HasAggregateFocus) return;
+                // Don't trigger on a multi-line change (a multi-line newText is
+                // checked-for later).
+                if (change.LineCountDelta != 0) return;
 
-                Editor.AutoWrap( textView );
+                Editor.AutoWrap(textView, change.NewPosition, change.NewText);
             }
         }
     }

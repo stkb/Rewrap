@@ -5,21 +5,23 @@ open Extensions
 open Wrapping
 
 let mutable private lastDocState : DocState = 
-    { filePath = ""; language = ""; version = 0; selections = [||] }
+    { filePath = ""; version = 0; selections = [||] }
 
 let private docWrappingColumns =
     new System.Collections.Generic.Dictionary<string, int>()
 
-let getDocWrappingColumn (docState: DocState) (rulers: int[]) : int =
+let getWrappingColumn filePath rulers =
+    if not (docWrappingColumns.ContainsKey(filePath)) then
+        docWrappingColumns.[filePath] <-
+            Array.tryHead rulers |> Option.defaultValue 80
+    docWrappingColumns.[filePath]
+
+let maybeChangeWrappingColumn (docState: DocState) (rulers: int[]) : int =
     let filePath = docState.filePath
-
-    if rulers.Length = 0 then 80
-    else if rulers.Length = 1 then rulers.[0]
+    if not (docWrappingColumns.ContainsKey(filePath)) then
+        getWrappingColumn filePath rulers
     else
-        if not (docWrappingColumns.ContainsKey(filePath)) then
-            docWrappingColumns.[filePath] <- rulers.[0]
-
-        else if docState = lastDocState then
+        if docState = lastDocState then
             let nextRulerIndex =
                 rulers
                     |> Array.tryFindIndex ((=) docWrappingColumns.[filePath])
@@ -33,21 +35,6 @@ let getDocWrappingColumn (docState: DocState) (rulers: int[]) : int =
 let saveDocState docState =
     lastDocState <- docState
 
-let cursorBeforeWrappingColumn 
-    (filePath: string)
-    (tabSize: int)
-    (line: string)
-    (character: int)
-    (getWrappingColumn: System.Func<int>) 
-    =
-    let wrappingColumn = 
-        if not (docWrappingColumns.ContainsKey(filePath)) then
-            docWrappingColumns.[filePath] <- getWrappingColumn.Invoke()
-        docWrappingColumns.[filePath]
-    let cursorColumn =
-        line |> String.takeStart character |> Line.tabsToSpaces tabSize |> String.length
-    cursorColumn <= wrappingColumn
-
 let findLanguage name filePath : string =
     Parsing.Documents.findLanguage name filePath
         |> Option.map (fun l -> l.name)
@@ -58,17 +45,16 @@ let languages : string[] =
         |> Array.map (fun l -> l.name)
 
 /// The main rewrap function, to be called by clients
-let rewrap docState settings (getLine: Func<int, string>) =
-    let parser = Parsing.Documents.select docState.language docState.filePath
+let rewrap file settings selections (getLine: Func<int, string>) =
+    let parser = Parsing.Documents.select file.language file.path
     let linesList =
-        Seq.unfold 
+        Seq.unfold
             (fun i -> Option.ofObj (getLine.Invoke(i)) |> Option.map (fun l -> (l,i+1)))
             0
             |> List.ofSeq |> Nonempty.fromListUnsafe
     linesList
         |> parser settings
-        |> Selections.wrapSelected 
-            linesList (List.ofSeq docState.selections) settings
+        |> Selections.wrapSelected linesList selections settings
 
 /// Gets the visual width of a string, taking tabs into account
 let strWidth tabSize (str: string) =
@@ -77,14 +63,37 @@ let strWidth tabSize (str: string) =
         else loop (acc + charWidthEx tabSize i ((uint16) str.[i])) (i + 1)
     loop 0 0
 
-/// The autowrap function, to be called by clients
-let autoWrap docState settings (getLine: Func<int, string>) =
-    let {line=line; character=col} = 
-        docState.selections.[0].active
-    let lineSelection = {
+/// The autowrap function, to be called by clients. Checks conditions and does
+/// an autowrap if all pass.
+///
+/// The client must supply the new text that was inserted in the edit, as well
+/// as the position where it was inserted
+let maybeAutoWrap file settings newText (pos: Position) (getLine: Func<int, string>) =
+    let noEdit = { startLine=0; endLine=0; lines = [||]; selections = [||] }
+    
+    if String.IsNullOrEmpty(newText) then noEdit
+    elif newText.Substring(0, newText.Length - 1).Contains("\n") then noEdit else
+    let canBreakOnChar c =
+        match Wrapping.canBreak (uint16 c) with
+            | (Always, _) | (_, Always) -> true | _ -> false
+    if not (String.exists canBreakOnChar newText) then noEdit else
+
+    let enterPressed = newText.EndsWith("\n")
+    let trimmedNewText = newText.TrimEnd('\n', '\r')
+    let line, char = pos.line, pos.character + trimmedNewText.Length
+    let lineText = getLine.Invoke(line)
+    let visualWidth = strWidth settings.tabWidth (String.takeStart char lineText)
+    if visualWidth <= settings.column then noEdit else
+
+    let fakeSelection = {
         anchor = { line = line; character = 0 }
-        active = { line = line; character = col }
+        active = { line = line; character = lineText.Length }
     }
-    let getLine' = 
+    let wrappedGetLine =
         Func<int, string>(fun i -> if i > line then null else getLine.Invoke(i))
-    rewrap { docState with selections = [| lineSelection |] } settings getLine'
+    rewrap file settings ([|fakeSelection|]) wrappedGetLine
+        |> fun edit -> 
+            let afterPos = 
+                if enterPressed then { line = line + 1; character = 0 }
+                else { line = line; character = char }
+            { edit with selections = [| { anchor=afterPos; active=afterPos} |] }

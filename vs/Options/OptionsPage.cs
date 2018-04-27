@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
+using Rewrap;
 
 namespace VS.Options
 {
@@ -19,9 +20,9 @@ namespace VS.Options
         List<OptionsGroup> OptionsGroups;
 
 
-        public Options GetOptions(string language, string filePath)
+        public Options GetOptions(File file)
         {
-            var knownLanguage = Rewrap.Core.findLanguage( language, filePath );
+            var knownLanguage = Rewrap.Core.findLanguage( file.language, file.path );
             var languageOptions = OptionsGroups.Find( og => og.Languages.Contains( knownLanguage ) );
 
             return new Options()
