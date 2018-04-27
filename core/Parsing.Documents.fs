@@ -186,6 +186,8 @@ let languages : Language[] = [|
         java
     lang "Tcl" "" ".tcl"
         configFile
+    lang "Terraform" "terraform" ".tf"
+        java
     lang "TOML" "" ".toml"
         configFile
     lang "TypeScript" "typescriptreact" ".ts|.tsx"
