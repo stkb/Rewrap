@@ -150,8 +150,10 @@ const applyEdit = (editor, edit) => {
             //check everything's still valid first.
             return editBuilder.replace(range, text)
         })
-        .then(() =>
-            editor.selections = fixSelections(oldLines, edit.selections, edit))
+        .then(didEdit => {
+            if(!didEdit) return
+            editor.selections = fixSelections(oldLines, edit.selections, edit)
+        })
 }
 
 /** Collects the information for a wrap from the editor, passes it to the
