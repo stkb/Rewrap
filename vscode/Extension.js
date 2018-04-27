@@ -142,6 +142,9 @@ const applyEdit = (editor, edit) => {
     const docVersion = doc.version
     const oldLines = Array(edit.endLine - edit.startLine + 1).fill()
         .map((_, i) => doc.lineAt(edit.startLine + i).text)
+    const getDocRange = () => doc.validateRange
+            (new Range(0, 0, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER))
+    const wholeDocSelected = selections[0].isEqual(getDocRange())
 
     return editor
         .edit(editBuilder => {
@@ -159,7 +162,12 @@ const applyEdit = (editor, edit) => {
         })
         .then(didEdit => {
             if(!didEdit) return
-            editor.selections = fixSelections(oldLines, selections, edit)
+            if(wholeDocSelected) {
+                const wholeRange = getDocRange()
+                editor.selection = 
+                    new vscode.Selection(wholeRange.start, wholeRange.end)
+            }
+            else editor.selections = fixSelections(oldLines, selections, edit)
         })
 }
 
