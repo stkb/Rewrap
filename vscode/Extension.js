@@ -139,20 +139,22 @@ const applyEdit = (editor, edit) => {
 
     const selections = edit.selections.map(vscodeSelection)
     const doc = editor.document
-    const range = doc.validateRange
-            ( new Range(edit.startLine, 0, edit.endLine, Number.MAX_VALUE) )
+    const docVersion = doc.version
     const oldLines = Array(edit.endLine - edit.startLine + 1).fill()
-            .map((_, i) => doc.lineAt(edit.startLine + i).text)
+        .map((_, i) => doc.lineAt(edit.startLine + i).text)
 
-    // vscode takes care of converting to \r\n if necessary
-    const text = edit.lines.join('\n')
-
-    //todo: the above code is run right after every call to onDidChangeTextDocument
     return editor
         .edit(editBuilder => {
-            //todo: but we don't know for sure when this is fired (more changes
-            //may have been made since and these edits are queued-up) We need to
-            //check everything's still valid first.
+            // Execution of this callback is delayed. Check the document is
+            // still as we expect it.
+            // todo: see if vscode already makes this check anyway
+            if(doc.version !== docVersion) return false
+
+            const range = doc.validateRange
+                ( new Range(edit.startLine, 0, edit.endLine, Number.MAX_VALUE) )
+            // vscode takes care of converting to \r\n if necessary
+            const text = edit.lines.join('\n')
+
             return editBuilder.replace(range, text)
         })
         .then(didEdit => {
