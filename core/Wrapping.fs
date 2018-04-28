@@ -62,64 +62,39 @@ let canBreakBetweenChars c1 c2 =
         | Never, _ -> false
         | _, Never -> false
         | _ -> true
-               
-let linesReader lines = seq {
-    let mutable prevChar = 0us
-
-    let lineSeq (line: string) = seq {
-        let chars = line.ToCharArray() |> Array.map uint16
-        match (canBreakAfter prevChar, canBreakBefore chars.[0]) with
-            | Sometimes, Sometimes -> yield 0x0020us
-            | _ -> ()
-        prevChar <- chars.[chars.Length - 1]
-        yield! chars
-    }
-
-    yield! lines |> Nonempty.toList |> Seq.collect lineSeq 
-}
-    
-
-type private LineBuilder(maxWidth, initStr: string) =
-    let mutable str = initStr
-    let mutable width = Seq.sumBy (uint16 >> charWidth) initStr
-    let rec findBreakPos p =
-        if p = 0 then 0
-        elif canBreakBetweenChars ((uint16) str.[p-1]) ((uint16) str.[p]) then p
-        else findBreakPos (p - 1)
-
-    member this.add cc =
-        if isWhitespace cc && str.Length = 0 then None
-        else
-            str <- str + ((char) cc).ToString()
-            width <- width + charWidth cc
-
-            if width > maxWidth then
-                let breakPos = findBreakPos (str.Length - 1)
-                if breakPos > 0 then
-                    Some (str.Substring(0, breakPos), str.Substring(breakPos).TrimStart())
-                else None
-            else None
-
-    member this.finish = str
-
 
 // Wraps a string without newlines and returns a Lines with all lines but
 // the last trimmed at the end. Takes a tuple of line widths for the first
 // and rest of the lines.
 let private wrapLines (headWidth, tailWidth) lines : Lines =
+    let addEolSpacesWhereNeeded (ls: List<string>) (l: string) =
+        let compare (h: string) =
+            match (canBreakAfter (uint16 h.[h.Length-1]), canBreakBefore (uint16 l.[0])) with
+                | Sometimes, Sometimes -> l :: " " :: ls
+                | _ -> l :: ls
+        match ls with | [] -> [l] | h :: _ -> compare h
 
-    let mutable lineBuilder = LineBuilder(headWidth, "")
-    let outputLines = Seq.toList <| seq {
-        for cc in linesReader lines do 
-            match lineBuilder.add cc with
-                | Some (line, remaining) -> 
-                    lineBuilder <- LineBuilder(tailWidth, remaining)
-                    yield line
-                | None -> ()
-    }
-    Nonempty(lineBuilder.finish, List.rev (List.map String.trimEnd outputLines))
-        |> Nonempty.rev
+    let str = 
+        List.fold addEolSpacesWhereNeeded [] (Nonempty.toList lines)
+            |> List.rev |> String.concat ""
 
+    let rec findBreakPos min p =
+        if p = min then min
+        elif canBreakBetweenChars (uint16 str.[p-1]) (uint16 str.[p]) then p
+        else findBreakPos min (p - 1)
+
+    let rec loop acc mw s p w =
+        if p >= str.Length then Nonempty(str.Substring(s), acc) else
+        let cc = uint16 str.[p]
+        if p = s && isWhitespace cc then loop acc mw (s+1) (p+1) w else
+        let w' = w + charWidth cc //todo: change to charWidthEx
+        if w' <= mw then loop acc mw s (p+1) w' else
+        let bP = findBreakPos s p
+        if bP = s then loop acc mw s (p+1) w' else
+        let line = str.Substring(s, bP - s).TrimEnd()
+        loop (line :: acc) tailWidth bP bP 0
+
+    loop [] headWidth 0 0 0 |> Nonempty.rev
 
 let private inlineTagRegex =
     Regex(@"{@[a-z]+.*?[^\\]}", RegexOptions.IgnoreCase)
