@@ -1,16 +1,9 @@
-**Latest version: 1.8.1.** New in this version ([full 
+**Latest version: 1.9.0.** New in this version ([full 
 changelog](https://github.com/stkb/vscode-rewrap/releases)):
 
-- Support Vue HTML templates
+- Support East Asian (CJK) languages
+- Support HCL/Terraform config files
 
-##### New in version 1.8.0 #####
-
-Mostly bugfixes:
-- Fix to entire file being re-syntax highlighted
-- Elixir: Support doc, moduledoc and typedoc comments
-- Yaml: Allow multiple #'s as line comment prefixes
-- Markdown: Fix a list item bug
-- Config files (.conf, .gitconfig etc): restore support (was broken)
 
 # Rewrap
 

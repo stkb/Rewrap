@@ -1,9 +1,9 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
 
-## Unreleased
+## 1.9.0
 
-- Support CJK content (#75)
+- Support East Asian (CJK) languages (#75)
 - Support HCL/Terraform config files (#85)
 
 
