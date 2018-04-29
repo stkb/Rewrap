@@ -2,7 +2,7 @@
 module.exports = getSettings
 
 const { workspace } = require('vscode')
-const cache = {}
+let cache = {}
 
 /** Gets a settings object from vscode's configuration. Doing this is not
  *  normally expensive, but an object for each document is cached to prevent the
