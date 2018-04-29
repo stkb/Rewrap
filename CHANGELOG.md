@@ -4,6 +4,7 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 ## Unreleased
 
 - Support CJK content (#75)
+- Support HCL/Terraform config files (#85)
 
 
 ### 1.8.1

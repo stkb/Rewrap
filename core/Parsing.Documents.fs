@@ -110,6 +110,15 @@ let languages : Language[] = [|
         java
     lang "Haskell" "" ".hs"
         ( sourceCode [ line "--"; block ( "{-\s*\|?", "-}" ) ] )
+    lang "HCL" "terraform" ".hcl|.tf"
+        ( sourceCode
+            [ customBlock DocComments.javadoc ( "\\*?", " * " ) javadocMarkers
+              cBlock
+              customLine DocComments.javadoc "//[/!]"
+              cLine
+              line "#"
+            ]
+        )
     lang "HTML" "vue" ".htm|.html|.vue"
         html
     lang "INI" "" ".ini"
@@ -186,8 +195,6 @@ let languages : Language[] = [|
         java
     lang "Tcl" "" ".tcl"
         configFile
-    lang "Terraform" "terraform" ".tf"
-        java
     lang "TOML" "" ".toml"
         configFile
     lang "TypeScript" "typescriptreact" ".ts|.tsx"
