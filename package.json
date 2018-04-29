@@ -26,7 +26,7 @@
     "vscode": "^1.6.0"
   },
   "categories": [
-    "Other"
+    "Formatters"
   ],
   "markdown": "standard",
   "activationEvents": [
