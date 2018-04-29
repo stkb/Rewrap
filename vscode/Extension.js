@@ -100,6 +100,18 @@ const catchErr = err => {
 const docType = document =>
     ({ path: document.fileName, language: document.languageId })
 
+/** Converts a selection-like object to a vscode Selection object */
+const vscodeSelection = s =>
+    new vscode.Selection
+        (s.anchor.line, s.anchor.character, s.active.line, s.active.character)
+
+/** Converts a selection-like object to a rewrap Selection object */
+const rewrapSelection = s => 
+    new Selection
+        ( new Position(s.anchor.line, s.anchor.character)
+        , new Position(s.active.line, s.active.character)
+        )
+
 /** Gets an object representing the state of the document and selections. When a
  *  standard wrap is done, the state is compared with the state after the last
  *  wrap. If they are equal, and there are multiple rulers for the document, the
@@ -111,16 +123,8 @@ const getDocState = editor => {
     return new DocState
         ( docType(doc).path
         , doc.version
-        , editor.selections.map(vscodeToRewrapSelection)
+        , editor.selections.map(rewrapSelection)
         )
-
-    function vscodeToRewrapSelection(s) 
-    {
-        return new Selection
-            ( new Position(s.anchor.line, s.anchor.character)
-            , new Position(s.active.line, s.active.character)
-            )
-    }
 }
 
 /** Returns a function for the given document, that gets the line at the given
@@ -133,6 +137,7 @@ const docLine =
 const applyEdit = (editor, edit) => {
     if (!edit.lines.length) return Promise.resolve()
 
+    const selections = edit.selections.map(vscodeSelection)
     const doc = editor.document
     const range = doc.validateRange
             ( new Range(edit.startLine, 0, edit.endLine, Number.MAX_VALUE) )
@@ -152,7 +157,7 @@ const applyEdit = (editor, edit) => {
         })
         .then(didEdit => {
             if(!didEdit) return
-            editor.selections = fixSelections(oldLines, edit.selections, edit)
+            editor.selections = fixSelections(oldLines, selections, edit)
         })
 }
 
@@ -167,9 +172,9 @@ const doWrap = (editor, customColumn) => {
         let settings = getSettings(editor)
         settings.column = customColumn
             || Rewrap.maybeChangeWrappingColumn(docState, settings.columns)
+        const selections = editor.selections.map(rewrapSelection)
 
-        const edit = 
-            Rewrap.rewrap(docType(doc), settings, editor.selections, docLine(doc))
+        const edit = Rewrap.rewrap(docType(doc), settings, selections, docLine(doc))
         return applyEdit(editor, edit).then(null, catchErr)
     }
     catch(err) { catchErr(err) }
