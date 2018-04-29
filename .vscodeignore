@@ -5,7 +5,7 @@
 !images/**
 !node_modules/fast-diff/**
 !vscode/compiled/**
-!vscode/Environment.js
+!vscode/Settings.js
 !vscode/Extension.js
 !vscode/FixSelections.js
 !CHANGELOG.md
