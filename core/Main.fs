@@ -74,12 +74,13 @@ let maybeAutoWrap file settings newText (pos: Position) (getLine: Func<int, stri
     if String.IsNullOrEmpty(newText) then noEdit
     elif not (String.IsNullOrWhiteSpace(newText)) then noEdit else
 
-    let enterPressed =
+    let enterPressed, indent =
         match newText.[0] with
-        | '\r' | '\n' -> true
-        | _ -> false
+        | '\r' -> true, newText.Substring(2) 
+        | '\n' -> true, newText.Substring(1)
+        | _ -> false, ""
     if not enterPressed && newText.Length > 1 then noEdit else
-    
+
     let line, char =
         pos.line, pos.character + (if enterPressed then 0 else newText.Length)
     let lineText = getLine.Invoke(line)
@@ -95,6 +96,6 @@ let maybeAutoWrap file settings newText (pos: Position) (getLine: Func<int, stri
     rewrap file settings ([|fakeSelection|]) wrappedGetLine
         |> fun edit -> 
             let afterPos = 
-                if enterPressed then { line = line + 1; character = 0 }
+                if enterPressed then { line = line + 1; character = indent.Length }
                 else { line = line; character = char }
             { edit with selections = [| { anchor=afterPos; active=afterPos} |] }
