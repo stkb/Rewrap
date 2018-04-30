@@ -22,9 +22,9 @@ let charWidthEx tabSize index charCode =
 let private charWidth =
     charWidthEx 1 0
 
-let private isWhitespace (charCode: uint16) =
+let private isWhitespace cc =
     // \0 is a special placeholder we use ourselves for non-breaking space
-    charCode <> 0x0000us && charCode <= 0x0020us
+    cc <> 0x0000us && cc <= 0x0020us || cc = 0x3000us
 
 let isCJK charCode = 
     (charCode >= 0x3040us && charCode <= 0x30FFus)
