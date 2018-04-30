@@ -13,6 +13,7 @@ using Microsoft.VisualStudio.Utilities;
 using System;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Design;
+using System.Linq;
 
 namespace VS
 {
@@ -154,9 +155,6 @@ namespace VS
                 var change = e.Changes[0];
                 // Make sure we're in the active document
                 if (!textView.HasAggregateFocus) return;
-                // Don't trigger on a multi-line change (a multi-line newText is
-                // checked-for later).
-                if (change.LineCountDelta != 0) return;
 
                 Editor.AutoWrap(textView, change.NewPosition, change.NewText);
             }

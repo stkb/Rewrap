@@ -72,15 +72,16 @@ let maybeAutoWrap file settings newText (pos: Position) (getLine: Func<int, stri
     let noEdit = { startLine=0; endLine=0; lines = [||]; selections = [||] }
     
     if String.IsNullOrEmpty(newText) then noEdit
-    elif newText.Substring(0, newText.Length - 1).Contains("\n") then noEdit else
-    let canBreakOnChar c =
-        match Wrapping.canBreak (uint16 c) with
-            | (Always, _) | (_, Always) -> true | _ -> false
-    if not (String.exists canBreakOnChar newText) then noEdit else
+    elif not (String.IsNullOrWhiteSpace(newText)) then noEdit else
 
-    let enterPressed = newText.EndsWith("\n")
-    let trimmedNewText = newText.TrimEnd('\n', '\r')
-    let line, char = pos.line, pos.character + trimmedNewText.Length
+    let enterPressed =
+        match newText.[0] with
+        | '\r' | '\n' -> true
+        | _ -> false
+    if not enterPressed && newText.Length > 1 then noEdit else
+    
+    let line, char =
+        pos.line, pos.character + (if enterPressed then 0 else newText.Length)
     let lineText = getLine.Invoke(line)
     let visualWidth = strWidth settings.tabWidth (String.takeStart char lineText)
     if visualWidth <= settings.column then noEdit else

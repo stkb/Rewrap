@@ -208,17 +208,16 @@ const checkChange = e => {
     // There's more than one change if there were multiple selections,
     // or a whole line is moved up/down with alt+up/down
     if(e.contentChanges.length != 1) return
-    const { text: newText, range } = e.contentChanges[0]
-    if(!range.isSingleLine) return
+    const { text: newText, range, rangeLength } = e.contentChanges[0]
+    if(rangeLength > 0) return
 
     try {
         const file = docType(doc)
         let settings = getSettings(editor)
         settings.column = Rewrap.getWrappingColumn(file.path, settings.columns)
 
-        // maybeAutoWrap does more checks: that newText isn't empty, isn't
-        // multiline, but does contain break chars (eg whitespace or CJK chars).
-        // Don't call this in a promise: it causes timing issues.
+        // maybeAutoWrap does more checks: that newText isn't empty, but is only
+        // whitespace. Don't call this in a promise: it causes timing issues.
         const edit = 
             Rewrap.maybeAutoWrap(file, settings, newText, range.start, docLine(doc))
         return applyEdit(editor, edit).then(null, catchErr)
