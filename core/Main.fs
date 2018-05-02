@@ -57,7 +57,8 @@ let rewrap file settings selections (getLine: Func<int, string>) =
         |> Selections.wrapSelected linesList selections settings
 
 /// Gets the visual width of a string, taking tabs into account
-let strWidth tabSize (str: string) =
+let strWidth usTabSize (str: string) =
+    let tabSize = max usTabSize 1
     let rec loop acc i =
         if i >= str.Length then acc
         else loop (acc + charWidthEx tabSize i ((uint16) str.[i])) (i + 1)
