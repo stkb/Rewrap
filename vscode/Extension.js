@@ -1,6 +1,7 @@
 const vscode = require('vscode')
 const { Range, commands, workspace, window } = vscode
 const getSettings = require('./Settings')
+const getCustomMarkers = require('./CustomLanguage')()
 const fixSelections = require('./FixSelections')
 const { DocState, Position, Selection } = require('./compiled/core/Types')
 const Rewrap = require('./compiled/core/Main')
@@ -79,7 +80,11 @@ const catchErr = err => {
 /** Gets the path and language of the document. These are used to determine the
  *  parser used for it. */
 const docType = document =>
-    ({ path: document.fileName, language: document.languageId })
+    ( { path: document.fileName
+      , language: document.languageId
+      , getMarkers: () => getCustomMarkers(document.languageId)
+      }
+    )
 
 /** Converts a selection-like object to a vscode Selection object */
 const vscodeSelection = s =>

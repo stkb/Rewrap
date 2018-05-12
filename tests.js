@@ -346,7 +346,7 @@ function runTests(tests)
             const getLine = i => i < input.length ? input[i] : null
             const edit =
                 Core.rewrap
-                    ( { language: settings.language, path: '' }
+                    ( { language: settings.language, path: '', getMarkers: () => { } }
                     , Object.assign(settings, { column: wrappingColumn })
                     , selections
                     , getLine

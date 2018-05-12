@@ -22,7 +22,7 @@ let private configFile =
 
 let private lang = Language.create
 
-let languages : Language[] = [|
+let mutable languages = [
     lang "AutoHotkey" "ahk" ".ahk"
         ( sourceCode [ line ";"; cBlock ] )
     lang "Basic" "vb" ".vb"
@@ -200,22 +200,44 @@ let languages : Language[] = [|
 
             takeUntil comments (plainText settings) |> repeatToEnd
         )
-    |]
+    ]
+
+/// Creates a custom language parser. Also adds it to the list of languages
+let private addCustomLanguage name (markers: CustomMarkers) =
+    let escape = System.Text.RegularExpressions.Regex.Escape
+    let maybeLine = Option.map (line << escape) markers.line
+    let maybeBlock = Option.map (block << Tuple.map escape) markers.block
+    let list = List.choose id [ maybeLine; maybeBlock ]
+    let cl = lang name "" "" (sourceCode list)
+    languages <- cl :: languages
+    cl
 
 /// Tries to find a known Language for the given File, using its language ID. If
 /// that is empty or the default ('plaintext'), it tries using the file's
 /// name/extension instead.
+/// <remarks>
+/// Done in this way so that if the language of the file isn't found, we get a
+/// chance to try the files getMarkers callback instead. Otherwise, it mught
+/// just match the file to the wrong language based on the extension (eg
+/// Prolog/Perl .pl)
+/// </remarks>
 let languageForFile (file: File) : Option<Language> =
     let l = file.language.ToLower()
     if not (String.IsNullOrWhiteSpace(l)) || l.Equals("plaintext") then
         Seq.tryFind (Language.matchesFileLanguage l) languages
     else Seq.tryFind (Language.matchesFilePath file.path) languages
 
-/// <summary> Selects a parser from the given language and file path. </summary>
+/// <summary> Selects a parser for the given File. </summary>
 /// <remarks>
 /// Tries to find a known language (see `languageForFile`) and returns its
 /// parser. If no language is found, a default plain text parser is used.
 /// </remarks>
-let rec select (language: string) (filePath: string) : Settings -> TotalParser =
-    languageForFile { language = language; path = filePath }
+let rec select (file: File) : Settings -> TotalParser =
+    languageForFile file
+        |> Option.orElseWith
+            (fun () ->
+                match file.getMarkers.Invoke() with
+                | null -> None
+                | x -> Some (addCustomLanguage file.language x)
+            )
         |> option plainText Language.parser

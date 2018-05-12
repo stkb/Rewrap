@@ -1,7 +1,14 @@
 namespace Rewrap
 
+open System
+
+[<AllowNullLiteral>]
+type CustomMarkers(line: Option<string>, block: Option<string * string>) =
+    member this.line = line
+    member this.block = block
+
 /// File language and path. Used to select a parser.
-type File = { language: string; path: string }
+type File = { language: string; path: string; getMarkers: Func<CustomMarkers> }
 
 /// Settings passed in from the editor
 type Settings = {

@@ -24,7 +24,7 @@ namespace VS
         {
             var textBuffer = textView.TextBuffer;
             var snapshot = textBuffer.CurrentSnapshot;
-            var file = new File(GetLanguage(textBuffer), GetFilePath(textBuffer));
+            var file = new File(GetLanguage(textBuffer), GetFilePath(textBuffer), () => null);
             DocState getDocState(ITextSnapshot ss) =>
                 new DocState(file.path, ss.Version.VersionNumber, GetSelections(textView, ss));
 
@@ -42,7 +42,7 @@ namespace VS
         {
             var textBuffer = textView.TextBuffer;
             var snapshot = textBuffer.CurrentSnapshot;
-            var file = new File(GetLanguage(textBuffer), GetFilePath(textBuffer));
+            var file = new File(GetLanguage(textBuffer), GetFilePath(textBuffer), () => null);
 
             var settings = GetSettings
                 (textView, rs => Core.getWrappingColumn(file.path, rs));
@@ -56,7 +56,7 @@ namespace VS
             (IWpfTextView textView, Func<int[], int> getColumn)
         {
             var textBuffer = textView.TextBuffer;
-            var file = new File(GetLanguage(textBuffer), GetFilePath(textBuffer));
+            var file = new File(GetLanguage(textBuffer), GetFilePath(textBuffer), () => null);
             var options = OptionsPage.GetOptions(file);
 
             int[] rulers =

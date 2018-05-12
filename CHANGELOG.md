@@ -2,6 +2,8 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 
 ## Unreleased
 
+- Rewrap now has basic support for any language if the user has an extension for
+  it installed (VSCode only).
 - Python: Fix some issues for triple-quoted strings, including allowing
   pre-string characters [bfru] (#171, #170, #128).
 

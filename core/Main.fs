@@ -41,13 +41,12 @@ let saveDocState docState =
 let languageNameForFile (file: File) : string =
     option null Language.name (languageForFile file)
 
-
 let languages : string[] =
     Seq.map Language.name Parsing.Documents.languages |> Seq.toArray
 
 /// The main rewrap function, to be called by clients
 let rewrap file settings selections (getLine: Func<int, string>) =
-    let parser = Parsing.Documents.select file.language file.path
+    let parser = Parsing.Documents.select file
     let linesList =
         Seq.unfold
             (fun i -> Option.ofObj (getLine.Invoke(i)) |> Option.map (fun l -> (l,i+1)))
