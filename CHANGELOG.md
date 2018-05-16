@@ -1,7 +1,7 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
 
-## Unreleased
+### 1.9.1
 
 The new setting `rewrap.autoWrap.enabled` can now be used to ensure this feature
 is enabled in new installations (#87). Apart from that, the feature and the
