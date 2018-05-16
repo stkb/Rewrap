@@ -6,8 +6,11 @@ const { DocState, Position, Selection } = require('./compiled/Core/Types')
 const Rewrap = require('./compiled/Core/Main')
 
 /** Function to activate the extension. */
-exports.activate = function activate(context)
+exports.activate = async function activate(context)
 {
+    const toggleAutoWrapCommand =
+        await initAutoWrap (workspace, context.globalState, window)
+
     // Register the commands
     context.subscriptions.push
         ( commands.registerTextEditorCommand
@@ -54,28 +57,6 @@ exports.activate = function activate(context)
         {
             if(!customColumn) return
             doWrap(editor, customColumn)
-        }
-    }
-
-    let changeHook
-    if(context.globalState.get('autoWrap')) {
-        toggleAutoWrapCommand();
-    }
-
-    /** Auto-wrap automatically wraps the current line when space or enter is
-     *  pressed after the wrapping column. */
-    function toggleAutoWrapCommand()
-    {
-        if(changeHook) {
-            changeHook.dispose()
-            changeHook = null
-            context.globalState.update('autoWrap', false)
-                .then(() => window.setStatusBarMessage("Auto-wrap: Off", 7000))
-        }
-        else {
-            changeHook = workspace.onDidChangeTextDocument(checkChange)
-            context.globalState.update('autoWrap', true)
-                .then(() => window.setStatusBarMessage("Auto-wrap: On", 7000))
         }
     }
 }
@@ -190,6 +171,8 @@ const doWrap = (editor, customColumn) => {
     catch(err) { catchErr(err) }
 }
 
+/********** Auto-Wrap **********/
+
 const checkChange = e => {
     // Make sure we're in the active document
     const editor = window.activeTextEditor
@@ -223,4 +206,37 @@ const checkChange = e => {
         return applyEdit(editor, edit).then(null, catchErr)
     }
     catch(err) { catchErr(err) }
+}
+
+const initAutoWrap = async (workspace, extState, window) => {
+    const config = workspace.getConfiguration('rewrap.autoWrap')
+    const getEnabledSetting = () => config.inspect('enabled').globalValue
+    const getEnabled = () => { // can still return null/undefined
+        const s = getEnabledSetting ()
+        return s !== undefined ? s : extState.get('autoWrap')
+    }
+
+    let changeHook
+    const setEnabled = async (on) => {
+        if (on && !changeHook)
+            changeHook = workspace.onDidChangeTextDocument(checkChange)
+        else if (!on && changeHook) {
+            changeHook.dispose()
+            changeHook = null
+        }
+        const s = getEnabledSetting ()
+        if (s === undefined) await extState.update('autoWrap', on)
+        else {
+            await extState.update('autoWrap', null)
+            if (s !== on) await config.update('enabled', on, true)
+        }
+        await window.setStatusBarMessage(`Auto-wrap: ${on?'On':'Off'}`, 7000)
+    }
+
+    const checkState = async () => setEnabled (getEnabled ())
+    workspace.onDidChangeConfiguration(e => {
+        if (e.affectsConfiguration('rewrap.autoWrap')) checkState () 
+    })
+    await checkState ()
+    return async () => { setEnabled (!getEnabled()) }
 }

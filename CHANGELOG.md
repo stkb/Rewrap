@@ -1,6 +1,13 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
 
+## Unreleased
+
+The new setting `rewrap.autoWrap.enabled` can now be used to ensure this feature
+is enabled in new installations (#87). Apart from that, the feature and the
+toggle command for it work the same as before.
+
+
 ## 1.9.0
 
 - Support East Asian (CJK) languages (#75)
