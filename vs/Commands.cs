@@ -23,11 +23,11 @@ namespace VS
         public const int ID = 0x0100;
 
         // Initializes the command for the menu item
-        public static void Initialize(System.IServiceProvider package)
+        public static async System.Threading.Tasks.Task InitializeAsync(AsyncPackage package)
         {
             if (package == null) throw new ArgumentNullException( "package" );
 
-            if (package.GetService( typeof( IMenuCommandService ) )
+            if (await package.GetServiceAsync( typeof( IMenuCommandService ) )
                     is OleMenuCommandService commandService
                )
             {
@@ -94,21 +94,21 @@ namespace VS
     {
         const int ID = 0x0200;
 
-        public static void Initialize(System.IServiceProvider package)
+        public static async System.Threading.Tasks.Task InitializeAsync(AsyncPackage package)
         {
             if (package == null) throw new ArgumentNullException("package");
 
             var commandService =
-                package.GetService(typeof(IMenuCommandService)) as OleMenuCommandService
+                await package.GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService
                     ?? throw new Exception("Couldn't get OleMenuCommandService");
             commandService.AddCommand(MenuCommand);
 
-            StatusBar = package.GetService(typeof(SVsStatusbar)) as IVsStatusbar;
+            StatusBar = await package.GetServiceAsync(typeof(SVsStatusbar)) as IVsStatusbar;
 
             // Restore if enabled in settings
-            SettingsStore = (new ShellSettingsManager(package))
-                .GetWritableSettingsStore(SettingsScope.UserSettings);
-            if (SettingsStore.GetBoolean("Rewrap\\*", "autoWrap", false))
+            var mgr = await package.GetServiceAsync(typeof(SVsSettingsManager)) as IVsSettingsManager;
+            mgr.GetWritableSettingsStore((uint)SettingsScope.UserSettings, out SettingsStore);
+            if (SettingsStore.GetBool("Rewrap\\*", "autoWrap", out var value) == VSConstants.S_OK && value == 1)
                 ToggleEnabled(null, null);
         }
 
@@ -125,7 +125,7 @@ namespace VS
         static void ToggleEnabled(object _, EventArgs e)
         {
             MenuCommand.Checked = !MenuCommand.Checked;
-            SettingsStore.SetBoolean("Rewrap\\*", "autoWrap", Enabled);
+            SettingsStore.SetBool("Rewrap\\*", "autoWrap", Enabled ? 1 : 0);
 
             // Show a brief message in status bar when toggling on/off. Would
             // like something permanent that shows the status but it's not
@@ -137,7 +137,7 @@ namespace VS
             }
         }
 
-        static WritableSettingsStore SettingsStore;
+        static IVsWritableSettingsStore SettingsStore;
 
         static IVsStatusbar StatusBar;
 

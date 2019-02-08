@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.Shell;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace VS
 {
@@ -30,14 +31,14 @@ namespace VS
     /// Type="Microsoft.VisualStudio.VsPackage" ...&gt; in .vsixmanifest file.
     /// </para>
     /// </remarks>
-    [PackageRegistration(UseManagedResourcesOnly = true)]
+    [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [Guid(RewrapPackage.GuidString)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
     [ProvideOptionPage(typeof(Options.OptionsPage), "Rewrap", "Rewrap", 0, 0, true, new string[] { "column", "wrapping" })]
-    [ProvideAutoLoad(Microsoft.VisualStudio.Shell.Interop.UIContextGuids80.NoSolution)]
-    public sealed class RewrapPackage : Microsoft.VisualStudio.Shell.Package
+    [ProvideAutoLoad(Microsoft.VisualStudio.Shell.Interop.UIContextGuids80.NoSolution, PackageAutoLoadFlags.BackgroundLoad)]
+    public sealed class RewrapPackage : Microsoft.VisualStudio.Shell.AsyncPackage
     {
         /// Guid for the package
         public const string GuidString = "97d91fdc-1781-499d-97f6-31501ae81702";
@@ -59,11 +60,14 @@ namespace VS
         /// Initialization of the package; this method is called right after the
         /// package is sited, so this is the place where you can put all the
         /// initialization code that rely on services provided by VisualStudio.
-        protected override void Initialize()
+        protected override async System.Threading.Tasks.Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
-            RewrapCommand.Initialize(this);
-            AutoWrapCommand.Initialize(this);
-            base.Initialize();
+            await base.InitializeAsync(cancellationToken, progress);
+
+            await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+
+            await RewrapCommand.InitializeAsync(this);
+            await AutoWrapCommand.InitializeAsync(this);
         }
     }
 }
