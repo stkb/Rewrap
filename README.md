@@ -1,12 +1,7 @@
-**Latest version: 1.9.1.** New in this version ([full 
+**Latest version: 1.9.2.** New in this version ([full 
 changelog](https://github.com/stkb/vscode-rewrap/releases)):
 
-The new setting `rewrap.autoWrap.enabled` can now be used to ensure this feature
-is enabled in new installations ([#87](https://github.com/stkb/Rewrap/issues/87))
-
-New in 1.9.0:
-- Support East Asian (CJK) languages
-- Support HCL/Terraform config files
+VS-only release: Adds support for VS 2019.
 
 
 # Rewrap

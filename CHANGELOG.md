@@ -1,6 +1,11 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
 
+### 1.9.2
+
+VS-only release: Adds support for VS 2019.
+
+
 ### 1.9.1
 
 The new setting `rewrap.autoWrap.enabled` can now be used to ensure this feature
