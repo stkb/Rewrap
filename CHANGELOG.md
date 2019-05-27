@@ -1,9 +1,9 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
 
-## Unreleased
+### 1.9.3
 
-VS: Support all future VS2019 (v16.x) versions (#143)
+VS-only release: Support all future VS2019 (v16.x) versions (#143)
 
 
 ### 1.9.2

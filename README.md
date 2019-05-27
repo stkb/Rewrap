@@ -1,7 +1,7 @@
-**Latest version: 1.9.2.** New in this version ([full 
+**Latest version: 1.9.3.** New in this version ([full 
 changelog](https://github.com/stkb/vscode-rewrap/releases)):
 
-VS-only release: Adds support for VS 2019.
+VS-only release: Fixes support for VS 2019 versions 16.1+
 
 
 # Rewrap
