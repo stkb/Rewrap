@@ -66,7 +66,7 @@ AutoHotKey, Bash/shell script, Batch/cmd file, C, C#, C++, CoffeeScript,
 Crystal, CSS, D (partial), Dart, Docker file, Elixir, Elm, F#, Go, GraphQL,
 Groovy, Haskell, HCL, Html, Ini, Jade, Java, JavaScript, LaTeX, Lean, Less, Lua,
 Makefile, Markdown, MATLAB, Objective-C, Perl, PHP, PowerShell, Protobuf,
-PureScript, Python, R, Ruby, Rust, Sass, SQL, Swift, Tcl, Terraform, Toml,
+PureScript, Python, R, Ruby, Rust, Sass, SQL, Swift, Tcl, Terraform, TOML,
 TypeScript, Visual Basic, Xml, Xsl, Yaml.
 
 For any other type of file, plain-text paragraph wrapping is still supported.
