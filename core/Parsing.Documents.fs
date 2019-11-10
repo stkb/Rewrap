@@ -174,7 +174,7 @@ let languages : Language[] = [|
             ]
         )
     lang "Python" "" ".py"
-        ( sourceCode [ line "#"; block ( "('''|\"\"\")", "('''|\"\"\")" ) ] )
+        ( sourceCode [ line "#"; block ( "((r|f|b|u)?'''|(r|f|b|u)?\"\"\")", "('''|\"\"\")" ) ] )
     lang "R" "" ".r"
         configFile
     lang "Ruby" "" ".rb"
