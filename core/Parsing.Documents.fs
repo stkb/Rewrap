@@ -185,6 +185,8 @@ let languages : Language[] = [|
     // Sass still needs to be supported.
     // -  http://sass-lang.com/documentation/file.INDENTED_SYNTAX.html
         java
+    lang "Scala" "" ".scala"
+        java
     lang "Shaderlab" "" ".shader"
         java
     lang "Shell script" "shellscript" ".sh"
