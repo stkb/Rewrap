@@ -193,6 +193,8 @@ let languages : Language[] = [|
         ( sourceCode [ line "--"; cBlock ] )
     lang "Swift" "" ".swift"
         java
+    lang "SystemVerilog/Verilog" "" ".sv|.v"
+        java
     lang "Tcl" "" ".tcl"
         configFile
     lang "TOML" "" ".toml"
