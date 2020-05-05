@@ -50,7 +50,7 @@ Mostly bugfixes:
 - LaTeX: Preserve verbatim and math sections (#68, #69)
 - Go: comment parsing changed to work the same as godoc (#70)
   - Markdown no longer used; instead simply all indented lines are preserved.
-  - Leading '*'s no longer allowed in block comments 
+  - Leading '*'s no longer allowed in block comments
 - Crystal and MATLAB languages added. (#71, #72)
 
 
@@ -77,7 +77,7 @@ Mostly bugfixes:
 
 ### 1.5.2
 
-- Support lines starting with `*` in all C-Style blocks (`/* .. */`) in all languages that use them. 
+- Support lines starting with `*` in all C-Style blocks (`/* .. */`) in all languages that use them.
 
 
 ### 1.5.1
@@ -145,7 +145,7 @@ Added a new command; "Rewrap Comment / Text at column..." (id: `rewrap.rewrapCom
 - Improvements for LaTeX:
   - Most \commands starting a line will now denote a new paragraph (#24).
   - Indentation for subsequent lines in that paragraph will be cleaned up (#23).
-  - Line breaks following a line-break command (eg \\\\, \newline) will be preserved. 
+  - Line breaks following a line-break command (eg \\\\, \newline) will be preserved.
 - Added basic support for TOML files (#26).
 
 

@@ -38,7 +38,7 @@ let private configFile =
 
 
 let languages : Language[] = [|
-    lang "AutoHotkey" "ahk" ".ahk" 
+    lang "AutoHotkey" "ahk" ".ahk"
         ( sourceCode [ line ";"; cBlock ] )
     lang "Basic" "vb" ".vb"
         ( sourceCode [ customLine html "'''"; line "'" ] )
@@ -55,7 +55,7 @@ let languages : Language[] = [|
             ]
         )
     lang "CoffeeScript" "" ".coffee"
-        ( sourceCode 
+        ( sourceCode
             [ customBlock javadoc ("[*#]", " * ") ( "###\\*", "###" )
               block ( "###", "###" )
               line "#"
@@ -170,9 +170,9 @@ let languages : Language[] = [|
             // those lines to documentation where it wasn't intended.
             [ line "--\s*\|"
               line "--"
-              block ( "{-\s*\|?", "-}" ) 
-            ] 
-        )    
+              block ( "{-\s*\|?", "-}" )
+            ]
+        )
     lang "Python" "" ".py"
         ( sourceCode [ line "#"; block ( "('''|\"\"\")", "('''|\"\"\")" ) ] )
     lang "R" "" ".r"
@@ -204,7 +204,7 @@ let languages : Language[] = [|
     lang "YAML" "" ".yaml|.yml"
         /// Also allow text paragraphs to be wrapped. Though wrapping the whole
         /// file at once will mess it up.
-        (fun settings -> 
+        (fun settings ->
             let comments =
                 line "#{1,3}" settings
 
@@ -216,8 +216,8 @@ let languages : Language[] = [|
 /// Gets a language ID from a given file path.
 /// </summary>
 let private languageFromFileName (filePath: string) : Option<Language> =
-    
-    let fileName = 
+
+    let fileName =
         filePath.Split('\\', '/') |> Array.last
 
     // Get file extension or if no extension, the whole filename
@@ -225,7 +225,7 @@ let private languageFromFileName (filePath: string) : Option<Language> =
         match fileName.ToLower().Split('.') with
             | [| name |] -> name
             | arr -> "." + Array.last arr
-    
+
     languages
         |> Array.tryFind (fun l -> Array.contains extensionOrName l.extensions)
 
@@ -237,12 +237,12 @@ let findLanguage name filePath : Option<Language> =
 
     let findName (name: string) : Option<Language> =
         languages
-            |> Array.tryFind 
-                (fun l -> 
-                    l.name.ToLower() = name.ToLower() 
+            |> Array.tryFind
+                (fun l ->
+                    l.name.ToLower() = name.ToLower()
                         || Array.contains (name.ToLower()) l.aliases
                 )
-    
+
     findName name
         |> Option.orElseWith (fun () -> languageFromFileName filePath)
 
@@ -254,7 +254,7 @@ let findLanguage name filePath : Option<Language> =
 /// First the language is checked. If this is fails to find a parser, the file
 /// name is checked. If this also fails, a default plain text parser is used.
 /// </remarks>
-let rec select (language: string) (filePath: string) : Settings -> TotalParser =    
+let rec select (language: string) (filePath: string) : Settings -> TotalParser =
     findLanguage language filePath
         |> Option.map (fun l -> l.parser)
         |> Option.defaultValue plainText

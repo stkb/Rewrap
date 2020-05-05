@@ -26,7 +26,7 @@ exports.activate = async function activate(context)
     {
         doWrap(editor).then(() => Rewrap.saveDocState(getDocState(editor)))
     }
-    
+
     let customWrappingColumn = 99
     /** Does a rewrap, but first prompts for a custom wrapping column to use. */
     function rewrapCommentAtCommand(editor)
@@ -53,7 +53,7 @@ exports.activate = async function activate(context)
                 })
         }
 
-        function wrapWithCustomColumn(customColumn) 
+        function wrapWithCustomColumn(customColumn)
         {
             if(!customColumn) return
             doWrap(editor, customColumn)
@@ -68,7 +68,7 @@ const catchErr = err => {
     console.error(
         "^^^^^^ Rewrap: Please report this (with a copy of the above lines) ^^^^^^\n" +
         "at https://github.com/stkb/vscode-rewrap/issues"
-    )       
+    )
     vscode.window.showInformationMessage(
         "Sorry, there was an error in Rewrap. " +
         "Go to: Help -> Toggle Developer Tools -> Console " +
@@ -87,7 +87,7 @@ const vscodeSelection = s =>
         (s.anchor.line, s.anchor.character, s.active.line, s.active.character)
 
 /** Converts a selection-like object to a rewrap Selection object */
-const rewrapSelection = s => 
+const rewrapSelection = s =>
     new Selection
         ( new Position(s.anchor.line, s.anchor.character)
         , new Position(s.active.line, s.active.character)
@@ -110,7 +110,7 @@ const getDocState = editor => {
 
 /** Returns a function for the given document, that gets the line at the given
  *  index. */
-const docLine = 
+const docLine =
     document => i => i < document.lineCount ? document.lineAt(i).text : null
 
 /** Applies an edit to the document. Also fixes the selections afterwards. If
@@ -145,7 +145,7 @@ const applyEdit = (editor, edit) => {
             if(!didEdit) return
             if(wholeDocSelected) {
                 const wholeRange = getDocRange()
-                editor.selection = 
+                editor.selection =
                     new vscode.Selection(wholeRange.start, wholeRange.end)
             }
             else editor.selections = fixSelections(oldLines, selections, edit)
@@ -201,7 +201,7 @@ const checkChange = e => {
 
         // maybeAutoWrap does more checks: that newText isn't empty, but is only
         // whitespace. Don't call this in a promise: it causes timing issues.
-        const edit = 
+        const edit =
             Rewrap.maybeAutoWrap(file, settings, newText, range.start, docLine(doc))
         return applyEdit(editor, edit).then(null, catchErr)
     }
@@ -235,7 +235,7 @@ const initAutoWrap = async (workspace, extState, window) => {
 
     const checkState = async () => setEnabled (getEnabled ())
     workspace.onDidChangeConfiguration(e => {
-        if (e.affectsConfiguration('rewrap.autoWrap')) checkState () 
+        if (e.affectsConfiguration('rewrap.autoWrap')) checkState ()
     })
     await checkState ()
     return async () => { setEnabled (!getEnabled()) }

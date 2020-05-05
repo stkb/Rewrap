@@ -59,30 +59,30 @@ Block quote:
 
 [Html block types 1 to 6](http://spec.commonmark.org/0.28/#html-block):
 
-    a b c d   ¦      ->      a b c d e ¦     
+    a b c d   ¦      ->      a b c d e ¦
     e f       ¦              f         ¦
     <script   ¦              <script   ¦
 
-    a b c d   ¦      ->      a b c d e ¦     
+    a b c d   ¦      ->      a b c d e ¦
     e f       ¦              f         ¦
     <!-- a    ¦              <!-- a    ¦
 
-    a b c d   ¦      ->      a b c d e ¦     
+    a b c d   ¦      ->      a b c d e ¦
     e f       ¦              f         ¦
     <?a       ¦              <?a       ¦
 
-    a b c d   ¦      ->      a b c d e ¦     
+    a b c d   ¦      ->      a b c d e ¦
     e f       ¦              f         ¦
     <!A       ¦              <!A       ¦
 
-    a b c d    ¦      ->      a b c d e f¦     
+    a b c d    ¦      ->      a b c d e f¦
     e f g      ¦              g          ¦
     <![CDATA[  ¦              <![CDATA[  ¦
 
-    a b c d   ¦      ->      a b c d e ¦     
+    a b c d   ¦      ->      a b c d e ¦
     e f       ¦              f         ¦
     <DD       ¦              <DD       ¦
 
-    a b c d   ¦      ->      a b c d e ¦     
+    a b c d   ¦      ->      a b c d e ¦
     e f       ¦              f         ¦
     </DD>     ¦              </DD>     ¦

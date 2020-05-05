@@ -36,7 +36,7 @@ let leadingWhitespace line =
 let containsText line =
     // Don't use \w because it contains underscore. Using almost the whole
     // Unicode range but it's probably good enough. Little hack for Ruby.
-    contains (Regex("[A-Za-z0-9\u00C0-\uFFFF]")) line 
+    contains (Regex("[A-Za-z0-9\u00C0-\uFFFF]")) line
         && not (contains (Regex(@"^=(begin|end)\s*$")) line)
 
 /// Splits a line into prefix and remainder. If the prefix pattern is not found
@@ -55,11 +55,11 @@ let tabsToSpaces (tabSize: int) (str: string) =
         // This case isn't possible since String.split never returns an empty array
         | [] ->
             str
-        
+
         // We add padding to all but the last string
         | x :: xs ->
             xs
-                |> List.map 
+                |> List.map
                     (fun s -> s.PadRight((s.Length / tabSize + 1) * tabSize))
                 |> (fun tail -> List.Cons (x, tail))
                 |> List.rev

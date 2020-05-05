@@ -26,14 +26,14 @@ let private isWhitespace cc =
     // \0 is a special placeholder we use ourselves for non-breaking space
     cc <> 0x0000us && cc <= 0x0020us || cc = 0x3000us
 
-let isCJK charCode = 
+let isCJK charCode =
     (charCode >= 0x3040us && charCode <= 0x30FFus)
         || (charCode >= 0x3400us && charCode <= 0x4DBFus)
         || (charCode >= 0x4E00us && charCode <= 0x9FFFus)
 
 type CanBreak = Always | Sometimes | Never
 
-let private specialChars = 
+let private specialChars =
     [| (Never, Sometimes), "})]?,;¢°′″‰℃"
        (Never, Always)
        , "、。｡､￠，．：；？！％・･ゝゞヽヾーァィゥェォッャュョヮヵヶぁ"
@@ -41,8 +41,8 @@ let private specialChars =
             + "〉》」』】〕）］｝｣"
        (Sometimes, Never), "([{"
        (Always, Never), "‘“〈《「『【〔（［｛｢£¥＄￡￥＋"
-    |] 
-        |> Array.map 
+    |]
+        |> Array.map
             (Tuple.mapSecond (fun s -> s.ToCharArray() |> Array.map (uint16)))
 
 let canBreak charCode =
@@ -74,7 +74,7 @@ let private wrapLines (headWidth, tailWidth) lines : Lines =
                 | _ -> l :: ls
         match ls with | [] -> [l] | h :: _ -> compare h
 
-    let str = 
+    let str =
         List.fold addEolSpacesWhereNeeded [] (Nonempty.toList lines)
             |> List.rev |> String.concat ""
 
@@ -108,7 +108,7 @@ let wrap settings (prefixes, lines) : Lines =
 
     /// If the setting is set, adds an extra space to lines ending with .?!
     let addDoubleSpaces =
-        Nonempty.mapInit 
+        Nonempty.mapInit
             (fun (s: string) ->
                 let t = s.TrimEnd()
                 if settings.doubleSentenceSpacing
@@ -116,7 +116,7 @@ let wrap settings (prefixes, lines) : Lines =
                 then t + "  "
                 else t
             )
-        
+
     /// "Freezes" inline tags ({@tag }) so that they don't get broken up
     let freezeInlineTags str =
         inlineTagRegex.Replace
@@ -135,10 +135,10 @@ let wrap settings (prefixes, lines) : Lines =
                 (Line.tabsToSpaces settings.tabWidth
                     >> (fun s -> settings.column - s.Length)
                 )
-        
+
     lines
         |> addDoubleSpaces
         |> Nonempty.map freezeInlineTags
-        |> wrapLines lineWidths 
+        |> wrapLines lineWidths
         |> Nonempty.map unfreezeInlineTags
         |> addPrefixes prefixes

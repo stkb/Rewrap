@@ -5,7 +5,7 @@ open Core
 
 
 /// Creates a parser for source code files, given a list of comment parsers
-let sourceCode 
+let sourceCode
     (commentParsers: List<Settings -> OptionParser>)
     (settings: Settings)
     : TotalParser =
@@ -15,7 +15,7 @@ let sourceCode
 
     let codeParser =
         (Block.ignore >> Nonempty.singleton)
-        
+
     takeUntil commentParsers codeParser |> repeatToEnd
 
 
@@ -60,11 +60,11 @@ let java =
 
 /// Parser for css (also used in html)
 let css =
-    sourceCode 
+    sourceCode
         [ customBlock DocComments.javadoc ( "\\*?", " * " ) javadocMarkers
           cBlock
         ]
 
 /// Parser for html (also used in dotNet)
-let html = 
+let html =
     Html.html java css

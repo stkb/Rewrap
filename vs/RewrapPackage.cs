@@ -44,7 +44,7 @@ namespace VS
         public const string GuidString = "97d91fdc-1781-499d-97f6-31501ae81702";
 
         /// Guid for the command set
-        public static readonly Guid CmdSetGuid = 
+        public static readonly Guid CmdSetGuid =
             new Guid( "03647b07-e8ca-4d6e-9aae-5b89bbd3276d" );
 
 

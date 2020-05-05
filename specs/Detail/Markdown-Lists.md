@@ -2,7 +2,7 @@
 
     - a   ¦      ->      - a b ¦
       b c ¦                c   ¦
-      --  ¦                --  
+      --  ¦                --
 
 Any paragraph under a list item can have the second line indented less than the
 list item content indent. (With reformat off this currently has the undesired

@@ -24,7 +24,7 @@ This example compares reformat off (left) and on (right)
                     ¦                      ·Para 2  ¦                             ¦
 
 Indented code blocks, where indented more than 4 spaces, are reduced to a
-4-space indent. 
+4-space indent.
 
     ······Indented code    ->      ······Indented code   -or-    ····Indented code¦
     ·······block    ¦              ·······block     ¦            ·····block       ¦

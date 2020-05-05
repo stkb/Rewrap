@@ -43,7 +43,7 @@ lined up with the begin comment marker.
     ··/* a b c */     ->      ··/* a b¦
             ¦                 ··c */  ¦
 
-If the end marker is on a separate line, it remains where it is. 
+If the end marker is on a separate line, it remains where it is.
 
     /* a   ¦      ->      /* a b ¦
     b c    ¦              c      ¦
@@ -84,7 +84,7 @@ tidying things up.
      d e f   ¦                 * e f
     ···*/    ¦                 */
 
-If a java/jsdoc comment only has one line before wrapping, a default prefix of 
+If a java/jsdoc comment only has one line before wrapping, a default prefix of
 ` * ` is used for created lines.
 
     ··/** Foo bar¦baz */      ->      ··/** Foo bar¦

@@ -15,12 +15,12 @@ let private newlineRegex: Regex =
 /// Commands that, when starting a line, should always preserve the line break
 /// before them, even if text comes right after. For other commands, the rule
 /// that a command being alone on a line preserves breaks before and after is
-/// enough. 
+/// enough.
 let private blockCommands =
     [| "["; "begin"; "item" |]
 
 let private preserveEnvironments =
-    [| "align"; "alltt"; "displaymath"; "equation"; "gather"; "listing"; 
+    [| "align"; "alltt"; "displaymath"; "equation"; "gather"; "listing";
        "lstlisting"; "math"; "multline"; "verbatim"
     |]
         |> Array.collect (fun x -> [| x; x + "*" |])
@@ -70,8 +70,8 @@ let private commandRegex: Regex =
 
 
 let private findPreserveSection beginMarker : Lines -> Blocks * Option<Lines> =
-    
-    let endMarker = 
+
+    let endMarker =
         if beginMarker = "$" || beginMarker = "$$" then beginMarker
         else if beginMarker = "\(" then "\)"
         else if beginMarker = "\[" then "\]"
@@ -101,13 +101,13 @@ let private findPreserveSection beginMarker : Lines -> Blocks * Option<Lines> =
 
 
 let latex (settings: Settings) : TotalParser =
-    
+
     /// Checks the first line of a block of lines to see what sort of command it
     /// starts with, and outputs the corresponding block.
     let rec command (Nonempty(headLine, tailLines) as lines) : Option<Blocks * Option<Lines>> =
         let trimmedLine = headLine |> String.trim
         let cmdMatch = commandRegex.Match(trimmedLine)
-        let cmdName, cmdArg, isWholeLine = 
+        let cmdName, cmdArg, isWholeLine =
             if cmdMatch.Success then
                 ( cmdMatch.Groups.Item(1).Value
                 , cmdMatch.Groups.Item(2).Value
@@ -124,14 +124,14 @@ let latex (settings: Settings) : TotalParser =
 
         // Whole line is command: preserve break before & after
         else if isWholeLine then
-            Some 
+            Some
                 ( Nonempty.singleton (NoWrap (Nonempty(headLine, [])))
                 , Nonempty.fromList tailLines
                 )
-            
+
         // For some 'block' commands, keep line break before
-        else if trimmedLine.StartsWith("$$") 
-            || Array.contains cmdName blockCommands 
+        else if trimmedLine.StartsWith("$$")
+            || Array.contains cmdName blockCommands
         then
             Some (takeFrom2ndLineUntil otherParsers plainText lines)
 

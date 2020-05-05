@@ -12,7 +12,7 @@ type Nonempty<'T> =
 
 
 //-----------------------------------------------------------------------------
-// CREATING NON-EMPTY LISTS 
+// CREATING NON-EMPTY LISTS
 //-----------------------------------------------------------------------------
 
 
@@ -48,7 +48,7 @@ let appendToList listA neListB =
 
 
 //-----------------------------------------------------------------------------
-// GETTING FROM NON-EMPTY LISTS 
+// GETTING FROM NON-EMPTY LISTS
 //-----------------------------------------------------------------------------
 
 
@@ -73,7 +73,7 @@ let tryFind predicate =
 
 
 //-----------------------------------------------------------------------------
-// TRANSFORMING NON-EMPTY LISTS 
+// TRANSFORMING NON-EMPTY LISTS
 //-----------------------------------------------------------------------------
 
 
@@ -95,7 +95,7 @@ let mapHead fn (Nonempty (head, tail)) =
 
 let mapTail fn (Nonempty (head, tail)) =
     Nonempty (head, List.map fn tail)
-    
+
 
 let mapInit fn =
     rev >> mapTail fn >> rev
@@ -126,7 +126,7 @@ let splitAt n (Nonempty(head, tail)) =
                     (left, maybeRight)
                 else
                     loop (count - 1) (Nonempty.cons x left) (Nonempty.fromList xs)
-        
+
     loop (n - 1) (Nonempty.singleton head) (Nonempty.fromList tail)
         |> Tuple.mapFirst Nonempty.rev
 
@@ -146,7 +146,7 @@ let span predicate: Nonempty<'a> -> Option<Nonempty<'a> * Option<Nonempty<'a>>> 
                 else
                      Nonempty.fromList (List.rev output)
                         |> Option.map (fun o -> (o, maybeRemaining))
-     
+
     Some >> loop []
 
 
@@ -165,12 +165,12 @@ let splitAfter predicate: Nonempty<'a> -> Nonempty<'a> * Option<Nonempty<'a>> =
                     (Nonempty(head, output), None)
 
     loop [] >> Tuple.mapFirst Nonempty.rev
-        
+
 
 let unfold (fn: 'B -> 'A * Option<'B>): ('B -> Nonempty<'A>) =
     let rec loop output input =
         match fn input with
-            | (res, Some(nextInput)) -> 
+            | (res, Some(nextInput)) ->
                 loop (res :: output) nextInput
 
             | (res, None) ->

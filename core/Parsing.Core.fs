@@ -24,14 +24,14 @@ type SplitFunction =
 
 type OptionSplitFunction =
     Lines -> Option<Lines * Option<Lines>>
-    
+
 
 //-----------------------------------------------------------------------------
-// CREATING PARSERS 
+// CREATING PARSERS
 //-----------------------------------------------------------------------------
 
 
-/// Creates an OptionParser, taking a split function and a function to parse the 
+/// Creates an OptionParser, taking a split function and a function to parse the
 /// lines into blocks
 let optionParser (splitter: OptionSplitFunction) (parser: TotalParser): OptionParser =
     splitter >> Option.map (Tuple.mapFirst parser)
@@ -43,13 +43,13 @@ let ignoreParser (splitter: OptionSplitFunction): OptionParser =
 
 
 //-----------------------------------------------------------------------------
-// COMBINING PARSERS 
+// COMBINING PARSERS
 //-----------------------------------------------------------------------------
 
 
 let rec tryMany (parsers: list<OptionParser>) (lines: Lines): Option<Blocks * Option<Lines>> =
     match parsers with
-        | [] -> 
+        | [] ->
             None
         | p :: ps ->
             match p lines with
@@ -61,8 +61,8 @@ let rec tryMany (parsers: list<OptionParser>) (lines: Lines): Option<Blocks * Op
 
 /// Searches lines until an OptionParser matches. Parses those lines with the
 /// given TotalParser. Returns blocks from both parsers.
-let takeUntil 
-    (otherParser: OptionParser) 
+let takeUntil
+    (otherParser: OptionParser)
     (totalParser: TotalParser)
     : PartialParser =
 
@@ -97,7 +97,7 @@ let repeatToEnd partialParser : TotalParser =
 
 
 //-----------------------------------------------------------------------------
-// WORKING WITH LINES AND BLOCKS 
+// WORKING WITH LINES AND BLOCKS
 //-----------------------------------------------------------------------------
 
 
@@ -130,7 +130,7 @@ let onIndent tabWidth (Nonempty(firstLine, otherLines)): Lines * Option<Lines> =
 
     let firstLineIndentSize =
         indentSize firstLine
-    
+
     otherLines
         |> List.span
             (fun line -> abs (indentSize line - firstLineIndentSize) < 2)
@@ -143,7 +143,7 @@ let onIndent tabWidth (Nonempty(firstLine, otherLines)): Lines * Option<Lines> =
 /// lines.
 let firstLineIndentParagraphBlock reformat (Nonempty(headLine, tailLines) as lines) =
     let prefixes =
-        if reformat then 
+        if reformat then
             ("", "")
         else
             ( Line.leadingWhitespace headLine
@@ -158,18 +158,18 @@ let firstLineIndentParagraphBlock reformat (Nonempty(headLine, tailLines) as lin
 /// Convert paragraph lines into a Block, in a document where paragraphs can be
 /// separated by difference in indent. There is only one indent for the whole
 /// paragraph, determined from the first line.
-let indentSeparatedParagraphBlock 
+let indentSeparatedParagraphBlock
     (textType: Wrappable -> Block) (lines: Lines) : Block =
 
     let prefix =
         Line.leadingWhitespace (Nonempty.head lines)
-    
+
     textType ((prefix, prefix), lines |> Nonempty.map String.trimStart)
 
 
-/// Creates an OptionSplitFunction that will take all lines between a start and 
+/// Creates an OptionSplitFunction that will take all lines between a start and
 /// end marker (inclusive)
-let takeLinesBetweenMarkers 
+let takeLinesBetweenMarkers
     (startRegex: Regex, endRegex: Regex)
     (Nonempty(headLine, _) as lines)
     : Option<Lines * Option<Lines>> =
@@ -186,7 +186,7 @@ let takeLinesBetweenMarkers
 
 
 //-----------------------------------------------------------------------------
-// COMMON PARSERS 
+// COMMON PARSERS
 //-----------------------------------------------------------------------------
 
 

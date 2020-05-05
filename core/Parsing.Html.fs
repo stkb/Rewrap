@@ -9,18 +9,18 @@ open System.Text.RegularExpressions
 let private regex str =
     Regex(str, RegexOptions.IgnoreCase)
 
-let private scriptMarkers = 
+let private scriptMarkers =
     (regex "<script", regex "</script>")
 
 let private cssMarkers =
     (regex "<style", regex "</style>")
-    
 
 
-let html 
+
+let html
     (scriptParser: Settings -> TotalParser)
     (cssParser: Settings -> TotalParser)
-    (settings: Settings) 
+    (settings: Settings)
     : TotalParser =
 
     let embeddedScript markers contentParser =
@@ -41,7 +41,7 @@ let html
     let otherParsers =
         tryMany
             [ blankLines
-              Comments.blockComment 
+              Comments.blockComment
                 Markdown.markdown ( "", "" ) ( "<!--", "-->" ) settings
               embeddedScript scriptMarkers scriptParser
               embeddedScript cssMarkers cssParser
@@ -54,4 +54,3 @@ let html
             >> Nonempty.map (indentSeparatedParagraphBlock Block.text)
 
     takeUntil otherParsers paragraphBlocks |> repeatToEnd
-

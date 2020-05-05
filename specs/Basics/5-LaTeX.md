@@ -45,7 +45,7 @@ wrapping. Text before/after it is wrapped normally.
     normal text.      ¦              text.             ¦
     \begin{verbatim}  ¦              \begin{verbatim}  ¦
          Verbatim text                    Verbatim text
-        preserved as-is                  preserved as-is 
+        preserved as-is                  preserved as-is
     \end{verbatim}    ¦              \end{verbatim}    ¦
     Normal text       ¦              Normal text normal¦
     normal text.      ¦              text.             ¦
@@ -63,8 +63,8 @@ The above also applies to math environments: *math*, *displaymath*, *equation*,
 
 Used within a paragraph, they are wrapped normally.
 
-    The well-known Pythagorean      ->      The well-known        ¦ 
-    theorem is $a^2 + b^2 =                 Pythagorean theorem is¦ 
+    The well-known Pythagorean      ->      The well-known        ¦
+    theorem is $a^2 + b^2 =                 Pythagorean theorem is¦
     c^2$.                 ¦                 $a^2 + b^2 = c^2$.    ¦
 
 But with the opening section marker alone on a line, the section is preserved.

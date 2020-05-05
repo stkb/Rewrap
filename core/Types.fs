@@ -17,8 +17,8 @@ type Position = {
     character : int
 }
 
-type Selection = { 
-    anchor : Position 
+type Selection = {
+    anchor : Position
     active : Position
 }
 

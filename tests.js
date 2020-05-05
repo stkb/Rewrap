@@ -8,7 +8,7 @@ exports.run = run
 exports.getBench = getBench
 
 const specsDir = Path.join(__dirname, 'specs')
-const defaultSettings = 
+const defaultSettings =
     { language: 'plaintext'
     , tabWidth: 4
     , doubleSentenceSpacing: false
@@ -39,7 +39,7 @@ if(require.main === module) {
     if(!run(cmdlineFileNames)) { process.exitCode = -1 }
 }
 
-function run(fileNames) 
+function run(fileNames)
 {
     reloadModules()
 
@@ -59,7 +59,7 @@ function run(fileNames)
         console.log(`${failures.length} ${testOrTests(failures.length)} failed.`)
     }
     else {
-        console.log()       
+        console.log()
         console.log(`${tests.length} ${testOrTests(tests.length)} run`)
         console.log(`All ${testOrTests(tests.length)} passed (${timeTaken} ms).`)
     }
@@ -71,14 +71,14 @@ function run(fileNames)
 function getBench() {
     reloadModules()
     const tests = getTests()
-    
+
     return function() {
         runTests(tests)
     }
 }
 
 
-function reloadModules() 
+function reloadModules()
 {
     function deleteModule(moduleName)
     {
@@ -114,13 +114,13 @@ function getSpecFiles(dir)
 }
 
 
-function getTests(fileNames) 
+function getTests(fileNames)
 {
     fileNames = fileNames || getSpecFiles()
     return fileNames
         .map(readSamplesInFile)
         .reduce((xs, x) => [...xs, ...x], []) // Concat tests
-        .map(({fileName, settings, lines}) => 
+        .map(({fileName, settings, lines}) =>
             Object.assign(
                 { fileName, settings }, readTestLines(lines)
             )
@@ -128,7 +128,7 @@ function getTests(fileNames)
 }
 
 
-function readSamplesInFile(fileName) 
+function readSamplesInFile(fileName)
 {
     // Files should not have a BOM, or detecting a test or settings line on the
     // first line will fail.
@@ -140,7 +140,7 @@ function readSamplesInFile(fileName)
         const [line, ...nextRemainingLines] = remainingLines
         const hasSampleLines = sampleLines && sampleLines.length
         const thisLineIsNotASampleLine = line == null || !line.startsWith("    ")
-        const nextOutput = 
+        const nextOutput =
             hasSampleLines && thisLineIsNotASampleLine
                 ? [...output, {fileName, settings, lines: sampleLines} ]
                 : output
@@ -170,14 +170,14 @@ function readSamplesInFile(fileName)
 }
 
 
-function readSettings(line) 
+function readSettings(line)
 {
     const settings = eval("({" + line.substr(1) + "})")
     return Object.assign({}, defaultSettings, settings)
 }
 
 
-function readTestLines(lines) 
+function readTestLines(lines)
 {
     let [inputLines, outputLines] =
         splitLines('->', lines)
@@ -207,7 +207,7 @@ function readTestLines(lines)
     /** Splits a group of lines with the given marker. The marker can be on any line */
     function splitLines(marker, lines)
     {
-        const splitPoint = 
+        const splitPoint =
             Math.max(...lines.map(strWidthBefore(marker)))
         return splitPoint < 0
             ? [lines, null]
@@ -219,9 +219,9 @@ function readTestLines(lines)
     }
 
     /** Removes any indent whitespace that is common to all lines */
-    function removeIndent(lines) 
+    function removeIndent(lines)
     {
-        const indents = 
+        const indents =
            lines
                 .filter(l => l.match(/\S/))
                 .map(l => l.match(/\s*/)[0].length)
@@ -236,11 +236,11 @@ function readTestLines(lines)
         const positions = lines.map(strWidthBefore('¦')).filter(x => x > 0)
 
         return positions.length && positions.every(p => p == positions[0])
-            ? positions[0] 
+            ? positions[0]
             : -1
     }
 
-    function getSelections(lines) 
+    function getSelections(lines)
     {
         // Make copy for mutation
         lines = [ ...lines ]
@@ -254,7 +254,7 @@ function readTestLines(lines)
                 if(match[0] == '«') selection.anchor = pos
                 else selection.active = pos
 
-                lines[i] = 
+                lines[i] =
                     lines[i].substr(0, match.index) +
                     lines[i].substr(match.index + 1)
                 i--
@@ -279,7 +279,7 @@ function readTestLines(lines)
 
 
     /** Removes special characters and trailing whitespace */
-    function cleanUp(lines) 
+    function cleanUp(lines)
     {
         if(!lines) return null
         else return lines
@@ -298,7 +298,7 @@ function readTestLines(lines)
                 ( (ls, l) => l || ls.length ? [l, ...ls] : []
                 , []
                 )
-        
+
     }
 }
 
@@ -313,10 +313,10 @@ function runTests(tests)
     return failures
 
     /** Runs a test and returns a failure object if it fails, otherwise null */
-    function runTest({err, fileName, input, expected, reformatted, settings, selections, wrappingColumn}) 
+    function runTest({err, fileName, input, expected, reformatted, settings, selections, wrappingColumn})
     {
         let actual
-        
+
         if(err) {
             return printError(err)
         }
@@ -324,7 +324,7 @@ function runTests(tests)
             if(reformatted) {
                 let [normalResult, reformatResult] =
                     [false, true]
-                        .map(reformat => 
+                        .map(reformat =>
                             runTest({
                                 input,
                                 fileName,
@@ -386,13 +386,13 @@ function runTests(tests)
 function applyEdit(edit, lines)
 {
     const copy = Array.from(lines)
-    const length = edit.endLine - edit.startLine + 1 
+    const length = edit.endLine - edit.startLine + 1
     copy.splice(edit.startLine, length, ...edit.lines)
     return copy
 }
 
 
-function printTest(input, expected, actual, width, tabWidth) 
+function printTest(input, expected, actual, width, tabWidth)
 {
     const output = []
     const columns = [input, expected, actual]
@@ -405,7 +405,7 @@ function printTest(input, expected, actual, width, tabWidth)
         return output
     }
 
-    const headers = 
+    const headers =
         ["Input", "Expected", "Actual"]
             .map((s, i) => s + " (" + columnLengths[i] + ")")
     print(headers)
@@ -439,7 +439,7 @@ function printTest(input, expected, actual, width, tabWidth)
     {
         const symbol =
             '-'.repeat(tabWidth - 1) + '→'
-        const parts = 
+        const parts =
             str.split('\t')
         return parts
             .map((x, i) =>

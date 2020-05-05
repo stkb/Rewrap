@@ -26,7 +26,7 @@ function getSettings(editor)
 
 /** Gets an array of the available wrapping column(s) from the user's settings.
  */
-function getWrappingColumns(setting) 
+function getWrappingColumns(setting)
 {
     let extensionColumn, rulers
 
@@ -41,7 +41,7 @@ function getWrappingColumns(setting)
 
 /** Since the settings come from the user's own settings.json file, there may be
  *  invalid values. */
-function validateSettings(settings) 
+function validateSettings(settings)
 {
     // Check all columns
     settings.columns = settings.columns.map(checkWrappingColumn)

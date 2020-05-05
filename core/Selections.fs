@@ -17,10 +17,10 @@ type private LineRange private (s: int, e: int) =
     member x.isEmpty =
         x.endLine < x.startLine
 
-    static member fromStartEnd startLine endLine = 
+    static member fromStartEnd startLine endLine =
         LineRange(startLine, endLine)
 
-    static member fromStartLength startLine length = 
+    static member fromStartLength startLine length =
         LineRange(startLine, startLine + length - 1)
 
     static member fromSelection s =
@@ -93,9 +93,9 @@ let private normalizeRanges =
                             | Some first_ ->
                                 loop (first_ :: output) (second :: rest)
                     else
-                        loop 
-                            output 
-                            (LineRange.fromStartEnd first.startLine second.endLine 
+                        loop
+                            output
+                            (LineRange.fromStartEnd first.startLine second.endLine
                                 :: rest
                             )
                 else
@@ -112,8 +112,8 @@ type ParseResult = {
 
 
 let rec private processBlocks
-    (settings: Settings) 
-    (selections: List<LineRange>) 
+    (settings: Settings)
+    (selections: List<LineRange>)
     (parseResult: ParseResult)
     : Lines =
         // Splits a block into 2 parts at n lines
@@ -121,9 +121,9 @@ let rec private processBlocks
             match block with
                 | Wrap ((pHead, pTail), lines) ->
                     Nonempty.splitAt n lines
-                        |> Tuple.mapFirst 
+                        |> Tuple.mapFirst
                             (fun ls -> Wrap ((pHead, pTail), ls))
-                        |> Tuple.mapSecond 
+                        |> Tuple.mapSecond
                             (Option.map (fun ls -> Wrap ((pTail, pTail), ls)))
                 | NoWrap lines ->
                     Nonempty.splitAt n lines
@@ -131,7 +131,7 @@ let rec private processBlocks
                         |> Tuple.mapSecond (Option.map NoWrap)
                 | Comment _ ->
                     raise (System.Exception("Not going to split a comment"))
-        
+
 
         // Processes a block as if it were completely selected
         let rec processWholeBlock block : Lines =
@@ -162,11 +162,11 @@ let rec private processBlocks
                                     (Some (processWholeBlock block), None)
                                 else
                                     let splitAt, mapFirst =
-                                        if sel.startLine > start then 
+                                        if sel.startLine > start then
                                             (sel.startLine - start, (fun _ -> None))
                                         else
                                             (sel.endLine - start + 1, Some << processWholeBlock)
-                                
+
                                     splitBlock splitAt block
                                         |> Tuple.mapFirst mapFirst
 
@@ -174,7 +174,7 @@ let rec private processBlocks
                                 if hasEmptySelection && settings.wholeComment then
                                     (Some (processWholeBlock block), None)
                                 else
-                                    ( Some 
+                                    ( Some
                                         ( processBlocks settings sels
                                             { startLine = start
                                             ; originalLines = origLines
@@ -195,21 +195,21 @@ let rec private processBlocks
                     |> Tuple.mapFirst (fun oL -> Option.defaultValue oL maybeNewLines)
             let nextOutput =
                 Nonempty.rev newLines |> (fun (Nonempty(head, tail)) -> Nonempty(head, tail @ output))
-            
+
             match Nonempty.fromList nextBlocks with
                 | Some neNextBlocks ->
                     let nextStart =
                         start + consumedLineCount
                     let nextSels =
-                        sels |> List.skipWhile 
-                            (fun s -> 
+                        sels |> List.skipWhile
+                            (fun s ->
                                 s.endLine < nextStart && not (s.isEmpty && s.startLine >= nextStart)
                             )
-                    
+
                     loop (Nonempty.toList nextOutput) nextSels nextStart neNextBlocks (Option.get maybeNextOrigLines)
                 | None ->
-                    Nonempty.rev nextOutput 
-        
+                    Nonempty.rev nextOutput
+
         loop [] selections parseResult.startLine parseResult.blocks parseResult.originalLines
 
 
@@ -220,7 +220,7 @@ let private trimEdit (originalLines: Lines) (edit : Edit) : Edit =
         edit.endLine - edit.startLine > x && edit.lines.Length > x
 
     let originalLinesArray = originalLines |> Nonempty.toList |> List.toArray
-    
+
     let mutable s = 0
     while editNotZeroLength s
         && originalLinesArray.[edit.startLine + s] = edit.lines.[s]
@@ -240,12 +240,12 @@ let private trimEdit (originalLines: Lines) (edit : Edit) : Edit =
 
 let wrapSelected
     (originalLines: Lines)
-    (selections: array<Selection>) 
-    (settings: Settings) 
-    (blocks: Blocks) 
+    (selections: array<Selection>)
+    (settings: Settings)
+    (blocks: Blocks)
     : Edit =
 
-    let selectionRanges = 
+    let selectionRanges =
         Array.map LineRange.fromSelection selections
             |> (List.ofArray >> normalizeRanges)
 
@@ -254,12 +254,12 @@ let wrapSelected
         ; originalLines = originalLines
         ; blocks = blocks
         }
-    
+
     let newLines =
         processBlocks settings selectionRanges parseResult
             |> Nonempty.toList
             |> List.toArray
-    
+
     trimEdit originalLines <|
         { startLine = 0
           endLine = Nonempty.length originalLines - 1

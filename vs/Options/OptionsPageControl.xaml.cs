@@ -44,7 +44,7 @@ namespace VS.Options
 
         // Event handlers
 
-        
+
         // Button to modify/add a new group. Shows the popup to choose languages
         private void GroupButton_Click(object sender, RoutedEventArgs e)
         {

@@ -29,8 +29,8 @@ Check for breaks before/after verbatim section
     a b c d e f g h   ¦      ->      a b c d e f g h i ¦
     i j               ¦              j                 ¦
     \begin{verbatim}  ¦              \begin{verbatim}  ¦
-        a             ¦                  a             ¦ 
-        b             ¦                  b             ¦ 
+        a             ¦                  a             ¦
+        b             ¦                  b             ¦
     \end{verbatim}    ¦              \end{verbatim}    ¦
     a b c d e f g h   ¦              a b c d e f g h i ¦
     i j               ¦              j                 ¦
@@ -40,8 +40,8 @@ Should also work with * variants, eg align*
     a b c d e f g h   ¦      ->      a b c d e f g h i ¦
     i j               ¦              j                 ¦
     \begin{align*}    ¦              \begin{align*}    ¦
-        a             ¦                  a             ¦ 
-        b             ¦                  b             ¦ 
+        a             ¦                  a             ¦
+        b             ¦                  b             ¦
     \end{align*}      ¦              \end{align*}      ¦
     a b c d e f g h   ¦              a b c d e f g h i ¦
     i j               ¦              j                 ¦
@@ -51,26 +51,26 @@ The shortcuts `\( \[ $ $$` create a preserved section.
     a b c d e f g h   ¦      ->      a b c d e f g h i ¦
     i j               ¦              j                 ¦
     \(                ¦              \(                ¦
-        a             ¦                  a             ¦ 
-        b             ¦                  b             ¦ 
+        a             ¦                  a             ¦
+        b             ¦                  b             ¦
     \)                ¦              \)                ¦
     a b c d e f g h   ¦      ->      a b c d e f g h i ¦
     i j               ¦              j                 ¦
     \[                ¦              \[                ¦
-        a             ¦                  a             ¦ 
-        b             ¦                  b             ¦ 
+        a             ¦                  a             ¦
+        b             ¦                  b             ¦
     \]                ¦              \]                ¦
     a b c d e f g h   ¦              a b c d e f g h i ¦
     i j               ¦              j                 ¦
     $                 ¦              $                 ¦
-        a             ¦                  a             ¦ 
-        b             ¦                  b             ¦ 
+        a             ¦                  a             ¦
+        b             ¦                  b             ¦
     $                 ¦              $                 ¦
     a b c d e f g h   ¦              a b c d e f g h i ¦
     i j               ¦              j                 ¦
     $$                ¦              $$                ¦
-        a             ¦                  a             ¦ 
-        b             ¦                  b             ¦ 
+        a             ¦                  a             ¦
+        b             ¦                  b             ¦
     $$                ¦              $$                ¦
     a b c d e f g h   ¦              a b c d e f g h i ¦
     i j               ¦              j                 ¦

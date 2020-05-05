@@ -28,7 +28,7 @@ let rec markdown (settings: Settings): TotalParser =
     let fencedCodeBlock (Nonempty(headLine: string, tailLines: List<string>) as lines) =
 
         let takeLinesTillEndMarker marker (startLineIndent: int) : Lines * Option<Lines> =
-                
+
             let contentLines, otherLines =
                 List.span (not << lineStartsWith marker) tailLines
             let maybeEndLine, maybeRemainingLines =
@@ -36,21 +36,21 @@ let rec markdown (settings: Settings): TotalParser =
                     | [] -> ([], None)
                     | x :: xs -> ([x], Nonempty.fromList xs)
 
-            let outputLines = 
+            let outputLines =
                 if settings.reformat then
-                    let contentIndentShift: int = 
+                    let contentIndentShift: int =
                         contentLines
                             |> List.map (fun l -> l.Length)
                             |> List.min
                             |> min startLineIndent
-                    Nonempty 
+                    Nonempty
                         ( String.trimStart headLine
                         , List.map (String.dropStart contentIndentShift) contentLines
                             @ (List.map String.trimStart maybeEndLine)
                         )
                 else
                     Nonempty (headLine, contentLines @ maybeEndLine)
-            
+
             (outputLines, maybeRemainingLines)
 
 
@@ -70,11 +70,11 @@ let rec markdown (settings: Settings): TotalParser =
                     |> Some
         else
             None
-        
+
 
     let htmlType1to6 =
-        [ 
-            takeLinesBetweenMarkers 
+        [
+            takeLinesBetweenMarkers
                 ( mdMarker "<(script|pre|style)( |>|$)"
                 , Regex("</(script|pre|style)>", RegexOptions.IgnoreCase)
                 )
@@ -100,7 +100,7 @@ let rec markdown (settings: Settings): TotalParser =
             |> List.map ignoreParser
             |> tryMany
 
-    /// Ignores tables 
+    /// Ignores tables
     let table =
         let cellsRowRegex =
                 Regex("\\S\\s*\\|\\s*\\S")
@@ -206,7 +206,7 @@ let rec markdown (settings: Settings): TotalParser =
                     else
                     prefixWithSpace
                 )
-                
+
             ( ( (headPrefix, (String.replicate (String.length headPrefix) " "))
               , Nonempty
                     ( strippedFirstLine
@@ -216,9 +216,9 @@ let rec markdown (settings: Settings): TotalParser =
                     |> Block.splitUp (markdown settings)
             , remainingLines
             )
-        
+
         Line.tryMatch listItemRegex firstLine |> Option.map doStuff
-  
+
     let paragraph =
         splitIntoChunks (afterRegex (Regex(@"(\\|\s{2})$")))
             >> Nonempty.map (firstLineIndentParagraphBlock settings.reformat)
@@ -245,9 +245,9 @@ let rec markdown (settings: Settings): TotalParser =
             listItem
             blockQuote
         ] lines
-            |> Option.defaultWith 
+            |> Option.defaultWith
                 (fun () -> takeUntil paragraphTerminator paragraph lines)
-      
+
 
     Nonempty.map (Line.tabsToSpaces settings.tabWidth)
         >> (repeatToEnd allParsers)
@@ -312,7 +312,7 @@ let private findListItemEnd indent: MarkdownState -> List<string> -> List<string
                         Paragraph
 
     let rec loop (output: List<string>) (state: MarkdownState) (lines: List<string>) : List<string> * Option<Lines> =
-        
+
         let exitLoop () =
             ( List.rev output, Nonempty.fromList lines )
 
@@ -324,7 +324,7 @@ let private findListItemEnd indent: MarkdownState -> List<string> -> List<string
 
                 if Line.isBlank line then
                     continueLoop ()
-                    
+
                 else
                     let indentIsLess = line.Length - trimmedLine.Length < indent
                     if indentIsLess then

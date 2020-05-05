@@ -64,7 +64,7 @@ module List =
                         loop (head :: output) rest
                     else
                          (List.rev output, remaining)
-     
+
         loop []
 
 
@@ -75,7 +75,7 @@ module List =
 
 
     let tryTail (list: List<'T>) : Option<List<'T>> =
-        match list with 
+        match list with
             | _ :: xs ->
                 Some xs
             | [] ->
@@ -85,7 +85,7 @@ module List =
     let tryInit (list: List<'T>) : Option<List<'T>> =
        list |> List.rev |> tryTail |> Option.map List.rev
 
-   
+
 module internal String =
 
     // Error-safe drops up to n chars from start of string

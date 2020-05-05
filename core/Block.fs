@@ -33,7 +33,7 @@ module Wrappable =
 type Prefixes =
     string * string
 
-type Lines = 
+type Lines =
     Nonempty<string>
 
 
@@ -89,11 +89,11 @@ let splitUp (parser: Lines -> Blocks) ((pHead, pTail), lines) =
                 Wrap (Wrappable.mapPrefixes (concatPrefixes p) wrappable)
 
             | NoWrap ls ->
-                ls 
+                ls
                     |> Nonempty.mapHead (prependPrefixTrimEndOfBlankLine (fst p))
                     |> Nonempty.mapTail (prependPrefixTrimEndOfBlankLine (snd p))
                     |> NoWrap
-    
+
     parser lines
         |> Nonempty.mapHead (prependPrefixes (pHead, pTail))
         |> Nonempty.mapTail (prependPrefixes (pTail, pTail))

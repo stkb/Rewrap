@@ -16,7 +16,7 @@ code. This allows multiline text content to be wrapped if desired.
 
 Paragraphs are only determined by blank lines or significant differences (>=2)
 in indent. Therefore care must be taken to select only the desired paragraphs,
-because with normal key: value lines undesirable wrapping will happen. 
+because with normal key: value lines undesirable wrapping will happen.
 
     short values: ¦         ->      short values: ¦
         a: 10     ¦                     a: 10 b:  ¦

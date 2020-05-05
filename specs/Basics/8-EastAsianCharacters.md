@@ -6,12 +6,12 @@ columns, and wrapping can come after most characters.
 Chinese
 
     再舞心現張否里案      ->      再舞心現 ¦
-             ¦                    張否里案 
+             ¦                    張否里案
 
 Japanese
 
     政秋造レ員芸でか      ->      政秋造レ ¦
-             ¦                    員芸でか 
+             ¦                    員芸でか
 
 In Korean, lines are split on spaces
 

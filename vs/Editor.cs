@@ -198,7 +198,7 @@ namespace VS
                     {
                         shell.LoadPackage( packageGuid, out vsPackage );
                     }
-                    Package package = vsPackage as Package 
+                    Package package = vsPackage as Package
                         ?? throw new Exception( "Rewrap: Couldn't get package instance" );
 
                     _OptionsPage = package.GetDialogPage( typeof( OptionsPage ) ) as OptionsPage

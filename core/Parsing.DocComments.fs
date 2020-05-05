@@ -16,7 +16,7 @@ open Rewrap
 let private splitBeforeTags (regex: Regex) sectionParser settings (Nonempty(outerHead, outerTail)) =
 
     let rec prependRev (Nonempty(head, tail)) maybeRest =
-        let nextRest = 
+        let nextRest =
             match maybeRest with
                 | Some rest ->
                     Nonempty.cons head rest
@@ -30,7 +30,7 @@ let private splitBeforeTags (regex: Regex) sectionParser settings (Nonempty(oute
                 nextRest
 
     let rec loop (tagMatch: Match) buffer maybeOutput lines =
-        
+
         let parser =
             if tagMatch.Success then sectionParser tagMatch else markdown
 
@@ -39,7 +39,7 @@ let private splitBeforeTags (regex: Regex) sectionParser settings (Nonempty(oute
 
         match lines with
             | headLine :: tailLines ->
-                let m = 
+                let m =
                     regex.Match(headLine)
 
                 let nextTagMatch, nextBuffer, nextOutput =
@@ -50,19 +50,19 @@ let private splitBeforeTags (regex: Regex) sectionParser settings (Nonempty(oute
                         )
                     else
                         (tagMatch, Nonempty.cons headLine buffer, maybeOutput)
-                 
+
                 loop nextTagMatch nextBuffer nextOutput tailLines
-        
+
             | [] ->
                 (addBufferToOutput ()) |> Nonempty.rev
-                
+
 
     loop (regex.Match(outerHead)) (Nonempty.singleton outerHead) None outerTail
 
 
 /// Ignores the first line and parses the rest with the given parser
 let private ignoreFirstLine otherParser settings (Nonempty(headLine, tailLines)) : Blocks =
-    let headBlock = 
+    let headBlock =
         Block.ignore (Nonempty.singleton headLine)
 
     Nonempty.fromList tailLines
@@ -84,29 +84,29 @@ let javadoc =
             else
                 markdown
         )
-    
+
 
 /// DartDoc has just a few special tags. We keep lines beginning with these
 /// unwrapped.
-let dartdoc = 
-    let tagRegex = 
+let dartdoc =
+    let tagRegex =
         Regex(@"^\s*(@nodoc|{@template|{@endtemplate|{@macro)")
 
     splitBeforeTags tagRegex (fun _ -> ignoreFirstLine markdown)
 
 
-let psdoc = 
+let psdoc =
 
     let tagRegex =
         Regex(@"^\s*\.([A-Z]+)")
 
     let codeLineRegex =
         Regex(@"^\s*PS C:\\>")
-   
+
     let exampleSection settings lines =
         let trimmedExampleSection =
             ignoreFirstLine
-                (splitBeforeTags codeLineRegex 
+                (splitBeforeTags codeLineRegex
                     (fun _ -> ignoreFirstLine markdown)
                 )
 
@@ -117,9 +117,9 @@ let psdoc =
                 Nonempty.cons (ignore blankLines)
                     (trimmedExampleSection settings remaining)
             | None ->
-                trimmedExampleSection settings lines                
+                trimmedExampleSection settings lines
 
-    splitBeforeTags tagRegex 
+    splitBeforeTags tagRegex
         (fun m ->
             if m.Groups.Item(1).Value = "EXAMPLE" then
                 ignoreFirstLine exampleSection
@@ -142,12 +142,12 @@ let ddoc =
 ///
 /// https://blog.golang.org/godoc-documenting-go-code
 let godoc settings =
-    let indentedLines = 
+    let indentedLines =
         ignoreParser
             (Nonempty.span (fun line -> line.[0] = ' ' || line.[0] = '\t'))
-    let textLines = 
+    let textLines =
         (Nonempty.singleton << Wrap << Wrappable.fromLines ("", ""))
 
-    textLines 
+    textLines
         |> takeUntil (tryMany [blankLines; indentedLines])
         |> repeatToEnd

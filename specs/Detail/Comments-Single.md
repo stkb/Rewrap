@@ -109,6 +109,6 @@ at all. This should probably be fixed but it's an edge case.)
 Two other approaches could have been taken for these sorts of cases:
 * Line up the comment markers and then work with the whitespace between comment
   markers and text.
-* Have a difference in indent of comment markers mean a new comment block. 
+* Have a difference in indent of comment markers mean a new comment block.
 
 There weren't strong reasons for the approach chosen.

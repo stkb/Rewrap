@@ -18,7 +18,7 @@ using System.Linq;
 namespace VS
 {
     /// Standard Rewrap Command
-    class RewrapCommand 
+    class RewrapCommand
     {
         public const int ID = 0x0100;
 
@@ -46,10 +46,10 @@ namespace VS
         /// commands executed by the user within the context of a text view. We
         /// handle this command this way so that we have a handle to the
         /// affected text view (and text therein) when it is executed.
-        /// 
+        ///
         /// An alternative would be handling commmand execution the normal way
         /// (via MenuCommand or OleMenuCommand) and the retrieving the active
-        /// text view ourselves from DTE. 
+        /// text view ourselves from DTE.
         class CommandFilter : IOleCommandTarget
         {
             public CommandFilter(IWpfTextView textView, IVsTextView vsTextView)
@@ -129,7 +129,7 @@ namespace VS
 
             // Show a brief message in status bar when toggling on/off. Would
             // like something permanent that shows the status but it's not
-            // possible without dirty hacks https://stackoverflow.com/q/30096546 
+            // possible without dirty hacks https://stackoverflow.com/q/30096546
             if (StatusBar != null)
             {
                 var msg = Enabled ? "Auto-wrap: On" : "Auto-wrap: Off";

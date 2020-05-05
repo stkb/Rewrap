@@ -4,7 +4,7 @@ open System
 open Extensions
 open Wrapping
 
-let mutable private lastDocState : DocState = 
+let mutable private lastDocState : DocState =
     { filePath = ""; version = 0; selections = [||] }
 
 let private docWrappingColumns =
@@ -71,13 +71,13 @@ let strWidth usTabSize (str: string) =
 /// as the position where it was inserted
 let maybeAutoWrap file settings newText (pos: Position) (getLine: Func<int, string>) =
     let noEdit = { startLine=0; endLine=0; lines = [||]; selections = [||] }
-    
+
     if String.IsNullOrEmpty(newText) then noEdit
     elif not (String.IsNullOrWhiteSpace(newText)) then noEdit else
 
     let enterPressed, indent =
         match newText.[0] with
-        | '\r' -> true, newText.Substring(2) 
+        | '\r' -> true, newText.Substring(2)
         | '\n' -> true, newText.Substring(1)
         | _ -> false, ""
     if not enterPressed && newText.Length > 1 then noEdit else
@@ -95,8 +95,8 @@ let maybeAutoWrap file settings newText (pos: Position) (getLine: Func<int, stri
     let wrappedGetLine =
         Func<int, string>(fun i -> if i > line then null else getLine.Invoke(i))
     rewrap file settings ([|fakeSelection|]) wrappedGetLine
-        |> fun edit -> 
-            let afterPos = 
+        |> fun edit ->
+            let afterPos =
                 if enterPressed then { line = line + 1; character = indent.Length }
                 else { line = line; character = char }
             { edit with selections = [| { anchor=afterPos; active=afterPos} |] }

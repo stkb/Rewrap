@@ -27,7 +27,7 @@ Alternative placement (or should this be corrected?):
     */         ¦                */         ¦
 
 Since the *'s are optional, they should not be consumed if used as bullets in a
-comment where leading *'s are absent. 
+comment where leading *'s are absent.
 
     /**         ¦      ->      /**         ¦
     List:       ¦              List:       ¦
