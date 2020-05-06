@@ -1,5 +1,7 @@
 > language: "python"
 
+Whole paragraphs of text can be written between triple " or '
+
     """ ¦      ->      """
     a b c              a b
     d   ¦              c d
@@ -10,14 +12,64 @@
     d   ¦              c d
     ''' ¦              '''
 
-Triple-quoted strings can be preceded with r, f, u or b
+''' Could appear inside a """-block and vice-versa.
 
-    r"""¦      ->      r"""
+    """ ¦      ->      """
+    a b c              a b
+    d   ¦              c d
+    ''' ¦              '''
+    a                  a b
+    b                  """
+    """ ¦
+
+    ''' ¦      ->      '''
+    a b c              a b
+    d   ¦              c d
+    """ ¦              """
+    a                  a b
+    b                  '''
+    ''' ¦
+
+Triple-quoted strings can be preceded with a character. Valid combinations are
+b, f, r, u, br, rb, fr, rf, and with any comnbination of upper and lower case.
+
+    b"""      ->       b"""
     a b c              a b
     d   ¦              c d
     """ ¦              """
 
-    r'''¦      ->      r'''
+    f"""      ->       f"""
+    a b c              a b
+    d   ¦              c d
+    """ ¦              """
+
+    r'''      ->       r'''
+    a b c              a b
+    d   ¦              c d
+    ''' ¦              '''
+
+    u'''      ->       u'''
+    a b c              a b
+    d   ¦              c d
+    ''' ¦              '''
+
+    fr"""     ->       fr"""
+    a b c              a b
+    d   ¦              c d
+    """ ¦              """
+
+    rF'''     ->       rF'''
+    a b c              a b
+    d   ¦              c d
+    ''' ¦              '''
+
+    Br"""     ->       Br"""
+    a b c              a b
+    d   ¦              c d
+    """ ¦              """
+
+
+    RB'''     ->       RB'''
     a b c              a b
     d   ¦              c d
     ''' ¦              '''

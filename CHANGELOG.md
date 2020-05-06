@@ -1,5 +1,10 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
+## Unreleased
+
+- Python: Fix some issues for triple-quoted strings, including allowing
+  pre-string characters [bfru] (#171, #170, #128).
+
 
 ### 1.9.3
 
