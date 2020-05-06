@@ -174,11 +174,11 @@ let languages : Language[] = [|
             ]
         )
     lang "Python" "" ".py"
-        ( sourceCode 
+        ( sourceCode
             [ line "#"
-              block ( "([Bb][Rr]?|[Ff][Rr]?|[Rr][BbFf]?|[Uu])?\"\"\"", "\"\"\"" ) 
-              block ( "([Bb][Rr]?|[Ff][Rr]?|[Rr][BbFf]?|[Uu])?'''", "'''" ) 
-            ] 
+              block ( "([Bb][Rr]?|[Ff][Rr]?|[Rr][BbFf]?|[Uu])?\"\"\"", "\"\"\"" )
+              block ( "([Bb][Rr]?|[Ff][Rr]?|[Rr][BbFf]?|[Uu])?'''", "'''" )
+            ]
         )
     lang "R" "" ".r"
         configFile
