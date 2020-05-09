@@ -3,22 +3,22 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\Core\Extensions.fs" />
-    <Compile Include="..\Core\Nonempty.fs" />
-    <Compile Include="..\Core\Types.fs" />
-    <Compile Include="..\Core\Line.fs" />
-    <Compile Include="..\Core\Block.fs" />
-    <Compile Include="..\Core\Parsing.Core.fs" />
-    <Compile Include="..\Core\Parsing.Markdown.fs" />
-    <Compile Include="..\Core\Parsing.Comments.fs" />
-    <Compile Include="..\Core\Parsing.DocComments.fs" />
-    <Compile Include="..\Core\Parsing.Html.fs" />
-    <Compile Include="..\Core\Parsing.SourceCode.fs" />
-    <Compile Include="..\Core\Parsing.Latex.fs" />
-    <Compile Include="..\Core\Parsing.Documents.fs" />
-    <Compile Include="..\Core\Wrapping.fs" />
-    <Compile Include="..\Core\Selections.fs" />
-    <Compile Include="..\Core\Main.fs" />
+    <Compile Include="..\core\Extensions.fs" />
+    <Compile Include="..\core\Nonempty.fs" />
+    <Compile Include="..\core\Types.fs" />
+    <Compile Include="..\core\Line.fs" />
+    <Compile Include="..\core\Block.fs" />
+    <Compile Include="..\core\Parsing.Core.fs" />
+    <Compile Include="..\core\Parsing.Markdown.fs" />
+    <Compile Include="..\core\Parsing.Comments.fs" />
+    <Compile Include="..\core\Parsing.DocComments.fs" />
+    <Compile Include="..\core\Parsing.Html.fs" />
+    <Compile Include="..\core\Parsing.SourceCode.fs" />
+    <Compile Include="..\core\Parsing.Latex.fs" />
+    <Compile Include="..\core\Parsing.Documents.fs" />
+    <Compile Include="..\core\Wrapping.fs" />
+    <Compile Include="..\core\Selections.fs" />
+    <Compile Include="..\core\Main.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Fable.Core" Version="1.3.9" />
