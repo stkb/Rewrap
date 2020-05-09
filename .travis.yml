@@ -1,7 +1,8 @@
-language: node_js
+language: csharp
 
-node_js:
-  - "12.8.1"
+node_js: 12.8.1
+dotnet: 2.1.805
+mono: none
 
 os:
   - osx
