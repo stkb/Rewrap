@@ -2,10 +2,6 @@ const path = require("path");
 const fableUtils = require("fable-utils");
 const tests = require('../tests')
 
-function resolve(relativePath) {
-    return path.join(__dirname, relativePath);
-}
-
 function resolve(filePath) {
   return path.resolve(__dirname, filePath)
 }
