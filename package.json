@@ -98,7 +98,7 @@
     "dev": "cd vscode && dotnet fable npm-run fable-splitter -- --watch",
     "fable-splitter": "fable-splitter --config vscode/FableConfig.js",
     "clean": "rimraf vscode/compiled",
-    "vscode:prepublish": "npm run clean && npm run compile"
+    "vscode:prepublish": "npm run clean && npm run compile && npm test"
   },
   "devDependencies": {
     "@types/vscode": "^1.45.0",

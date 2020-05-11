@@ -21,4 +21,4 @@ install:
   - npm install
 
 script:
-  - npm run vscode:prepublish
+  - npm run vscode:prepublish --silent
