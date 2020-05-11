@@ -52,11 +52,11 @@ function run(fileNames)
     if(failures.length) {
         failures
             .reduce((xs, x) => [...xs, '', ...x], [])
-            .forEach(s => console.log(s))
+            .forEach(s => console.error(s))
 
-        console.log()
-        console.log(`${tests.length} ${testOrTests(tests.length)} run`)
-        console.log(`${failures.length} ${testOrTests(failures.length)} failed.`)
+        console.error()
+        console.error(`${tests.length} ${testOrTests(tests.length)} run`)
+        console.error(`${failures.length} ${testOrTests(failures.length)} failed.`)
     }
     else {
         console.log()
