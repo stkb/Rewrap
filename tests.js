@@ -367,8 +367,9 @@ function runTests(tests)
 
         function printError(err)
         {
+            const errType = err ? [err.message, err.stack] : ["Output not expected"]
             return [
-                "Fail: " + (err || "Output not expected"),
+                ...errType,
                 fileName,
                 JSON.stringify(settings),
                 ...printTest
