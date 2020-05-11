@@ -106,9 +106,9 @@
     "babel-preset-env": "^1.6.0",
     "fable-splitter": "^0.1.20",
     "fable-utils": "^1.0.6",
-    "rimraf": "^2.5.4"
+    "rimraf": "^3.0.2"
   },
   "dependencies": {
-    "fast-diff": "^1.1.1"
+    "fast-diff": "^1.2.0"
   }
 }
