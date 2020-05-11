@@ -101,11 +101,11 @@
     "vscode:prepublish": "npm run clean && npm run compile && npm test"
   },
   "devDependencies": {
+    "@babel/core": "^7.0.0",
+    "@babel/preset-env": "^7.9.6",
     "@types/vscode": "^1.45.0",
-    "babel-core": "^6.26.0",
-    "babel-preset-env": "^1.6.0",
-    "fable-splitter": "^0.1.20",
-    "fable-utils": "^1.0.6",
+    "fable-compiler": "^2.9.0",
+    "fable-splitter": "^2.1.13",
     "rimraf": "^3.0.2"
   },
   "dependencies": {
