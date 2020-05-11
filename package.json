@@ -23,7 +23,7 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "engines": {
-    "vscode": "^1.6.0"
+    "vscode": "^1.30.0"
   },
   "categories": [
     "Formatters"
@@ -103,7 +103,7 @@
   "devDependencies": {
     "@babel/core": "^7.0.0",
     "@babel/preset-env": "^7.9.6",
-    "@types/vscode": "^1.45.0",
+    "@types/vscode": "1.30.0",
     "fable-compiler": "^2.9.0",
     "fable-splitter": "^2.1.13",
     "rimraf": "^3.0.2"
