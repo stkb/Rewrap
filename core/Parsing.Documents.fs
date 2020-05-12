@@ -183,15 +183,13 @@ let mutable languages = [
         ( sourceCode [ line "--"; cBlock ] )
     lang "Swift" "" ".swift"
         java
-    lang "SystemVerilog" "" ".sv|.svh"
-        java
     lang "Tcl" "" ".tcl"
         configFile
     lang "TOML" "" ".toml"
         configFile
     lang "TypeScript" "typescriptreact" ".ts|.tsx"
         java
-    lang "Verilog" "" ".v|.vh"
+    lang "Verilog/SystemVerilog" "systemverilog|verilog" ".sv|.svh|.v|.vh|.vl"
         java
     lang "XML" "xsl" ".xml|.xsl"
         html
