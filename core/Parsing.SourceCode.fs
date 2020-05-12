@@ -1,4 +1,4 @@
-module Parsing.SourceCode
+module private Parsing.SourceCode
 
 open Rewrap
 open Core
