@@ -2,7 +2,10 @@ module Rewrap.Core
 
 open System
 open Extensions
+open Extensions.Option
 open Wrapping
+open Parsing.Language
+open Parsing.Documents
 
 let mutable private lastDocState : DocState =
     { filePath = ""; version = 0; selections = [||] }
@@ -35,14 +38,12 @@ let maybeChangeWrappingColumn (docState: DocState) (rulers: int[]) : int =
 let saveDocState docState =
     lastDocState <- docState
 
-let findLanguage name filePath : string =
-    Parsing.Documents.findLanguage name filePath
-        |> Option.map (fun l -> l.name)
-        |> Option.defaultValue null
+let languageNameForFile (file: File) : string =
+    option null Language.name (languageForFile file)
+
 
 let languages : string[] =
-    Parsing.Documents.languages
-        |> Array.map (fun l -> l.name)
+    Seq.map Language.name Parsing.Documents.languages |> Seq.toArray
 
 /// The main rewrap function, to be called by clients
 let rewrap file settings selections (getLine: Func<int, string>) =

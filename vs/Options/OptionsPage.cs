@@ -22,7 +22,7 @@ namespace VS.Options
 
         public Options GetOptions(File file)
         {
-            var knownLanguage = Rewrap.Core.findLanguage( file.language, file.path );
+            var knownLanguage = Rewrap.Core.languageNameForFile( file );
             var languageOptions = OptionsGroups.Find( og => og.Languages.Contains( knownLanguage ) );
 
             return new Options()

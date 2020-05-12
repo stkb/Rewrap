@@ -2,27 +2,12 @@ module internal Parsing.Documents
 
 open System
 open Extensions
+open Extensions.Option
 open Rewrap
 open Parsing.Core
 open Parsing.DocComments
+open Parsing.Language
 open Parsing.SourceCode
-
-
-type Language = {
-    name: string
-    aliases: string[]
-    extensions: string[]
-    parser: Settings -> TotalParser
-}
-
-/// Constructs a Language
-let private lang (name: string) (aliases: string) (extensions: string) parser : Language =
-    {
-        name = name
-        aliases = aliases.Split([|'|'|], StringSplitOptions.RemoveEmptyEntries)
-        extensions = extensions.Split([|'|'|], StringSplitOptions.RemoveEmptyEntries)
-        parser = parser
-    }
 
 
 let plainText settings =
@@ -32,10 +17,10 @@ let plainText settings =
 
     takeUntil blankLines paragraphs |> repeatToEnd
 
-
 let private configFile =
     sourceCode [ line "#" ]
 
+let private lang = Language.create
 
 let languages : Language[] = [|
     lang "AutoHotkey" "ahk" ".ahk"
@@ -217,49 +202,20 @@ let languages : Language[] = [|
         )
     |]
 
+/// Tries to find a known Language for the given File, using its language ID. If
+/// that is empty or the default ('plaintext'), it tries using the file's
+/// name/extension instead.
+let languageForFile (file: File) : Option<Language> =
+    let l = file.language.ToLower()
+    if not (String.IsNullOrWhiteSpace(l)) || l.Equals("plaintext") then
+        Seq.tryFind (Language.matchesFileLanguage l) languages
+    else Seq.tryFind (Language.matchesFilePath file.path) languages
 
-/// Gets a language ID from a given file path.
-/// </summary>
-let private languageFromFileName (filePath: string) : Option<Language> =
-
-    let fileName =
-        filePath.Split('\\', '/') |> Array.last
-
-    // Get file extension or if no extension, the whole filename
-    let extensionOrName =
-        match fileName.ToLower().Split('.') with
-            | [| name |] -> name
-            | arr -> "." + Array.last arr
-
-    languages
-        |> Array.tryFind (fun l -> Array.contains extensionOrName l.extensions)
-
-
-/// <summary>
-/// Looks for a known language from either the given language name or the file path.
-/// </summary>
-let findLanguage name filePath : Option<Language> =
-
-    let findName (name: string) : Option<Language> =
-        languages
-            |> Array.tryFind
-                (fun l ->
-                    l.name.ToLower() = name.ToLower()
-                        || Array.contains (name.ToLower()) l.aliases
-                )
-
-    findName name
-        |> Option.orElseWith (fun () -> languageFromFileName filePath)
-
-
-/// <summary>
-/// Selects a parser from the given language and file path.
-/// </summary>
+/// <summary> Selects a parser from the given language and file path. </summary>
 /// <remarks>
-/// First the language is checked. If this is fails to find a parser, the file
-/// name is checked. If this also fails, a default plain text parser is used.
+/// Tries to find a known language (see `languageForFile`) and returns its
+/// parser. If no language is found, a default plain text parser is used.
 /// </remarks>
 let rec select (language: string) (filePath: string) : Settings -> TotalParser =
-    findLanguage language filePath
-        |> Option.map (fun l -> l.parser)
-        |> Option.defaultValue plainText
+    languageForFile { language = language; path = filePath }
+        |> option plainText Language.parser

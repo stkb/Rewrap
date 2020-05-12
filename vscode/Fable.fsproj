@@ -15,6 +15,7 @@
     <Compile Include="..\core\Parsing.Html.fs" />
     <Compile Include="..\core\Parsing.SourceCode.fs" />
     <Compile Include="..\core\Parsing.Latex.fs" />
+    <Compile Include="..\core\Parsing.Language.fs" />
     <Compile Include="..\core\Parsing.Documents.fs" />
     <Compile Include="..\core\Wrapping.fs" />
     <Compile Include="..\core\Selections.fs" />
