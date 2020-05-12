@@ -23,6 +23,12 @@ type These<'A, 'B> =
             | That b -> That b
             | These (a, b) -> These (f a, b)
 
+module internal Option =
+
+    /// Like `maybe` in Haskell.
+    let option (def: 'B) (f: 'A -> 'B) (x: Option<'A>) : 'B =
+        x |> Option.map f |> Option.defaultValue def
+
 
 module internal Tuple =
 
