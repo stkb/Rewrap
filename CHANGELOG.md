@@ -1,6 +1,6 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
-## Unreleased
+## 1.10.0
 
 - Rewrap now has basic support for any language if the user has an extension for
   it installed (VSCode only).

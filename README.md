@@ -1,7 +1,15 @@
-**Latest version: 1.9.3.** New in this version ([full
+**Latest version: 1.10.0.** New in this version ([full
 changelog](https://github.com/stkb/vscode-rewrap/releases)):
 
-VS-only release: Fixes support for VS 2019 versions 16.1+
+- Rewrap now has basic support for any language if the user has an extension for
+  it installed (VSCode only).
+- Also added native support for support for:
+  - Verilog/SystemVerilog (#164, #173)
+  - Prolog (#105, #104)
+  - Bikeshed (#95)
+  - Scala (#172, #175)
+- Python: Fix some issues for triple-quoted strings, including allowing
+  pre-string characters [bfru] (#171, #170, #128).
 
 
 # Rewrap
