@@ -146,8 +146,13 @@ let mutable languages = [
         )
     lang "PowerShell" "" ".ps1|.psd1|.psm1"
         ( sourceCode [ customLine psdoc "#"; customBlock psdoc ( "", "" ) ( "<#", "#>" ) ] )
-    lang "Prolog" "" ".pl"
-        ( sourceCode [ line "%"; cBlock ] )
+    lang "Prolog" "" ""
+        ( sourceCode
+            [ customBlock DocComments.javadoc ( "\\*?", " * " ) javadocMarkers
+              cBlock
+              line "%[%!]?"
+            ]
+        )
     lang "Protobuf" "proto|proto3" ".proto"
         ( sourceCode [ cLine ] )
     lang "Pug" "jade" ".jade|.pug"
