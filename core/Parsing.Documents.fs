@@ -29,7 +29,7 @@ let mutable languages = [
         ( sourceCode [ customLine html "'''"; line "'" ] )
     lang "Batch file" "bat" ".bat"
         ( sourceCode [ line "(?:rem|::)" ] )
-    lang "Bikeshed" "bikeshed" ".bs"
+    lang "Bikeshed" "" ".bs"
         Markdown.markdown
     lang "C/C++" "c|c++|cpp" ".c|.cpp|.h"
         java
