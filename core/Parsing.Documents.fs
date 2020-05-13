@@ -236,7 +236,7 @@ let private addCustomLanguage name (markers: CustomMarkers) =
 /// </remarks>
 let languageForFile (file: File) : Option<Language> =
     let l = file.language.ToLower()
-    if not (String.IsNullOrWhiteSpace(l)) || l.Equals("plaintext") then
+    if not (String.IsNullOrWhiteSpace(l) || l.Equals("plaintext")) then
         Seq.tryFind (Language.matchesFileLanguage l) languages
     else Seq.tryFind (Language.matchesFilePath file.path) languages
 
