@@ -20,6 +20,15 @@ let plainText settings =
 let private configFile =
     sourceCode [ line "#" ]
 
+// Takes 4 args to create a Language:
+//  1. display name (used only in VS)
+//  2. string of aliases (language IDs used by the client. Not needed if they
+//     only differ from display name by casing)
+//  3. string of file extensions (including `.`). Used to give support to files
+//     that are not known by the client.
+//  4. parser
+//
+// Aliases and extensions are separated by `|`
 let private lang = Language.create
 
 let mutable languages = [

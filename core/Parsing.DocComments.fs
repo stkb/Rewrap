@@ -1,4 +1,6 @@
 module private Parsing.DocComments
+// This module deals with special formatting inside comments that are used for
+// documentation, eg javadoc, xmldoc, RDoc
 
 open Extensions
 open Nonempty

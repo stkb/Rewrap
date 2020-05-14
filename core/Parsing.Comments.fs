@@ -125,6 +125,10 @@ let lineComment
 /// Creates a block comment parser, given a content parser and markers.
 let blockComment
     (contentParser: Settings -> TotalParser)
+    // Tail markers are used for all but the first line. tailMarker is a regex
+    // to capture prefix chars on these lines (eg '*' in javadoc).
+    // defaultTailMarker is the prefix string to insert on new lines if the
+    // comment was only 1 line long but becomes multiple.
     (tailMarker: string, defaultTailMarker: string)
     (startMarker: string, endMarker: string)
     (settings: Settings)
