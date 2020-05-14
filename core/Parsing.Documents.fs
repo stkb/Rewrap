@@ -123,7 +123,7 @@ let mutable languages = [
     lang "Less" "" ".less"
         java
     lang "Lua" "" ".lua"
-        ( sourceCode [ line "--"; block ( "--\\[\\[", "\\]\\]" ) ] )
+        ( sourceCode [ block ( @"--\[\[", @"\]\]" ); line "--" ] )
     lang "Makefile" "make" "makefile"
         configFile
     lang "Markdown" "" ".md"
