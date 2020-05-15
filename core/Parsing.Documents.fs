@@ -123,7 +123,7 @@ let mutable languages = [
         java
     lang "JavaScript" "javascriptreact|js" ".js|.jsx"
         java
-    lang "JSON" "json5" ".json|.json5"
+    lang "JSON" "json5|jsonc" ".json|.json5|.jsonc"
         java
     lang "LaTeX" "tex" ".bbx|.cbx|.cls|.sty|.tex"
         Latex.latex
