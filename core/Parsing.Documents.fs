@@ -61,7 +61,7 @@ let mutable languages = [
         configFile
     lang "Crystal" "" ".cr"
         ( sourceCode [ line "#" ] )
-    lang "CSS" "" ".css"
+    lang "CSS" "postcss" ".css|.pcss|.postcss"
         css
     // Special rules for DDoc need adding
     lang "D" "" ".d"
