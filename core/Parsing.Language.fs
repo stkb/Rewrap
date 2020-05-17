@@ -30,8 +30,9 @@ module Language =
         Seq.contains (fileLang.ToLower()) ids
 
     let matchesFilePath (path: string) (Language(_,_,exts,_)) =
-        let extOrName =
-            match (path.ToLower().Split('\\', '/') |> Array.last).Split('.') with
-                | [| noExt |] -> noExt
-                | arr -> "." + Array.last arr
-        Seq.contains extOrName exts
+        let fileName = path.ToLower().Split('\\', '/') |> Array.last
+        let tryMatch : string -> bool = function
+            | ext when ext.StartsWith(".") -> fileName.EndsWith(ext)
+            | fullname -> fileName.Equals(fullname)
+
+        Seq.exists tryMatch exts
