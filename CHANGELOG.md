@@ -5,7 +5,7 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 - Lua: Fix block comments (#183)
 - RST: Fix only comments being wrapped (#191)
 - PostCSS: Fix by adding it to CSS (#193)
-- JSON-C: Fix by adding it to JSON (#160)
+- Support JSON-C (#160) and CMake(Lists.txt) (#182)
 
 
 ## 1.10.0

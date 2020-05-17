@@ -50,6 +50,8 @@ let mutable languages = [
               cBlock
             ]
         )
+    lang "CMake" "" "CMakeLists.txt"
+        configFile
     lang "CoffeeScript" "" ".coffee"
         ( sourceCode
             [ customBlock javadoc ("[*#]", " * ") ( "###\\*", "###" )
