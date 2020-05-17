@@ -1,5 +1,13 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
+## Unreleased
+
+- Lua: Fix block comments (#183)
+- RST: Fix only comments being wrapped (#191)
+- PostCSS: Fix by adding it to CSS (#193)
+- JSON-C: Fix by adding it to JSON (#160)
+
+
 ## 1.10.0
 
 - Rewrap now has basic support for any language if the user has an extension for
