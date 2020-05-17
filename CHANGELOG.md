@@ -1,6 +1,6 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
-## Unreleased
+## 1.10.1
 
 - Lua: Fix block comments (#183)
 - RST: Fix only comments being wrapped (#191)

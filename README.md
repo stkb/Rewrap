@@ -1,11 +1,10 @@
-After a long break Rewrap is now back in development. **Latest version: 1.10.0.** New in this version ([full
+After a long break Rewrap is now back in development. **Latest version: 1.10.1.** New in this version ([full
 changelog](https://github.com/stkb/vscode-rewrap/releases)):
-- Rewrap now has basic support for any language if the user has an extension for
-  it installed (VSCode only).
-- Also added native support for support for: Verilog/SystemVerilog, Prolog,
-  Bikeshed, Scala.
-- Python: Fix some issues for triple-quoted strings, including allowing
-  pre-string characters [bfru].
+- Lua: Fix block comments
+- RST: Fix only comments being wrapped
+- PostCSS: Fix by adding it to CSS
+- Support JSON-C and CMake(Lists.txt)
+- Fixes the Visual Studio release
 
 
 # Rewrap
