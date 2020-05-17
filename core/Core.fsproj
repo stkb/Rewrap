@@ -23,7 +23,10 @@
     <Compile Include="Wrapping.fs" />
     <Compile Include="Selections.fs" />
     <Compile Include="Main.fs" />
-    <Content Include="packages.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="4.7.1" />
   </ItemGroup>
 
 </Project>

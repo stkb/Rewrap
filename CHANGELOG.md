@@ -6,6 +6,7 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 - RST: Fix only comments being wrapped (#191)
 - PostCSS: Fix by adding it to CSS (#193)
 - Support JSON-C (#160) and CMake(Lists.txt) (#182)
+- Fixes the Visual Studio release (#195)
 
 
 ## 1.10.0
