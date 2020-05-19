@@ -29,12 +29,13 @@ steps:
 
 - bash: |
     npm install
+    npm install -g vsce
   displayName: Install dependencies
   env:
     DISPLAY: ':99.0'
 
 - bash: |
-    npm run --silent vscode:prepublish
+    vsce package
   displayName: Compile & Run Tests
   env:
     DISPLAY: ':99.0'
