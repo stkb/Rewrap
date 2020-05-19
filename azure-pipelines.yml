@@ -29,6 +29,11 @@ steps:
 
 - bash: |
     npm install
+  displayName: Install dependencies
+  env:
+    DISPLAY: ':99.0'
+
+- bash: |
     npm run --silent vscode:prepublish
   displayName: Compile & Run Tests
   env:
