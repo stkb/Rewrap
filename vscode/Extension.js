@@ -28,37 +28,22 @@ exports.activate = async function activate(context)
         doWrap(editor).then(() => Rewrap.saveDocState(getDocState(editor)))
     }
 
-    let customWrappingColumn = 99
+    let customWrappingColumn = 0;
     /** Does a rewrap, but first prompts for a custom wrapping column to use. */
-    function rewrapCommentAtCommand(editor)
+    async function rewrapCommentAtCommand(editor)
     {
-        return getCustomColumn(customWrappingColumn.toString())
-            .then(wrapWithCustomColumn)
+        let columnStr = customWrappingColumn > 0 ?
+            customWrappingColumn.toString() : undefined
 
-        // Prompts the user for a value. initialValue {string} may be undefined.
-        function getCustomColumn(initialValue)
-        {
-            return window.showInputBox({
-                prompt: "Wrap selected text at this column",
-                value: initialValue,
-                placeHolder: "Enter a number greater than zero"
-            })
-                .then(inputStr => {
-                    if(inputStr == null) return null
-                    else {
-                        const inputInt = parseInt(inputStr)
-                        return (isNaN(inputInt) || inputInt < 1)
-                            ? getCustomColumn(undefined)
-                            : inputInt
-                    }
-                })
-        }
+        columnStr = await window.showInputBox({
+            prompt: "Enter a column number to wrap the selection to. Leave blank to remove wrapping instead.",
+            value: columnStr,
+            placeHolder: ""
+        })
+        if(columnStr === undefined) return // The user pressed cancel
 
-        function wrapWithCustomColumn(customColumn)
-        {
-            if(!customColumn) return
-            doWrap(editor, customColumn)
-        }
+        customWrappingColumn = parseInt(columnStr) || 0
+        return doWrap(editor, customWrappingColumn);
     }
 }
 
@@ -160,14 +145,15 @@ const applyEdit = (editor, edit) => {
 /** Collects the information for a wrap from the editor, passes it to the
  *  wrapping code, and then applies the result to the document. If an edit
  *  is applied, returns an updated DocState object, else returns null.
+ *  Takes an optional customColumn to wrap at.
  */
 const doWrap = (editor, customColumn) => {
     const doc = editor.document
     try {
         const docState = getDocState(editor)
         let settings = getSettings(editor)
-        settings.column = customColumn
-            || Rewrap.maybeChangeWrappingColumn(docState, settings.columns)
+        settings.column = !isNaN(customColumn) ? customColumn
+            : Rewrap.maybeChangeWrappingColumn(docState, settings.columns)
         const selections = editor.selections.map(rewrapSelection)
 
         const edit = Rewrap.rewrap(docType(doc), settings, selections, docLine(doc))

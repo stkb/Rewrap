@@ -128,12 +128,15 @@ let wrap settings (prefixes, lines) : Lines =
     let unfreezeInlineTags (str: string) =
         str.Replace('\000', ' ')
 
+    // If column < 1, treat it as infinite (no wrapping)
+    let column = if settings.column < 1 then Int32.MaxValue else settings.column
+
     /// Tuple of widths for the first and other lines
     let lineWidths =
         prefixes
             |> Tuple.map
                 (Line.tabsToSpaces settings.tabWidth
-                    >> (fun s -> settings.column - s.Length)
+                    >> (fun s -> column - s.Length)
                 )
 
     lines

@@ -49,6 +49,8 @@ let maybeAutoWrap file settings newText (pos: Position) (getLine: Func<int, stri
     let noEdit = { startLine=0; endLine=0; lines = [||]; selections = [||] }
 
     if String.IsNullOrEmpty(newText) then noEdit
+    // If column < 1 we never wrap
+    elif settings.column < 1 then noEdit
     elif not (String.IsNullOrWhiteSpace(newText)) then noEdit else
 
     let enterPressed, indent =

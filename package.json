@@ -10,7 +10,7 @@
     "fill",
     "multi-root ready"
   ],
-  "version": "1.11.0-beta.5",
+  "version": "1.11.0-beta.6",
   "publisher": "stkb",
   "icon": "images/logo.png",
   "repository": {
@@ -41,7 +41,7 @@
       },
       {
         "command": "rewrap.rewrapCommentAt",
-        "title": "Rewrap Comment / Text at column..."
+        "title": "Rewrap/Unwrap Text At Column..."
       },
       {
         "command": "rewrap.toggleAutoWrap",

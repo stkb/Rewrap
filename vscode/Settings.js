@@ -49,10 +49,10 @@ function validateSettings(docID, settings)
     {
         if(!Number.isInteger(col) || col < 1) {
             warn(
-                "Rewrap: wrapping column is an invalid value (%o). " +
-                "Using a default of (80) instead.", col
+                "Rewrap: wrapping column is set at '%o'. " +
+                "This will be treated as infinity.", col
             )
-            col = 80
+            col = 0
         }
         else if(col > 120) {
             warn("Rewrap: wrapping column is a rather large value (%d).", col)
