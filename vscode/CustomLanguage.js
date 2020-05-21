@@ -3,13 +3,19 @@ const FS = require('fs')
 const JSON = require('comment-json')
 
 const getConfig = (getText, path) => {
+    let config = { line: null, block: null }
     try {
-        const cf = JSON.parse(getText(path), null, true)
-        return { line: cf.comments.lineComment, block: cf.comments.blockComment }
+        const c = JSON.parse(getText(path), null, true).comments
+        if(c) {
+            // 'line' must be a string or null.
+            if(typeof c.lineComment === 'string') config.line = c.lineComment
+            // 'block' must be an array of 2 strings or null.
+            if(Array.isArray(c.blockComment) && c.blockComment.length > 1)
+                config.block = c.blockComment.slice(0, 2)
+        }
     }
-    catch(err) {
-        return {}
-    }
+    catch(err) { }
+    return config
 }
 
 /** Iterates through all extensions and populates the cache with mappings for
