@@ -14,25 +14,27 @@ let private docWrappingColumns =
     new System.Collections.Generic.Dictionary<string, int>()
 
 let getWrappingColumn filePath rulers =
+    let setAndReturn column = docWrappingColumns.[filePath] <- column; column
+    let firstRuler = Option.defaultValue 80 <| Array.tryHead rulers
     if not (docWrappingColumns.ContainsKey(filePath)) then
-        docWrappingColumns.[filePath] <-
-            Array.tryHead rulers |> Option.defaultValue 80
-    docWrappingColumns.[filePath]
+         setAndReturn firstRuler
+    else
+        Array.tryFind ((=) docWrappingColumns.[filePath]) rulers
+            |> Option.defaultValue firstRuler
+            |> setAndReturn
 
 let maybeChangeWrappingColumn (docState: DocState) (rulers: int[]) : int =
     let filePath = docState.filePath
     if not (docWrappingColumns.ContainsKey(filePath)) then
         getWrappingColumn filePath rulers
     else
-        if docState = lastDocState then
-            let nextRulerIndex =
-                rulers
-                    |> Array.tryFindIndex ((=) docWrappingColumns.[filePath])
-                    |> Option.map (fun i -> (i + 1) % rulers.Length)
-                    |> Option.defaultValue 0
+        let shiftRulerIfDocStateUnchanged i =
+            if docState = lastDocState then (i + 1) % rulers.Length else i
+        let rulerIndex =
+            Array.tryFindIndex ((=) docWrappingColumns.[filePath]) rulers
+                |> option 0 shiftRulerIfDocStateUnchanged
 
-            docWrappingColumns.[filePath] <- rulers.[nextRulerIndex]
-
+        docWrappingColumns.[filePath] <- rulers.[rulerIndex]
         docWrappingColumns.[filePath]
 
 let saveDocState docState =

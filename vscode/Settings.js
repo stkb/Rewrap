@@ -2,26 +2,20 @@
 module.exports = getSettings
 
 const { workspace } = require('vscode')
-let cache = {}
 
 /** Gets a settings object from vscode's configuration. Doing this is not
- *  normally expensive, but an object for each document is cached to prevent the
- *  console being flooded with warnings (vscode issue #48225). */
+ *  normally expensive. */
 function getSettings(editor)
 {
-    const key = editor.document.uri
-    if(!cache[key]) {
-        const setting = settingGetter(editor)
-        const settings = {
-            columns: getWrappingColumns(setting),
-            doubleSentenceSpacing: setting('rewrap.doubleSentenceSpacing'),
-            wholeComment: setting('rewrap.wholeComment'),
-            reformat: setting('rewrap.reformat'),
-        }
-        cache[key] = validateSettings(settings)
+    const setting = settingGetter(editor)
+    const settings = {
+        columns: getWrappingColumns(setting),
+        doubleSentenceSpacing: setting('rewrap.doubleSentenceSpacing'),
+        wholeComment: setting('rewrap.wholeComment'),
+        reformat: setting('rewrap.reformat'),
+        tabWidth: validateTabSize(editor.options.tabSize),
     }
-    return Object.assign
-        ({tabWidth: validateTabSize(editor.options.tabSize)}, cache[key])
+    return validateSettings(editor.document.uri, settings);
 }
 
 /** Gets an array of the available wrapping column(s) from the user's settings.
@@ -39,9 +33,13 @@ function getWrappingColumns(setting)
         // The default for this is already 80
 }
 
+// For each invalid value for each document, remember that we've warned so that
+// we don't flood the console with the same warnings
+let warningCache = {}
+
 /** Since the settings come from the user's own settings.json file, there may be
  *  invalid values. */
-function validateSettings(settings)
+function validateSettings(docID, settings)
 {
     // Check all columns
     settings.columns = settings.columns.map(checkWrappingColumn)
@@ -50,18 +48,23 @@ function validateSettings(settings)
     function checkWrappingColumn(col)
     {
         if(!Number.isInteger(col) || col < 1) {
-            console.warn(
+            warn(
                 "Rewrap: wrapping column is an invalid value (%o). " +
                 "Using a default of (80) instead.", col
             )
             col = 80
         }
         else if(col > 120) {
-            console.warn(
-                "Rewrap: wrapping column is a rather large value (%d).", col
-            )
+            warn("Rewrap: wrapping column is a rather large value (%d).", col)
         }
         return col
+    }
+
+    function warn(msg, val) {
+        const key = docID + "|" + val
+        if(warningCache[key]) return
+        console.warn(msg, val)
+        warningCache[key] = true
     }
 }
 

@@ -1,5 +1,10 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
+## Unreleased
+
+- Fix for settings changes not applying until an editor restart (#99)
+
+
 ## 1.10.1
 
 - Lua: Fix block comments (#183)
