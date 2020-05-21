@@ -32,6 +32,8 @@ let private configFile =
 let private lang = Language.create
 
 let mutable languages = [
+    lang "AsciiDoc" "" ".adoc|.asciidoc"
+        plainText
     lang "AutoHotkey" "ahk" ".ahk"
         ( sourceCode [ line ";"; cBlock ] )
     lang "Basic" "vb" ".vb"

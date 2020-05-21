@@ -3,6 +3,7 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 ## Unreleased
 
 - Fix for settings changes not applying until an editor restart (#99)
+- AsciiDoc: Fix only comments being wrapped (#196)
 
 
 ## 1.10.1
