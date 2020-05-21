@@ -4,6 +4,8 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 
 - Fix for settings changes not applying until an editor restart (#99)
 - AsciiDoc: Fix only comments being wrapped (#196)
+- R: Allow `#'` prefix for ROxygen comments (full ROxygen support still to come)
+  (#181)
 
 
 ## 1.10.1

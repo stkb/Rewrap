@@ -188,7 +188,7 @@ let mutable languages = [
             ]
         )
     lang "R" "" ".r"
-        configFile
+        ( sourceCode [ line "#'?" ] )
     lang "reStructuredText" "" ".rst|.rest"
         plainText
     lang "Ruby" "" ".rb"
