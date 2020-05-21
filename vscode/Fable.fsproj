@@ -19,6 +19,7 @@
     <Compile Include="..\core\Parsing.Documents.fs" />
     <Compile Include="..\core\Wrapping.fs" />
     <Compile Include="..\core\Selections.fs" />
+    <Compile Include="..\core\Columns.fs" />
     <Compile Include="..\core\Main.fs" />
   </ItemGroup>
   <ItemGroup>

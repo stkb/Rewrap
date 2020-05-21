@@ -6,39 +6,13 @@ open Extensions.Option
 open Wrapping
 open Parsing.Language
 open Parsing.Documents
+open Columns
 
-let mutable private lastDocState : DocState =
-    { filePath = ""; version = 0; selections = [||] }
+// Re-exports from Columns
+let getWrappingColumn filePath rulers = getWrappingColumn filePath rulers
+let maybeChangeWrappingColumn docState rulers = maybeChangeWrappingColumn docState rulers
+let saveDocState docState = saveDocState docState
 
-let private docWrappingColumns =
-    new System.Collections.Generic.Dictionary<string, int>()
-
-let getWrappingColumn filePath rulers =
-    let setAndReturn column = docWrappingColumns.[filePath] <- column; column
-    let firstRuler = Option.defaultValue 80 <| Array.tryHead rulers
-    if not (docWrappingColumns.ContainsKey(filePath)) then
-         setAndReturn firstRuler
-    else
-        Array.tryFind ((=) docWrappingColumns.[filePath]) rulers
-            |> Option.defaultValue firstRuler
-            |> setAndReturn
-
-let maybeChangeWrappingColumn (docState: DocState) (rulers: int[]) : int =
-    let filePath = docState.filePath
-    if not (docWrappingColumns.ContainsKey(filePath)) then
-        getWrappingColumn filePath rulers
-    else
-        let shiftRulerIfDocStateUnchanged i =
-            if docState = lastDocState then (i + 1) % rulers.Length else i
-        let rulerIndex =
-            Array.tryFindIndex ((=) docWrappingColumns.[filePath]) rulers
-                |> option 0 shiftRulerIfDocStateUnchanged
-
-        docWrappingColumns.[filePath] <- rulers.[rulerIndex]
-        docWrappingColumns.[filePath]
-
-let saveDocState docState =
-    lastDocState <- docState
 
 let languageNameForFile (file: File) : string =
     option null Language.name (languageForFile file)

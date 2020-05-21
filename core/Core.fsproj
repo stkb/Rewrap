@@ -22,6 +22,7 @@
     <Compile Include="Parsing.Documents.fs" />
     <Compile Include="Wrapping.fs" />
     <Compile Include="Selections.fs" />
+    <Compile Include="Columns.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
 
