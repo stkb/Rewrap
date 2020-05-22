@@ -7,6 +7,7 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 - AsciiDoc: Fix only comments being wrapped (#196)
 - R: Allow `#'` prefix for ROxygen comments (full ROxygen support still to come)
   (#181)
+- VS: Fix an index out of bounds bug (#159)
 
 
 ## 1.10.1

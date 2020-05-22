@@ -47,7 +47,7 @@ let private docWrappingColumns =
 // The list of rulers must not be empty.
 let getWrappingColumn filePath rulers =
     let setAndReturn column = docWrappingColumns.[filePath] <- column; column
-    let firstRuler = Option.defaultValue 80 <| Array.tryHead rulers
+    let firstRuler = Array.head rulers
     if not (docWrappingColumns.ContainsKey(filePath)) then
          setAndReturn firstRuler
     else
@@ -63,6 +63,7 @@ let getWrappingColumn filePath rulers =
 // 3) If the value we have isn't found in the given rulers, then the rulers must
 //     have changed since we last wrapped. Like 1) we save and return the first
 //     ruler
+// The list of rulers must not be empty
 let maybeChangeWrappingColumn (docState: DocState) (rulers: int[]) : int =
     let filePath = docState.filePath
     if not (docWrappingColumns.ContainsKey(filePath)) then

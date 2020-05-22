@@ -59,10 +59,11 @@ namespace VS
             var file = new File(GetLanguage(textBuffer), GetFilePath(textBuffer), () => null);
             var options = OptionsPage.GetOptions(file);
 
-            int[] rulers =
-                options.WrappingColumn.HasValue
-                    ? new[] { options.WrappingColumn.Value }
-                    : GetRulers();
+            int[] rulers;
+            if (options.WrappingColumn.HasValue)
+                rulers = new[] { options.WrappingColumn.Value };
+            else if ((rulers = GetRulers()).Length == 0)
+                rulers = new[] { 80 };
 
             return new Settings
                 ( getColumn(rulers)
@@ -210,7 +211,8 @@ namespace VS
 
         static OptionsPage _OptionsPage;
 
-        /// Gets editor rulers (guides) from the registry
+        /// Gets editor rulers (guides) from the registry. Returns an empty
+        /// array if none are set.
         static int[] GetRulers()
         {
             var dte = (EnvDTE.DTE)Package.GetGlobalService( typeof( EnvDTE.DTE ) );
