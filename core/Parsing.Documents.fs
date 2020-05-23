@@ -20,6 +20,14 @@ let plainText settings =
 let private configFile =
     sourceCode [ line "#" ]
 
+let private python =
+    ( sourceCode
+        [ line "#"
+          block ( "([Bb][Rr]?|[Ff][Rr]?|[Rr][BbFf]?|[Uu])?\"\"\"", "\"\"\"" )
+          block ( "([Bb][Rr]?|[Ff][Rr]?|[Rr][BbFf]?|[Uu])?'''", "'''" )
+        ]
+    )
+
 // Takes 4 args to create a Language:
 //  1. display name (used only in VS)
 //  2. string of aliases (language IDs used by the client. Not needed if they
@@ -108,6 +116,13 @@ let mutable languages = [
         configFile
     lang "Groovy" "" ".groovy"
         java
+    lang "Handlebars" "" ".handlebars|.hbs"
+        ( sourceCode
+            [ block ("{{!--", "--}}")
+              block ("{{!", "}}")
+              block ("<!--", "-->")
+            ]
+        )
     lang "Haskell" "" ".hs"
         ( sourceCode [ line "--"; block ( "{-\s*\|?", "-}" ) ] )
     lang "HCL" "terraform" ".hcl|.tf"
@@ -127,6 +142,8 @@ let mutable languages = [
         java
     lang "JavaScript" "javascriptreact|js" ".js|.jsx"
         java
+    lang "Julia" "" ".jl"
+        python
     lang "JSON" "json5|jsonc" ".json|.json5|.jsonc"
         java
     lang "LaTeX" "tex" ".bbx|.cbx|.cls|.sty|.tex"
@@ -181,12 +198,7 @@ let mutable languages = [
             ]
         )
     lang "Python" "" ".py"
-        ( sourceCode
-            [ line "#"
-              block ( "([Bb][Rr]?|[Ff][Rr]?|[Rr][BbFf]?|[Uu])?\"\"\"", "\"\"\"" )
-              block ( "([Bb][Rr]?|[Ff][Rr]?|[Rr][BbFf]?|[Uu])?'''", "'''" )
-            ]
-        )
+        python
     lang "R" "" ".r"
         ( sourceCode [ line "#'?" ] )
     lang "reStructuredText" "" ".rst|.rest"
