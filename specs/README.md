@@ -1,14 +1,14 @@
 # Specs #
 
 The files in these folders use examples to document Rewrap's capabilities and
-specify expected results.
+specify expected results. They are all in markdown format.
 
 The examples also serve as tests.
 
 #### Test layout ####
 
 Each test, set into an indented code block, consists of 2 (or 3) columns, with
-the the input in the 1st column separated from the expected output in the 2nd
+the input in the 1st column separated from the expected output in the 2nd
 column by the marker `->`. Some tests have a 3rd column, with the 2nd & 3rd
 separated by the marker `-or-`. In these cases, the 2nd column is for the
 expected output with the setting `reformat` set to `false`, and the 3rd with it
