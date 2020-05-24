@@ -1,14 +1,19 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
-## Unreleased
+## 1.11.0
 
-- Fix for settings changes not applying until an editor restart (#99)
+General enhancements:
 - Modify "Rewrap at custom column" command to make "unwrapping" easier (#107)
+
+Language-specific:
 - AsciiDoc: Fix only comments being wrapped (#196)
 - R: Allow `#'` prefix for ROxygen comments (full ROxygen support still to come)
   (#181)
-- VS: Fix an index out of bounds bug (#159)
 - Add Julia (#137) and Handlebars (#167)
+
+General bugfixes:
+- Fix for settings changes not applying until an editor restart (#99)
+- VS: Fix an index out of bounds bug (#159)
 
 
 ## 1.10.1

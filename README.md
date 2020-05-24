@@ -1,10 +1,17 @@
-After a long break Rewrap is now back in development. **Latest version: 1.10.1.** New in this version ([full
+After a long break Rewrap is now back in development. **Latest version: 1.11.0.** New in this version ([full
 changelog](https://github.com/stkb/vscode-rewrap/releases)):
-- Lua: Fix block comments
-- RST: Fix only comments being wrapped
-- PostCSS: Fix by adding it to CSS
-- Support JSON-C and CMake(Lists.txt)
-- Fixes the Visual Studio release
+
+General enhancements:
+- Modify "Rewrap at custom column" command to make "unwrapping" easier
+
+Language-specific:
+- AsciiDoc: Fix only comments being wrapped
+- R: Allow `#'` prefix for ROxygen comments (full ROxygen support still to come)
+- Add Julia and Handlebars
+
+General bugfixes:
+- Fix for settings changes not applying until an editor restart
+- VS: Fix an index out of bounds bug
 
 
 # Rewrap
