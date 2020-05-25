@@ -23,20 +23,22 @@ let html
     (settings: Settings)
     : TotalParser =
 
-    let embeddedScript markers contentParser =
+    let embeddedScript (markers: Regex * Regex) contentParser =
+        let afterFirstLine _ lines =
+            let (Nonempty.Nonempty(lastLine, initLinesRev)) = Nonempty.rev lines
+            if (snd markers).IsMatch(lastLine) then
+                match Nonempty.fromList (List.rev initLinesRev) with
+                    | Some middleLines ->
+                        Nonempty.snoc
+                            (Block.ignore (Nonempty.singleton (Nonempty.last lines)))
+                            (contentParser settings middleLines)
+                    | None ->
+                        Nonempty.singleton <| Block.ignore (Nonempty.singleton (Nonempty.last lines))
+            else contentParser settings lines
+
         optionParser
             (takeLinesBetweenMarkers markers)
-            (fun lines ->
-                List.tryInit (Nonempty.tail lines)
-                    |> Option.bind Nonempty.fromList
-                    |> Option.map
-                        (contentParser settings
-                            >> Nonempty.snoc (Block.ignore (Nonempty.singleton (Nonempty.last lines)))
-                            >> Nonempty.cons (Block.ignore (Nonempty.singleton (Nonempty.head lines)))
-                        )
-                    |> Option.defaultValue
-                        (Nonempty.singleton (Block.ignore lines))
-            )
+            (ignoreFirstLine afterFirstLine settings)
 
     let otherParsers =
         tryMany

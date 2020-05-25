@@ -70,6 +70,8 @@ let maybeAutoWrap file settings newText (pos: Position) (getLine: Func<int, stri
         anchor = { line = line; character = 0 }
         active = { line = line; character = lineText.Length }
     }
+    // A getLine function that only gets lines up to & including where the
+    // cursor is
     let wrappedGetLine =
         Func<int, string>(fun i -> if i > line then null else getLine.Invoke(i))
     rewrap file settings ([|fakeSelection|]) wrappedGetLine

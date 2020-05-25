@@ -62,16 +62,6 @@ let private splitBeforeTags (regex: Regex) sectionParser settings (Nonempty(oute
     loop (regex.Match(outerHead)) (Nonempty.singleton outerHead) None outerTail
 
 
-/// Ignores the first line and parses the rest with the given parser
-let private ignoreFirstLine otherParser settings (Nonempty(headLine, tailLines)) : Blocks =
-    let headBlock =
-        Block.ignore (Nonempty.singleton headLine)
-
-    Nonempty.fromList tailLines
-        |> Option.map (Nonempty.cons headBlock << otherParser settings)
-        |> Option.defaultValue (Nonempty.singleton headBlock)
-
-
 let javadoc =
     let tagRegex =
         Regex(@"^\s*@(\w+)(.*)$")

@@ -155,6 +155,16 @@ let firstLineIndentParagraphBlock reformat (Nonempty(headLine, tailLines) as lin
     Block.text (prefixes, lines |> Nonempty.map String.trimStart)
 
 
+/// Ignores the first line and parses the rest with the given parser
+let ignoreFirstLine otherParser settings (Nonempty(headLine, tailLines)) : Blocks =
+    let headBlock =
+        Block.ignore (Nonempty.singleton headLine)
+
+    Nonempty.fromList tailLines
+        |> Option.map (Nonempty.cons headBlock << otherParser settings)
+        |> Option.defaultValue (Nonempty.singleton headBlock)
+
+
 /// Convert paragraph lines into a Block, in a document where paragraphs can be
 /// separated by difference in indent. There is only one indent for the whole
 /// paragraph, determined from the first line.
@@ -168,7 +178,8 @@ let indentSeparatedParagraphBlock
 
 
 /// Creates an OptionSplitFunction that will take all lines between a start and
-/// end marker (inclusive)
+/// end marker (inclusive). If the start marker is found but end marker isn't,
+/// then all lines (including and) after the start marker are returned.
 let takeLinesBetweenMarkers
     (startRegex: Regex, endRegex: Regex)
     (Nonempty(headLine, _) as lines)
