@@ -16,7 +16,7 @@ General bugfixes:
 - VS: Fix an index out of bounds bug (#159)
 
 
-## 1.10.1
+### 1.10.1
 
 - Lua: Fix block comments (#183)
 - RST: Fix only comments being wrapped (#191)
