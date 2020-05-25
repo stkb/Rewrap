@@ -39,3 +39,18 @@ steps:
   displayName: Compile & Run Tests
   env:
     DISPLAY: ':99.0'
+
+- task: GitHubRelease@1
+  inputs:
+    gitHubConnection: 'github.com_stkb'
+    repositoryName: 'stkb/Rewrap'
+    action: 'create'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'gitTag'
+    tagPattern: 'test'
+    title: 'Test release'
+    releaseNotesSource: 'inline'
+    releaseNotesInline: 'This is a CI test'
+    isDraft: true
+    isPreRelease: true
+    addChangeLog: false
