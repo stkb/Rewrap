@@ -4,6 +4,8 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 
 - Fix autowrap not working in embedded sections in html files in some cases
   (#162)
+- VSCode: Fix warning in settings editor that settings aren't per-language
+  supported (#200)
 
 
 ## 1.11.0

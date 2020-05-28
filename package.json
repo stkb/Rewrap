@@ -10,7 +10,7 @@
     "fill",
     "multi-root ready"
   ],
-  "version": "1.11.1-beta.2",
+  "version": "1.11.1-beta.3",
   "publisher": "stkb",
   "icon": "images/logo.png",
   "repository": {
@@ -52,25 +52,25 @@
       "title": "Rewrap configuration",
       "properties": {
         "rewrap.wrappingColumn": {
-          "scope": "resource",
+          "scope": "language-overridable",
           "type": "number",
           "default": 0,
           "description": "Controls after how many characters text is wrapped."
         },
         "rewrap.doubleSentenceSpacing": {
-          "scope": "resource",
+          "scope": "language-overridable",
           "type": "boolean",
           "default": false,
           "description": "When wrapping lines that end in a period, adds two spaces after that sentence in the wrapped text."
         },
         "rewrap.wholeComment": {
-          "scope": "resource",
+          "scope": "language-overridable",
           "type": "boolean",
           "default": true,
           "description": "With the cursor inside a comment block, wrap the whole comment block instead of just a single paragraph."
         },
         "rewrap.reformat": {
-          "scope": "resource",
+          "scope": "language-overridable",
           "type": "boolean",
           "default": false,
           "description": "(EXPERIMEMTAL) When wrapping lines, reformat paragraph indents."
