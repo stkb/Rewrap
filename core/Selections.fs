@@ -1,7 +1,6 @@
 module internal Selections
 
-open Nonempty
-open Extensions
+open Prelude
 open Rewrap
 open Block
 

@@ -3,7 +3,7 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\core\Extensions.fs" />
+    <Compile Include="..\core\Prelude.fs" />
     <Compile Include="..\core\Nonempty.fs" />
     <Compile Include="..\core\Types.fs" />
     <Compile Include="..\core\Line.fs" />

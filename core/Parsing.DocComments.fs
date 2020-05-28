@@ -2,13 +2,11 @@ module private Parsing.DocComments
 // This module deals with special formatting inside comments that are used for
 // documentation, eg javadoc, xmldoc, RDoc
 
-open Extensions
-open Nonempty
+open Prelude
 open Block
 open Parsing.Core
 open Markdown
 open System.Text.RegularExpressions
-open Rewrap
 
 
 /// Splits lines into sections which start with lines matching the given regex.

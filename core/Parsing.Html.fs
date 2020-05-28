@@ -1,6 +1,6 @@
 module private Parsing.Html
 
-open Extensions
+open Prelude
 open Rewrap
 open Parsing.Core
 open System.Text.RegularExpressions
@@ -25,7 +25,7 @@ let html
 
     let embeddedScript (markers: Regex * Regex) contentParser =
         let afterFirstLine _ lines =
-            let (Nonempty.Nonempty(lastLine, initLinesRev)) = Nonempty.rev lines
+            let (Nonempty(lastLine, initLinesRev)) = Nonempty.rev lines
             if (snd markers).IsMatch(lastLine) then
                 match Nonempty.fromList (List.rev initLinesRev) with
                     | Some middleLines ->

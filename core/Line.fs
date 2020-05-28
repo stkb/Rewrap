@@ -1,7 +1,7 @@
 module rec Line
 
 open System.Text.RegularExpressions
-open Extensions
+open Prelude
 
 
 /// Returns true if the line is empty or just whitespace

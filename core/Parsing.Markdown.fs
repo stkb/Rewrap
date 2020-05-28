@@ -1,8 +1,7 @@
 module private rec Parsing.Markdown
 
 open System.Text.RegularExpressions
-open Extensions
-open Nonempty
+open Prelude
 open Rewrap
 open Block
 open Parsing.Core

@@ -1,9 +1,8 @@
 module private Parsing.Core
 
 open System.Text.RegularExpressions
-open Nonempty
+open Prelude
 open Block
-open Extensions
 
 
 /// A parser that when given lines, may consume some of them. If it does, it

@@ -1,8 +1,7 @@
 module internal Parsing.Documents
 
 open System
-open Extensions
-open Extensions.Option
+open Prelude
 open Rewrap
 open Parsing.Core
 open Parsing.DocComments
@@ -280,4 +279,4 @@ let rec select (file: File) : Settings -> TotalParser =
                 | null -> None
                 | x -> Some (addCustomLanguage file.language x)
             )
-        |> option plainText Language.parser
+        |> maybe plainText Language.parser

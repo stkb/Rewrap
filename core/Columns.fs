@@ -13,7 +13,7 @@ module internal Columns
 // a list of one ruler (their set wrapping column).
 
 open Rewrap
-open Extensions.Option
+open Prelude
 
 // We store one DocState record for the state of the editor after every wrap
 // operation, and then look at it again before the next. If it hasn't changed,
@@ -73,7 +73,7 @@ let maybeChangeWrappingColumn (docState: DocState) (rulers: int[]) : int =
             if docState = lastDocState then (i + 1) % rulers.Length else i
         let rulerIndex =
             Array.tryFindIndex ((=) docWrappingColumns.[filePath]) rulers
-                |> option 0 shiftRulerIfDocStateUnchanged
+                |> maybe 0 shiftRulerIfDocStateUnchanged
 
         docWrappingColumns.[filePath] <- rulers.[rulerIndex]
         docWrappingColumns.[filePath]

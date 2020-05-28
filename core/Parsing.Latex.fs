@@ -1,6 +1,6 @@
 module private Parsing.Latex
 
-open Extensions
+open Prelude
 open Nonempty
 open Rewrap
 open Block

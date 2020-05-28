@@ -1,9 +1,8 @@
 module internal Wrapping
 
-open Nonempty
+open Prelude
 open Rewrap
 open Block
-open Extensions
 open System.Text.RegularExpressions
 open System
 

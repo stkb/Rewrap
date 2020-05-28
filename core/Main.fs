@@ -1,8 +1,7 @@
 module Rewrap.Core
 
 open System
-open Extensions
-open Extensions.Option
+open Prelude
 open Wrapping
 open Parsing.Language
 open Parsing.Documents
@@ -15,7 +14,7 @@ let saveDocState docState = saveDocState docState
 
 
 let languageNameForFile (file: File) : string =
-    option null Language.name (languageForFile file)
+    maybe null Language.name (languageForFile file)
 
 let languages : string[] =
     Seq.map Language.name Parsing.Documents.languages |> Seq.toArray

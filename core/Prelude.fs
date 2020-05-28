@@ -1,6 +1,11 @@
-namespace Extensions
+module Prelude
 
-// Some extra functions
+type Nonempty<'T> = Nonempty of 'T * List<'T>
+    with
+    // Overloading `@` seems not to be allowed
+    static member (+) (Nonempty(aHead, aTail), Nonempty(bHead, bTail)) =
+        Nonempty (aHead, aTail @ (bHead :: bTail))
+
 
 // Fabel compiler doesn't like the `type These ... module These` pattern, so we
 // use static members instead
@@ -23,11 +28,9 @@ type These<'A, 'B> =
             | That b -> That b
             | These (a, b) -> These (f a, b)
 
-module internal Option =
 
-    /// Like `maybe` in Haskell.
-    let option (def: 'B) (f: 'A -> 'B) (x: Option<'A>) : 'B =
-        x |> Option.map f |> Option.defaultValue def
+let maybe (def: 'B) (f: 'A -> 'B) (x: Option<'A>) : 'B =
+    x |> Option.map f |> Option.defaultValue def
 
 
 module internal Tuple =

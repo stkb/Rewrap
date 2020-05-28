@@ -2,7 +2,7 @@ module private Parsing.Comments
 
 open Nonempty
 open System.Text.RegularExpressions
-open Extensions
+open Prelude
 open Rewrap
 open Block
 open Parsing.Core

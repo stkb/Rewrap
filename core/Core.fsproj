@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Extensions.fs" />
+    <Compile Include="Prelude.fs" />
     <Compile Include="Nonempty.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="Line.fs" />

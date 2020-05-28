@@ -1,15 +1,6 @@
 module rec Nonempty
 
-open Extensions
-
-type Nonempty<'T> =
-    | Nonempty of 'T * List<'T>
-    with
-    // Overloading `@` seems not to be allowed
-    static member (+) (a, b) =
-        append a b
-
-
+open Prelude
 
 //-----------------------------------------------------------------------------
 // CREATING NON-EMPTY LISTS
@@ -144,7 +135,7 @@ let span predicate: Nonempty<'a> -> Option<Nonempty<'a> * Option<Nonempty<'a>>> 
                 if predicate head then
                     loop (head :: output) (Nonempty.fromList tail)
                 else
-                     Nonempty.fromList (List.rev output)
+                        Nonempty.fromList (List.rev output)
                         |> Option.map (fun o -> (o, maybeRemaining))
 
     Some >> loop []
