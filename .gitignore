@@ -1,5 +1,6 @@
 /.vs/
 *.csproj.user
+/.ionide/
 
 /packages/
 /node_modules/
