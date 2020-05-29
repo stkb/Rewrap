@@ -1,4 +1,4 @@
-module private Parsing.Comments
+module internal Parsing.Comments
 
 open Nonempty
 open System.Text.RegularExpressions

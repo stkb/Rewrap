@@ -28,8 +28,10 @@ let private configFile =
 //     that are not known by the client.
 //  4. parser
 //
-// Aliases and extensions are separated by `|`
-let private lang = Language.create
+// Aliases and extensions are separated by `|`.
+// This has to be aliased pointfully because of a bug in Fable
+let private lang name aliases exts parser =
+    Language.create name aliases exts parser
 
 let mutable languages = [
     lang "AsciiDoc" "" ".adoc|.asciidoc"

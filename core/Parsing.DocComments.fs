@@ -1,4 +1,4 @@
-module private Parsing.DocComments
+module internal Parsing.DocComments
 // This module deals with special formatting inside comments that are used for
 // documentation, eg javadoc, xmldoc, RDoc
 

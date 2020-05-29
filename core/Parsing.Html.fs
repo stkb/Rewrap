@@ -1,4 +1,4 @@
-module private Parsing.Html
+module internal Parsing.Html
 
 open Prelude
 open Rewrap

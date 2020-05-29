@@ -1,4 +1,4 @@
-module private Parsing.Core
+module internal Parsing.Core
 
 open System.Text.RegularExpressions
 open Prelude

@@ -1,4 +1,4 @@
-module private Parsing.Latex
+module internal Parsing.Latex
 
 open Prelude
 open Nonempty

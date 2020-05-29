@@ -1,4 +1,4 @@
-module rec Line
+module internal rec Line
 
 open System.Text.RegularExpressions
 open Prelude

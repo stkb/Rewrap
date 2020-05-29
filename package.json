@@ -10,7 +10,7 @@
     "fill",
     "multi-root ready"
   ],
-  "version": "1.12.0-beta.3",
+  "version": "1.12.0-beta.4",
   "publisher": "stkb",
   "icon": "images/logo.png",
   "repository": {
@@ -94,17 +94,17 @@
   "scripts": {
     "test": "node tests",
     "postinstall": "dotnet restore vscode",
-    "compile": "cd vscode && dotnet fable npm-run fable-splitter",
-    "dev": "cd vscode && dotnet fable npm-run fable-splitter -- --watch",
-    "fable-splitter": "fable-splitter --config vscode/FableConfig.js",
+    "compile": "npm run fable-splitter",
+    "dev": "npm run fable-splitter -- --watch",
+    "fable-splitter": "cd vscode && npx fable-splitter --config FableConfig.js",
     "clean": "rimraf vscode/compiled",
     "vscode:prepublish": "npm run clean && npm run compile && npm test"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.0",
-    "@babel/preset-env": "^7.9.6",
+    "@babel/core": "^7.10.2",
+    "@babel/preset-env": "^7.10.2",
     "@types/vscode": "1.30.0",
-    "fable-compiler": "^2.9.0",
+    "fable-compiler": "^2.10.0",
     "fable-splitter": "^2.1.13",
     "rimraf": "^3.0.2"
   },

@@ -1,4 +1,4 @@
-module private rec Parsing.Markdown
+module internal rec Parsing.Markdown
 
 open System.Text.RegularExpressions
 open Prelude
