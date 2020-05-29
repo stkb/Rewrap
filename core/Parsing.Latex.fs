@@ -99,6 +99,10 @@ let private findPreserveSection beginMarker : Lines -> Blocks * Option<Lines> =
         )
     )
 
+let private hasComment line : bool =
+    let r = Regex(@"[^\\]%")
+    let commentMatch = r.Match(line)
+    commentMatch.Success
 
 let latex (settings: Settings) : TotalParser =
 
@@ -121,6 +125,11 @@ let latex (settings: Settings) : TotalParser =
             Some (findPreserveSection trimmedLine lines)
         else if cmdName = "begin" && Array.contains cmdArg preserveEnvironments then
             Some (findPreserveSection cmdArg lines)
+
+        // Line ends with comment: do not wrap before that
+        else if hasComment trimmedLine
+        then
+            Some (takeFrom2ndLineUntil otherParsers plainText lines)
 
         // Whole line is command: preserve break before & after
         else if isWholeLine then
