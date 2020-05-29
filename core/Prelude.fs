@@ -1,10 +1,17 @@
 module Prelude
 
-type Nonempty<'T> = Nonempty of 'T * List<'T>
-    with
+type Nonempty<'T> = Nonempty of 'T * List<'T> with
     // Overloading `@` seems not to be allowed
     static member (+) (Nonempty(aHead, aTail), Nonempty(bHead, bTail)) =
         Nonempty (aHead, aTail @ (bHead :: bTail))
+
+    interface seq<'T> with
+        member self.GetEnumerator() =
+            let (Nonempty (h, t)) = self
+            (Seq.ofList <| (h :: t)).GetEnumerator()
+    interface System.Collections.IEnumerable with
+        member r.GetEnumerator () =
+            (r :> seq<'T>).GetEnumerator() :> System.Collections.IEnumerator
 
 
 // Fabel compiler doesn't like the `type These ... module These` pattern, so we
