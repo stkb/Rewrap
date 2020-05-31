@@ -1,17 +1,9 @@
-After a long break Rewrap is now back in development. **Latest version: 1.11.0.** New in this version ([full
+After a long break Rewrap is now back in development. **Latest version: 1.11.1**. New in this version ([full
 changelog](https://github.com/stkb/vscode-rewrap/releases)):
 
-General enhancements:
-- Modify "Rewrap at custom column" command to make "unwrapping" easier
-
-Language-specific:
-- AsciiDoc: Fix only comments being wrapped
-- R: Allow `#'` prefix for ROxygen comments (full ROxygen support still to come)
-- Add Julia and Handlebars
-
-General bugfixes:
-- Fix for settings changes not applying until an editor restart
-- VS: Fix an index out of bounds bug
+- Fix autowrap not working in embedded sections in html files in some cases
+- VSCode: Fix warning in settings editor that settings aren't per-language supported
+- C/C++: `///` comments now expect xml doc-comments instead of javadoc-style
 
 
 # Rewrap

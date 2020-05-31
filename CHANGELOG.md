@@ -1,6 +1,6 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
-## Unreleased
+### 1.11.1
 
 - Fix autowrap not working in embedded sections in html files in some cases
   (#162)
