@@ -6,6 +6,8 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
   (#162)
 - VSCode: Fix warning in settings editor that settings aren't per-language
   supported (#200)
+- C/C++: `///` comments now expect xml doc-comments instead of javadoc-style
+  (#199)
 
 
 ## 1.11.0

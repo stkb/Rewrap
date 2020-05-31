@@ -50,7 +50,14 @@ let mutable languages = [
     lang "Bikeshed" "" ".bs"
         Markdown.markdown
     lang "C/C++" "c|c++|cpp" ".c|.cpp|.h"
-        java
+        ( sourceCode
+            [ customBlock DocComments.javadoc ( "\\*?", " * " ) javadocMarkers
+              cBlock
+              customLine html "///"
+              customLine DocComments.javadoc "//!?"
+              cLine
+            ]
+        )
     lang "C#" "csharp" ".cs"
         ( sourceCode
             [ customLine html "///"
