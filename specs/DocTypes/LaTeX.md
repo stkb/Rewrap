@@ -74,3 +74,19 @@ The shortcuts `\( \[ $ $$` create a preserved section.
     $$                ¦              $$                ¦
     a b c d e f g h   ¦              a b c d e f g h i ¦
     i j               ¦              j                 ¦
+
+## End-of-line comments
+
+In general, like for all languages, end-of-line comments are not properly
+supported. But a line-break after comment that comes after text on the same line
+will be preserved.
+
+    a b c d e f g h   ¦      ->      a b c d e f g h i ¦
+    i j % z y x       ¦              j % z y x         ¦
+    k l m             ¦              k l m             ¦
+
+Long comments cannot yet be wrapped, however.
+
+    a b c d e f g h   ¦          ->      a b c d e f g h i ¦
+    i j % z y x w v u t s r              j % z y x w v u t s r
+    k l m             ¦                  k l m             ¦
