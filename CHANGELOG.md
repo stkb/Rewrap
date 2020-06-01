@@ -1,5 +1,10 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
+## Unreleased
+
+- LaTeX: break after a paragraph that ends in an end-of-line comment (#148)
+
+
 ### 1.11.1
 
 - Fix autowrap not working in embedded sections in html files in some cases

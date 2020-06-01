@@ -91,6 +91,9 @@ let mapTail fn (Nonempty (head, tail)) =
 let mapInit fn =
     rev >> mapTail fn >> rev
 
+let mapLast fn =
+    rev >> mapHead fn >> rev
+
 
 let replaceHead newHead =
     mapHead (fun _ -> newHead)

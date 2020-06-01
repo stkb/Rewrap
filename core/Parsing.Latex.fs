@@ -10,7 +10,11 @@ open System.Text.RegularExpressions
 
 
 let private newlineRegex: Regex =
-    Regex(@"\\(\\\*?|hline|newline|break|linebreak)(\[.*?\])?(\{.*?\})?\s*$")
+    Regex
+        ( @"(\\(\\\*?|hline|newline|break|linebreak)(\[.*?\])?(\{.*?\})?\s*$)"
+        + @"|"
+        + @"([^\\]%)"
+        )
 
 /// Commands that, when starting a line, should always preserve the line break
 /// before them, even if text comes right after. For other commands, the rule
@@ -141,9 +145,15 @@ let latex (settings: Settings) : TotalParser =
 
     /// Plain paragraph parser for paragraphs that don't start with commands
     and plainText: Lines -> Blocks =
-        splitIntoChunks (afterRegex newlineRegex)
-            >> Nonempty.map
-                (firstLineIndentParagraphBlock settings.reformat)
+        let freezeAnyEOLComment (str: string) =
+            let m = Regex(@"[^\\]%").Match(str)
+            if not m.Success then str else
+            let p = m.Index + 2
+            str.Substring(0, p) + str.Substring(p).Replace(' ', '\000')
+        let processChunk =
+            (Nonempty.mapTail freezeAnyEOLComment >> firstLineIndentParagraphBlock settings.reformat)
+
+        splitIntoChunks (afterRegex newlineRegex) >> Nonempty.map processChunk
 
     /// Combination of other parsers
     and otherParsers =
