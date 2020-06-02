@@ -73,3 +73,14 @@ b, f, r, u, br, rb, fr, rf, and with any comnbination of upper and lower case.
     a b c              a b
     d   ¦              c d
     ''' ¦              '''
+
+Starting the string later on the line is also (imperfectly) supported.
+
+    var = """¦     ->    var = """
+    a b c d e f          a b c d e
+    g h      ¦           f g h
+    """      ¦           """
+    i        ¦           i
+    j        ¦           j
+
+Imperfectly, because it's not a full language parser.

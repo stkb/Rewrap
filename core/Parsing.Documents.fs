@@ -19,13 +19,6 @@ let plainText settings =
 let private configFile =
     sourceCode [ line "#" ]
 
-let private python =
-    ( sourceCode
-        [ line "#"
-          block ( "([Bb][Rr]?|[Ff][Rr]?|[Rr][BbFf]?|[Uu])?\"\"\"", "\"\"\"" )
-          block ( "([Bb][Rr]?|[Ff][Rr]?|[Rr][BbFf]?|[Uu])?'''", "'''" )
-        ]
-    )
 
 // Takes 4 args to create a Language:
 //  1. display name (used only in VS)
@@ -149,7 +142,11 @@ let mutable languages = [
     lang "JavaScript" "javascriptreact|js" ".js|.jsx"
         java
     lang "Julia" "" ".jl"
-        python
+        ( sourceCode
+            [ line "#"
+              block ( @".*""""""", "\"\"\"" )
+            ]
+        )
     lang "JSON" "json5|jsonc" ".json|.json5|.jsonc"
         java
     lang "LaTeX" "tex" ".bbx|.cbx|.cls|.sty|.tex"
@@ -204,7 +201,12 @@ let mutable languages = [
             ]
         )
     lang "Python" "" ".py"
-        python
+        ( sourceCode
+            [ line "#"
+              block ( @".*""""""", "\"\"\"" )
+              block ( @".*'''", "'''" )
+            ]
+        )
     lang "R" "" ".r"
         ( sourceCode [ line "#'?" ] )
     lang "reStructuredText" "" ".rst|.rest"
