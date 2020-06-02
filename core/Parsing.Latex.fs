@@ -57,19 +57,20 @@ let private takeFrom2ndLineUntil otherParser parser (Nonempty(headLine, tailLine
 /// Regex that matches a command at the beginning of a line. Matches alphabetic
 /// command names (with an optional *), as well as the shortcuts \[ and $$.
 /// (These shortcuts are included because they must also preserve a line break
-/// before them.) The command name and first argument are captured as groups 1
-/// and 2.
+/// before them.) The command name and first argument contained in {} are
+/// captured as groups 1 and 2 respectively. Following that any number of [] or
+/// {} args are allowed.
 ///
-/// This approach will have some false positives (anything can follow the
-/// command name as long as the line ends with a '}'. A proper parser (that can
-/// deal with nested '{}' would be better.
+/// This approach may have some false positives and doesn't for example allow
+/// nested [] or {}. A proper parser would be better.
 let private commandRegex: Regex =
     Regex(@"^"                   // Must be at beginning of string
         + @"\\(\[|[a-z]+)\*?\s*" // Command name with optional '*', + whitespace
-        + @"(?:\[[^\]]*\]\s*)?"  // Optional [options] section, + whitespace
-                                 // Doesn't allow ']' (can this occur?)
-        + @"(?:\{([a-z]+\*?))?"  // Optional first {arg}, only letters + optional * are captured
-        + @"(?:.*\})?"           // Capture the rest of the line if it ends with a '}'
+        + @"(?:(?:"              // Either
+        + @"\[.*?\]"             // Anything in []
+        + @"|"                   // Or
+        + @"\{(.*?)\}"           // Anything in {} (& capture the contents)
+        + @")\s*)*"              // Can have whitespace after & occur many times
         )
 
 

@@ -14,6 +14,16 @@ before and after will be kept.
     The abstract.           ¦              The abstract.           ¦
     \end{abstract}          ¦              \end{abstract}          ¦
 
+Args can be in `{}` or `[]` brackets, and there can be any number in any order.
+
+    \begin{definition}[term]        ¦      ->      \begin{definition}[term]
+    The                             ¦              The definition
+    definition                      ¦
+
+    \newtheorem{name}[counter]{Printed output}    ->      \newtheorem{name}[counter]{Printed output}
+    Text                             ¦                    Text text
+    text                             ¦
+
 Also some commands (eg *item*), will always keep a line break before them.
 
     \begin{enumerate}      ->      \begin{enumerate}

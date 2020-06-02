@@ -3,6 +3,7 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 ## Unreleased
 
 - LaTeX: break after a paragraph that ends in an end-of-line comment (#148)
+- LaTeX: Allow any number of optional arguments to commands (#141)
 - Python & Julia: All triple-quote strings should now work. However rST
   support is not there yet. (#157, #203)
 
