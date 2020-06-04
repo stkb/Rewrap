@@ -93,10 +93,10 @@
   },
   "scripts": {
     "test": "node tests",
-    "postinstall": "dotnet restore vscode",
+    "postinstall": "dotnet restore core",
     "compile": "npm run fable-splitter",
     "dev": "npm run fable-splitter -- --watch",
-    "fable-splitter": "cd vscode && npx fable-splitter --config FableConfig.js",
+    "fable-splitter": "cd vscode && npx fable-splitter --config .fableconfig.js",
     "clean": "rimraf vscode/compiled",
     "vscode:prepublish": "npm run clean && npm run compile && npm test"
   },

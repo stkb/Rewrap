@@ -1,10 +1,6 @@
 const path = require("path");
 const tests = require('../tests')
 
-function resolve(filePath) {
-  return path.resolve(__dirname, filePath)
-}
-
 function runTests() {
   try {
       tests.run()
@@ -14,9 +10,8 @@ function runTests() {
 }
 
 module.exports = {
-  // These absolute paths may no longer be necessary with Fable 2
-  entry: resolve("Fable.fsproj"),
-  outDir: resolve("compiled"),
+  entry: "../Core/Core.fsproj",
+  outDir: "compiled",
   babel: {
     presets: [[ "@babel/preset-env", { targets: { node: "current" }, modules: "commonjs" }]],
     sourceMaps: false,

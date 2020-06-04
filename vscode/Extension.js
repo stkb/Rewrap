@@ -3,8 +3,8 @@ const { Range, commands, workspace, window } = vscode
 const getSettings = require('./Settings')
 const getCustomMarkers = require('./CustomLanguage')()
 const fixSelections = require('./FixSelections')
-const { DocState, Position, Selection } = require('./compiled/core/Types')
-const Rewrap = require('./compiled/core/Main')
+const { DocState, Position, Selection } = require('./compiled/Types')
+const Rewrap = require('./compiled/Main')
 
 /** Function to activate the extension. */
 exports.activate = async function activate(context)
