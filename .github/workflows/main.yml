@@ -1,0 +1,30 @@
+name: Build & Test
+
+# Triggers on pushes or pull requests to any branch
+on: [push, pull_request]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    steps:
+    
+    - name: Check-out Repo # (under $GITHUB_WORKSPACE)
+      uses: actions/checkout@v2 
+      
+    - name: Setup .NET Core SDK
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 2.1.805
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build & Run Tests
+      run: npm run vscode:prepublish --silent
