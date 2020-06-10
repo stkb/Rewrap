@@ -27,7 +27,10 @@ function getWrappingColumns(setting)
     if(extensionColumn = setting('rewrap.wrappingColumn'))
         return [extensionColumn]
     else if((rulers = setting('editor.rulers'))[0])
-        return rulers
+        // Rulers might be {"column": 80, "color": "#000000"} objects
+        return rulers.map(
+            (ruler) => Number.isInteger(ruler) ? ruler : ruler.column
+        )
     else
         return [setting('editor.wordWrapColumn')]
         // The default for this is already 80
