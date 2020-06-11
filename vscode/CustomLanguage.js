@@ -1,6 +1,6 @@
 const Path = require('path')
 const FS = require('fs')
-const JSON = require('comment-json')
+const JSON = require('json5')
 
 const getConfig = (getText, path) => {
     let config = { line: null, block: null }
