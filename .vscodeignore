@@ -3,10 +3,7 @@
 # Whitelist
 
 !images/**
-!node_modules/fast-diff/**
-!node_modules/comment-json/**
-!node_modules/json-parser/**
-!node_modules/esprima/**
+!node_modules/**
 !vscode/compiled/**
 !vscode/Settings.js
 !vscode/CustomLanguage.js
