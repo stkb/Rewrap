@@ -103,10 +103,13 @@
   "devDependencies": {
     "@babel/core": "^7.10.2",
     "@babel/preset-env": "^7.10.2",
+    "@octokit/rest": "^17.11.0",
     "@types/vscode": "1.30.0",
     "fable-compiler": "^2.10.0",
     "fable-splitter": "^2.1.13",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "root-require": "^0.3.1",
+    "xml2js": "^0.4.23"
   },
   "dependencies": {
     "fast-diff": "^1.2.0",
