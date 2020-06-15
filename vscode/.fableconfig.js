@@ -17,5 +17,5 @@ module.exports = {
     sourceMaps: false,
   },
   fable: { },
-  postbuild: runTests
+  onCompiled: runTests
 }
