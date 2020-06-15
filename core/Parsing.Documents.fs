@@ -167,6 +167,8 @@ let mutable languages = [
         ( sourceCode [ line "%(?![%{}])"; block ( "%\{", "%\}" ) ] )
     lang "Objective-C" "" ".m|.mm"
         java
+    lang "Octave" "" ""
+        ( sourceCode [ block ("#\{", "#\}"); block ("%\{", "%\}"); line "##?"; line "%[^!]" ])
     lang "Perl" "perl6" ".p6|.pl|.pl6|.pm|.pm6"
         // Putting Perl & Perl6 together. Perl6 also has a form of block comment
         // which still needs to be supported.

@@ -7,6 +7,7 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 - Python & Julia: All triple-quote strings should now work. However rST
   support is not there yet. (#157, #203)
 - VSCode: support new ruler objects in settings (#208)
+- Support Octave (#206)
 
 
 ### 1.11.1
