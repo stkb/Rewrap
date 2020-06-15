@@ -136,7 +136,8 @@ let godoc settings =
         ignoreParser
             (Nonempty.span (fun line -> line.[0] = ' ' || line.[0] = '\t'))
     let textLines =
-        (Nonempty.singleton << Wrap << Wrappable.fromLines ("", ""))
+        splitIntoChunks (afterRegex (Regex("  $")))
+            >> Nonempty.map (Wrap << Wrappable.fromLines ("", ""))
 
     textLines
         |> takeUntil (tryMany [blankLines; indentedLines])

@@ -8,6 +8,8 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
   support is not there yet. (#157, #203)
 - VSCode: support new ruler objects in settings (#208)
 - Support Octave (#206)
+- Preserves the line-break after any line that ends in two spaces (was just for
+  Markdown, now for all types).
 
 
 ### 1.11.1

@@ -35,6 +35,14 @@ applies to the default plain text type.
 
 Also works with tab characters.
 
+Two spaces at the end of a line will preserve the line break after it (this
+works anywhere).
+
+    Foo bar.··  ¦    ->      Foo bar.··  ¦
+    Baz foo     ¦            Baz foo bar ¦
+    bar baz.    ¦            baz.        ¦
+
+
 ## Odd cases ##
 
 Tab characters in the middle of a paragraph could cause improper wrapping.
