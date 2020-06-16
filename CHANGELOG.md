@@ -10,6 +10,8 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 - Support Octave (#206)
 - Preserves the line-break after any line that ends in two spaces (was just for
   Markdown, now for all types).
+- XML docs: Only preserve line linebreaks before/after certain "block" elements;
+  wrap all other elements inline.
 
 
 ### 1.11.1

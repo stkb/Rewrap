@@ -104,17 +104,17 @@ let repeatToEnd partialParser : TotalParser =
 let splitIntoChunks (splitFn: SplitFunction) : (Lines -> Nonempty<Lines>) =
     Nonempty.unfold splitFn
 
-
-/// Creates a SplitFunction that splits before a line matches the given regex
-let beforeRegex (regex: Regex) (Nonempty(head, tail) as lines) =
-    match Nonempty.span (not << Line.contains regex) lines with
-        | Some res ->
-            res
+let splitBefore (predicate: string -> bool) (Nonempty(head, tail) as lines) =
+    match Nonempty.span (not << predicate) lines with
+        | Some res -> res
         | None ->
-            List.span (not << Line.contains regex) tail
+            List.span (not << predicate) tail
                 |> Tuple.mapFirst (fun t -> Nonempty(head, t))
                 |> Tuple.mapSecond Nonempty.fromList
 
+/// Creates a SplitFunction that splits before a line matches the given regex
+let beforeRegex (regex: Regex) : SplitFunction =
+    splitBefore (Line.contains regex)
 
 /// Creates a SplitFunction that splits after a line matches the given regex
 let afterRegex regex : SplitFunction =

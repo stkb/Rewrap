@@ -14,8 +14,8 @@
     <Compile Include="Parsing.Core.fs" />
     <Compile Include="Parsing.Markdown.fs" />
     <Compile Include="Parsing.Comments.fs" />
+    <Compile Include="Parsing.Sgml.fs" />
     <Compile Include="Parsing.DocComments.fs" />
-    <Compile Include="Parsing.Html.fs" />
     <Compile Include="Parsing.SourceCode.fs" />
     <Compile Include="Parsing.Latex.fs" />
     <Compile Include="Parsing.Language.fs" />

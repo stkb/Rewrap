@@ -2,6 +2,7 @@ module internal Parsing.SourceCode
 
 open Rewrap
 open Core
+open Sgml
 
 
 /// Creates a parser for source code files, given a list of comment parsers
@@ -50,7 +51,7 @@ let javadocMarkers =
 
 
 /// Parser for java/javascript (also used in html)
-let java =
+let java : Settings -> TotalParser =
     sourceCode
         [ customBlock DocComments.javadoc ( "\\*?", " * " ) javadocMarkers
           cBlock
@@ -59,12 +60,12 @@ let java =
         ]
 
 /// Parser for css (also used in html)
-let css =
+let css : Settings -> TotalParser =
     sourceCode
         [ customBlock DocComments.javadoc ( "\\*?", " * " ) javadocMarkers
           cBlock
         ]
 
-/// Parser for html (also used in dotNet)
-let html =
-    Html.html java css
+/// Parser for html
+let html : Settings -> TotalParser =
+    sgml java css [||]

@@ -1,4 +1,4 @@
-module internal Parsing.Html
+module internal Parsing.Sgml
 
 open Prelude
 open Rewrap
@@ -6,7 +6,7 @@ open Parsing.Core
 open System.Text.RegularExpressions
 
 
-let private regex str =
+let inline private regex str =
     Regex(str, RegexOptions.IgnoreCase)
 
 let private scriptMarkers =
@@ -15,11 +15,10 @@ let private scriptMarkers =
 let private cssMarkers =
     (regex "<style", regex "</style>")
 
-
-
-let html
+let sgml
     (scriptParser: Settings -> TotalParser)
     (cssParser: Settings -> TotalParser)
+    (blockTags: seq<string>)
     (settings: Settings)
     : TotalParser =
 
@@ -49,9 +48,23 @@ let html
               embeddedScript cssMarkers cssParser
             ]
 
+    // Checks if a regex contains a block tag name as its first captured group
+    let isBlockTag (pattern: string) (line: string) =
+        let m = (regex pattern).Match(line)
+        m.Success && (Seq.isEmpty blockTags ||
+                      Seq.contains (m.Groups.[1].Value.ToLower()) blockTags)
+
+    let beginsWithBlockStartTag = isBlockTag @"^\s*<([\w.-]+)"
+    let justBlockEndTag = isBlockTag @"^\s*</([\w.-]+)\s*>"
+    let endsWithBlockTag = isBlockTag @"([\w.-]+)>\s*$"
+
+    let breakBefore line = justBlockEndTag line || beginsWithBlockStartTag line
+    let breakAfter line =
+        Line.contains (regex @"([""\s]>\s*|  )$") line || endsWithBlockTag line
+
     let paragraphBlocks =
-        splitIntoChunks (beforeRegex (regex "^\\s*<"))
-            >> Nonempty.collect (splitIntoChunks (afterRegex (regex @"(\>\s*|  )$")))
+        splitIntoChunks (splitBefore breakBefore)
+            >> Nonempty.collect (splitIntoChunks (Nonempty.splitAfter breakAfter))
             >> Nonempty.map (indentSeparatedParagraphBlock Block.text)
 
     takeUntil otherParsers paragraphBlocks |> repeatToEnd

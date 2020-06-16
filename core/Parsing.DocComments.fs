@@ -6,6 +6,7 @@ open Prelude
 open Block
 open Parsing.Core
 open Markdown
+open Sgml
 open System.Text.RegularExpressions
 
 
@@ -142,3 +143,13 @@ let godoc settings =
     textLines
         |> takeUntil (tryMany [blankLines; indentedLines])
         |> repeatToEnd
+
+let xmldoc =
+    let blank _ = Nonempty.singleton << ignore
+    let blockTags =
+        [| "code"; "description"; "example"; "exception"; "include"
+           "inheritdoc"; "list"; "listheader"; "item"; "para"; "param"
+           "permission"; "remarks"; "seealso"; "summary"; "term"; "typeparam"
+           "typeparamref"; "returns"; "value"
+        |]
+    sgml blank blank blockTags

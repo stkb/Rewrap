@@ -41,7 +41,7 @@ let mutable languages = [
     lang "AutoHotkey" "ahk" ".ahk"
         ( sourceCode [ line ";"; cBlock ] )
     lang "Basic" "vb" ".vb"
-        ( sourceCode [ customLine html "'''"; line "'" ] )
+        ( sourceCode [ customLine xmldoc "'''"; line "'" ] )
     lang "Batch file" "bat" ".bat"
         ( sourceCode [ line "(?:rem|::)" ] )
     lang "Bikeshed" "" ".bs"
@@ -50,17 +50,15 @@ let mutable languages = [
         ( sourceCode
             [ customBlock DocComments.javadoc ( "\\*?", " * " ) javadocMarkers
               cBlock
-              customLine html "///"
+              customLine xmldoc "///"
               customLine DocComments.javadoc "//!?"
               cLine
             ]
         )
     lang "C#" "csharp" ".cs"
         ( sourceCode
-            [ customLine html "///"
-              cLine
-              customBlock javadoc ( "\\*?", " * " ) javadocMarkers
-              cBlock
+            [ customLine xmldoc "///"; cLine
+              customBlock javadoc ( "\\*?", " * " ) javadocMarkers; cBlock
             ]
         )
     lang "CMake" "" "CMakeLists.txt"
@@ -104,7 +102,11 @@ let mutable languages = [
     lang "Elm" "" ".elm"
         ( sourceCode [ line "--"; block ( "{-\|?", "-}" ) ] )
     lang "F#" "fsharp" ".fs|.fsx"
-        ( sourceCode [ customLine html "///"; cLine; block ( @"\(\*", @"\*\)" ) ] )
+        ( sourceCode
+            [ customLine xmldoc "///"; cLine;
+              block ( @"\(\*", @"\*\)" )
+            ]
+        )
     lang "Go" "" ".go"
         ( sourceCode
             [ customBlock DocComments.godoc ( "", "" ) javadocMarkers
