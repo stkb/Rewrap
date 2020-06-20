@@ -10,7 +10,7 @@ function runTests() {
 }
 
 module.exports = {
-  entry: "../Core/Core.fsproj",
+  entry: "../core/Core.fsproj",
   outDir: "compiled",
   babel: {
     presets: [[ "@babel/preset-env", { targets: { node: "current" }, modules: "commonjs" }]],
