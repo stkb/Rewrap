@@ -1,9 +1,16 @@
-After a long break Rewrap is now back in development. **Latest version: 1.11.1**. New in this version ([full
+**Latest version: 1.12.0**. New in this version ([full
 changelog](https://github.com/stkb/vscode-rewrap/releases)):
 
-- Fix autowrap not working in embedded sections in html files in some cases
-- VSCode: Fix warning in settings editor that settings aren't per-language supported
-- C/C++: `///` comments now expect xml doc-comments instead of javadoc-style
+Lots of minor improvements. General:
+- Can now preserve a line break after any line by ending it with two spaces (was just for Markdown, now for all types).
+- VSCode: support new ruler objects in settings.
+
+Language-specific:
+- LaTeX: break after a paragraph that ends in an end-of-line comment.
+- LaTeX: allow any number of optional arguments to commands.
+- Python & Julia: all triple-quote strings should now work (however rST support is not there yet).
+- Support Octave
+- .Net XML docs: Only preserve line breaks before/after certain "block" elements; wrap all other elements inline.
 
 
 # Rewrap

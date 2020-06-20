@@ -1,17 +1,20 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
-## Unreleased
+## 1.12.0
 
-- LaTeX: break after a paragraph that ends in an end-of-line comment (#148)
-- LaTeX: Allow any number of optional arguments to commands (#141)
-- Python & Julia: All triple-quote strings should now work. However rST
-  support is not there yet. (#157, #203)
-- VSCode: support new ruler objects in settings (#208)
-- Support Octave (#206)
-- Preserves the line-break after any line that ends in two spaces (was just for
-  Markdown, now for all types).
-- XML docs: Only preserve line linebreaks before/after certain "block" elements;
-  wrap all other elements inline.
+Lots of minor improvements. General:
+- Can now preserve a line break after any line by ending it with two spaces (was
+  just for Markdown, now for all types).
+- VSCode: support new ruler objects in settings (#208).
+
+Language-specific:
+- LaTeX: break after a paragraph that ends in an end-of-line comment (#148).
+- LaTeX: allow any number of optional arguments to commands (#141).
+- Python & Julia: all triple-quote strings should now work (however rST
+  support is not there yet) (#157, #203).
+- Support Octave (#206).
+- .Net XML docs: Only preserve line breaks before/after certain "block"
+  elements; wrap all other elements inline (#174).
 
 
 ### 1.11.1
