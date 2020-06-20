@@ -405,13 +405,15 @@ function printTest(input, expected, actual, width, tabWidth)
         output.push(...input)
         return output
     }
+    const colWidth = width + 10
 
     const headers =
         ["Input", "Expected", "Actual"]
             .map((s, i) => s + " (" + columnLengths[i] + ")")
     print(headers)
 
-    print(['-', '-', '-'].map(s => s.repeat(width)))
+    print(['─', '─', '─']
+        .map(s => s.repeat(width) + "┒" + s.repeat(colWidth - width - 1)))
 
     for(let i = 0; i < lineCount; i++) {
         const parts = columns
@@ -432,8 +434,8 @@ function printTest(input, expected, actual, width, tabWidth)
     }
 
     function padRight(s) {
-        s = splitAtWidth(width)(s)[0]
-        return s + " ".repeat(width - Core.strWidth(1, s))
+        s = splitAtWidth(colWidth)(s)[0]
+        return s + " ".repeat(colWidth - Core.strWidth(1, s))
     }
 
     function showTabs(str)
