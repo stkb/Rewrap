@@ -146,7 +146,7 @@ let rec markdown (settings: Settings): TotalParser =
                 |> Option.bind (Nonempty.span (fun s -> not (Line.isBlank s)))
 
         let mapper lines =
-            let Nonempty(firstTuple, otherTuples) as tuples =
+            let Nonempty((firstPrefix, _), otherTuples) as tuples =
                 // We already know the first line contains a `>`
                 Nonempty.map (Line.split (Regex(" {0,3}>? ?"))) lines
 
@@ -154,12 +154,9 @@ let rec markdown (settings: Settings): TotalParser =
                 if settings.reformat then
                    ("> ", "> ")
                 else
-                   ( fst firstTuple
-                   , fst
-                        (List.tryHead otherTuples
-                            |> Option.defaultValue firstTuple
-                        )
-                   )
+                    match List.tryHead otherTuples with
+                        | Some (s, _) when not (s.Contains(">")) -> firstPrefix, s
+                        | _ -> firstPrefix, firstPrefix
 
             (prefixes, tuples |> Nonempty.map snd)
                 |> Block.splitUp (markdown settings)
