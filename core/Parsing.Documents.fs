@@ -150,7 +150,7 @@ let mutable languages = [
     lang "Julia" "" ".jl"
         ( sourceCode
             [ line "#"
-              block ( @".*""""""", "\"\"\"" )
+              block ( @".*?""""""", "\"\"\"" )
             ]
         )
     lang "JSON" "json5|jsonc" ".json|.json5|.jsonc"
@@ -211,8 +211,8 @@ let mutable languages = [
     lang "Python" "" ".py"
         ( sourceCode
             [ line "#"
-              block ( @".*""""""", "\"\"\"" )
-              block ( @".*'''", "'''" )
+              block ( @".*?""""""", "\"\"\"" )
+              block ( @".*?'''", "'''" )
             ]
         )
     lang "R" "" ".r"

@@ -84,3 +84,12 @@ Starting the string later on the line is also (imperfectly) supported.
     j        ¦           j
 
 Imperfectly, because it's not a full language parser.
+
+Strings on one line are wrapped too,
+
+    var = """a b c"""      ->      var = """a
+    x x x x x x                    b c"""
+              ¦                    x x x x x x
+
+Though these should maybe be left alone in a large (eg whole-document)
+selection, and only wrapped if explicitly asked
