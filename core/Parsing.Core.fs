@@ -151,7 +151,7 @@ let firstLineIndentParagraphBlock reformat (Nonempty(headLine, tailLines) as lin
                 |> Line.leadingWhitespace
             )
 
-    Block.text (prefixes, lines |> Nonempty.map String.trimStart)
+    Block.text (prefixes, lines |> map String.trimStart)
 
 
 /// Ignores the first line and parses the rest with the given parser
@@ -173,7 +173,7 @@ let indentSeparatedParagraphBlock
     let prefix =
         Line.leadingWhitespace (Nonempty.head lines)
 
-    textType ((prefix, prefix), lines |> Nonempty.map String.trimStart)
+    textType ((prefix, prefix), lines |> map String.trimStart)
 
 
 /// Creates an OptionSplitFunction that will take all lines between a start and

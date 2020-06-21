@@ -1,6 +1,5 @@
 module internal Parsing.Comments
 
-open Nonempty
 open System.Text.RegularExpressions
 open Prelude
 open Rewrap
@@ -31,7 +30,7 @@ let private stripLines prefixRegex prefixLength tabWidth eraseIndentedMarker : L
                     else String.dropStart prefixLength pre
                 )
             >> fun (pre, rest) -> pre + rest
-    Nonempty.map stripLine
+    map stripLine
 
 let private maybeReformat settings (prefix: string) : string =
     if prefix <> "" && settings.reformat then prefix.TrimEnd() + " " else prefix
@@ -200,7 +199,7 @@ let blockComment
 
         let stdParser =
             let otherLinesParser =
-                Nonempty.map stripLine
+                map stripLine
                     >> Wrappable.fromLines (newPrefix, newPrefix)
                     >> Block.splitUp (contentParser settings)
 

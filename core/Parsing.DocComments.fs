@@ -138,7 +138,7 @@ let godoc settings =
             (Nonempty.span (fun line -> line.[0] = ' ' || line.[0] = '\t'))
     let textLines =
         splitIntoChunks (afterRegex (Regex("  $")))
-            >> Nonempty.map (Wrap << Wrappable.fromLines ("", ""))
+            >> map (Wrap << Wrappable.fromLines ("", ""))
 
     textLines
         |> takeUntil (tryMany [blankLines; indentedLines])

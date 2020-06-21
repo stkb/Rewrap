@@ -137,7 +137,7 @@ let rec private processBlocks
             match block with
                 | Wrap wrappable -> Wrapping.wrap settings wrappable
                 | NoWrap lines -> lines
-                | Comment subBlocks -> Nonempty.collect processWholeBlock subBlocks
+                | Comment subBlocks -> Nonempty.concatMap processWholeBlock subBlocks
 
         let rec loop output (sels: List<LineRange>) start (Nonempty(block, otherBlocks)) origLines =
 

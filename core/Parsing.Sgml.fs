@@ -64,7 +64,7 @@ let sgml
 
     let paragraphBlocks =
         splitIntoChunks (splitBefore breakBefore)
-            >> Nonempty.collect (splitIntoChunks (Nonempty.splitAfter breakAfter))
-            >> Nonempty.map (indentSeparatedParagraphBlock Block.text)
+            >> Nonempty.concatMap (splitIntoChunks (Nonempty.splitAfter breakAfter))
+            >> map (indentSeparatedParagraphBlock Block.text)
 
     takeUntil otherParsers paragraphBlocks |> repeatToEnd

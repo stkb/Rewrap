@@ -13,8 +13,8 @@ open Parsing.SourceCode
 let plainText settings =
     let paragraphs =
         splitIntoChunks (onIndent settings.tabWidth)
-            >> Nonempty.collect (splitIntoChunks (afterRegex (Regex("  $"))))
-            >> Nonempty.map (indentSeparatedParagraphBlock Block.text)
+            >> Nonempty.concatMap (splitIntoChunks (afterRegex (Regex("  $"))))
+            >> map (indentSeparatedParagraphBlock Block.text)
 
     takeUntil blankLines paragraphs |> repeatToEnd
 
@@ -261,8 +261,8 @@ let mutable languages = [
 /// Creates a custom language parser. Also adds it to the list of languages
 let private addCustomLanguage name (markers: CustomMarkers) =
     let escape = System.Text.RegularExpressions.Regex.Escape
-    let maybeLine = Option.map (line << escape) markers.line
-    let maybeBlock = Option.map (block << Tuple.map escape) markers.block
+    let maybeLine = map (line << escape) markers.line
+    let maybeBlock = map (block << map escape) markers.block
     let list = List.choose id [ maybeLine; maybeBlock ]
     let cl = lang name "" "" (sourceCode list)
     languages <- cl :: languages

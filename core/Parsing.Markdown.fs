@@ -15,7 +15,7 @@ let rec markdown (settings: Settings): TotalParser =
                 |> List.map (fun s -> s.Length - s.TrimStart().Length)
                 |> List.min
 
-        lines |> Nonempty.map (String.dropStart (minIndent - n))
+        lines |> map (String.dropStart (minIndent - n))
 
 
     /// Ignores fenced code blocks (``` ... ```)
@@ -148,17 +148,17 @@ let rec markdown (settings: Settings): TotalParser =
         let mapper lines =
             let Nonempty((firstPrefix, _), otherTuples) as tuples =
                 // We already know the first line contains a `>`
-                Nonempty.map (Line.split (Regex(" {0,3}>? ?"))) lines
+                map (Line.split (Regex(" {0,3}>? ?"))) lines
 
             let prefixes =
                 if settings.reformat then
                    ("> ", "> ")
                 else
                     match List.tryHead otherTuples with
-                        | Some (s, _) when not (s.Contains(">")) -> firstPrefix, s
+                        | Some (s: string, _) when not (s.Contains(">")) -> firstPrefix, s
                         | _ -> firstPrefix, firstPrefix
 
-            (prefixes, tuples |> Nonempty.map snd)
+            (prefixes, map snd tuples)
                 |> Block.splitUp (markdown settings)
 
         optionParser splitter mapper
@@ -217,7 +217,7 @@ let rec markdown (settings: Settings): TotalParser =
 
     let paragraph =
         splitIntoChunks (afterRegex (Regex(@"(\\|\s{2})$")))
-            >> Nonempty.map (firstLineIndentParagraphBlock settings.reformat)
+            >> map (firstLineIndentParagraphBlock settings.reformat)
 
     let paragraphTerminator =
         tryMany [
@@ -245,8 +245,7 @@ let rec markdown (settings: Settings): TotalParser =
                 (fun () -> takeUntil paragraphTerminator paragraph lines)
 
 
-    Nonempty.map (Line.tabsToSpaces settings.tabWidth)
-        >> (repeatToEnd allParsers)
+    map (Line.tabsToSpaces settings.tabWidth) >> (repeatToEnd allParsers)
 
 
 let private mdMarker marker =

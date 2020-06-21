@@ -1,173 +1,108 @@
-module internal rec Nonempty
+module internal Nonempty
 
 open Prelude
 
-//-----------------------------------------------------------------------------
-// CREATING NON-EMPTY LISTS
-//-----------------------------------------------------------------------------
+let toList : 'a Nonempty -> 'a List = fun (Nonempty (h, t)) -> h :: t
 
+// ================ Creating ================ //
 
-let fromList list =
-    match list with
-        | [] ->
-            None
-        | x :: xs ->
-            Some(Nonempty(x, xs))
+// Duplicate for now so I don't have to modify old code
+let inline singleton x = x .@ []
 
+let fromList : 'a List -> 'a Nonempty Option =
+  function | [] -> None | x :: xs -> Some (x .@ xs)
 
-let fromListUnsafe<'T> (list: List<'T>) : Nonempty<'T> =
-    Nonempty (List.head list, List.tail list)
+let fromListUnsafe : 'a List -> 'a Nonempty =
+  fun xs -> List.head xs .@ List.tail xs
 
+let cons : 'a -> 'a Nonempty -> 'a Nonempty =
+  fun h neList -> h .@ toList neList
 
-let singleton head =
-    Nonempty (head, [])
+/// Appends an element to the end of the Nonempty list
+let snoc : 'a -> 'a Nonempty -> 'a Nonempty =
+  fun last (Nonempty(h, t)) -> h .@ t @ [last]
 
-
-let cons head neList =
-    Nonempty(head, toList neList)
-
-let snoc last (Nonempty(head, tail)) =
-    Nonempty(head, tail @ [last])
-
-let append (Nonempty(head, tail)) b =
-    Nonempty(head, tail @ toList b)
+let append : 'a Nonempty -> 'a Nonempty -> 'a Nonempty =
+  fun (Nonempty(h, t)) b -> h .@ t @ toList b
 
 let appendToList listA neListB =
     match fromList listA with
         | Some neListA -> append neListA neListB
         | None -> neListB
 
+// ================ Getting elements or other ================ //
 
-//-----------------------------------------------------------------------------
-// GETTING FROM NON-EMPTY LISTS
-//-----------------------------------------------------------------------------
+let length : 'a Nonempty -> int = fun (Nonempty (_, t)) -> List.length t + 1
+let head : 'a Nonempty -> 'a = fun (Nonempty (h, _)) -> h
+let tail : 'a Nonempty -> 'a List = fun (Nonempty (_, t)) -> t
+let last : 'a Nonempty -> 'a =
+  fun (Nonempty (h, t)) -> fromMaybe h (List.tryLast t)
 
-
-let head (Nonempty (head, tail)) =
-    head
-
-
-let tail (Nonempty (head, tail)) =
-    tail
+let tryFind : ('a -> bool) -> 'a Nonempty -> 'a Option =
+  fun predicate -> toList >> List.tryFind predicate
 
 
-let last (Nonempty (head, tail)) =
-    List.tryLast tail |> Option.defaultValue head
+// ================ Transforming ================ //
 
+let rev : 'a Nonempty -> 'a Nonempty =
+  fun list -> list |> toList |> List.rev |> fromListUnsafe
 
-let length<'T> =
-    tail >> List.length<'T> >> (+) 1
+let mapHead : ('a -> 'a) -> 'a Nonempty -> 'a Nonempty =
+  fun fn (Nonempty (h, t)) -> fn h .@ t
 
+let mapTail : ('a -> 'a) -> 'a Nonempty -> 'a Nonempty =
+  fun fn (Nonempty (h, t)) -> h .@ List.map fn t
 
-let tryFind predicate =
-    toList<'T> >> List.tryFind<'T> predicate
+let mapInit : ('a -> 'a) -> 'a Nonempty -> 'a Nonempty =
+  fun fn -> rev >> mapTail fn >> rev
 
+let mapLast  : ('a -> 'a) -> 'a Nonempty -> 'a Nonempty =
+  fun fn -> rev >> mapHead fn >> rev
 
-//-----------------------------------------------------------------------------
-// TRANSFORMING NON-EMPTY LISTS
-//-----------------------------------------------------------------------------
+let replaceHead : 'a -> 'a Nonempty -> 'a Nonempty =
+  fun h -> mapHead (fun _ -> h)
 
+let concatMap : ('a -> 'b Nonempty) -> 'a Nonempty -> 'b Nonempty =
+  fun fn neList ->
+  let rec loop output = function
+    | [] -> output | x :: xs -> loop (append (fn x) output) xs
+  rev neList |> (fun (Nonempty(head, tail)) -> loop (fn head) tail)
 
-let toList<'T> (Nonempty (head, tail): Nonempty<'T>): List<'T> =
-    List.Cons (head, tail)
-
-
-let rev<'T> =
-    toList >> List.rev<'T> >> fromListUnsafe
-
-
-let map fn (Nonempty(head, tail)) =
-    Nonempty(fn head, List.map fn tail)
-
-
-let mapHead fn (Nonempty (head, tail)) =
-    Nonempty (fn head, tail)
-
-
-let mapTail fn (Nonempty (head, tail)) =
-    Nonempty (head, List.map fn tail)
-
-
-let mapInit fn =
-    rev >> mapTail fn >> rev
-
-let mapLast fn =
-    rev >> mapHead fn >> rev
-
-
-let replaceHead newHead =
-    mapHead (fun _ -> newHead)
-
-
-// B  =  Nonempty<'T>
-let collect (fn: 'T -> Nonempty<'U>) (neList: Nonempty<'T>) : Nonempty<'U> =
-    let rec loop output input =
-        match input with
-            | x :: xs ->
-                loop (fn x + output) xs
-            | [] ->
-                output
-
-    rev neList |> (fun (Nonempty(head, tail)) -> loop (fn head) tail)
-
-let splitAt n (Nonempty(head, tail)) =
-    let rec loop count left maybeRight =
-        match maybeRight with
-            | None ->
-                (left, None)
-            | Some (Nonempty(x, xs)) ->
-                if count < 1 then
-                    (left, maybeRight)
-                else
-                    loop (count - 1) (Nonempty.cons x left) (Nonempty.fromList xs)
-
-    loop (n - 1) (Nonempty.singleton head) (Nonempty.fromList tail)
-        |> Tuple.mapFirst Nonempty.rev
-
+/// Splits the list at the given position. If n < 1 then n = 1
+let splitAt : int -> 'a Nonempty -> ('a Nonempty * 'a Nonempty Option) =
+  fun n (Nonempty(head, tail)) ->
+  let rec loop count leftAcc maybeRightAcc =
+    match maybeRightAcc with
+      | None -> leftAcc, None
+      | Some (Nonempty(x, xs)) ->
+          if count < 1 then leftAcc, maybeRightAcc
+          else loop (count - 1) (cons x leftAcc) (fromList xs)
+  loop (n - 1) (singleton head) (fromList tail) |> Tuple.mapFirst rev
 
 /// Takes a predicate and a list, and Optionally returns a Tuple, of the longest
 /// prefix of the list for which the predicate holds, and the rest of the list.
 /// If that prefix is empty, returns None.
-let span predicate: Nonempty<'a> -> Option<Nonempty<'a> * Option<Nonempty<'a>>> =
-    let rec loop output maybeRemaining =
-        match maybeRemaining with
-            | None ->
-                Nonempty.fromList (List.rev output)
-                    |> Option.map(fun o -> (o, maybeRemaining))
-            | Some(Nonempty(head, tail)) ->
-                if predicate head then
-                    loop (head :: output) (Nonempty.fromList tail)
-                else
-                        Nonempty.fromList (List.rev output)
-                        |> Option.map (fun o -> (o, maybeRemaining))
+let span : ('a -> bool) -> 'a Nonempty -> ('a Nonempty * 'a Nonempty Option) Option =
+  fun predicate ->
+  let rec loop output maybeRemaining =
+    match maybeRemaining with
+      | Some (Nonempty(h, t)) when predicate h -> loop (h :: output) (fromList t)
+      | _ -> fromList (List.rev output) |> map (fun o -> o, maybeRemaining)
+  Some >> loop []
 
-    Some >> loop []
+/// Splits after the first element where the predicate evaluates true
+let splitAfter : ('a -> bool) -> 'a Nonempty -> 'a Nonempty * 'a Nonempty Option =
+  fun predicate ->
+  let rec loop output (Nonempty(h, t)) =
+    match fromList t with
+      | Some nextList when not (predicate h) -> loop (h :: output) nextList
+      | x -> h .@ output, x
+  loop [] >> Tuple.mapFirst rev
 
-
-let splitAfter predicate: Nonempty<'a> -> Nonempty<'a> * Option<Nonempty<'a>> =
-    let rec loop output (Nonempty(head, tail)) =
-        let maybeNextList =
-            Nonempty.fromList tail
-
-        if predicate head then
-            (Nonempty(head, output), maybeNextList)
-        else
-            match maybeNextList with
-                | Some(nextList) ->
-                    loop (head :: output) nextList
-                | None ->
-                    (Nonempty(head, output), None)
-
-    loop [] >> Tuple.mapFirst Nonempty.rev
-
-
-let unfold (fn: 'B -> 'A * Option<'B>): ('B -> Nonempty<'A>) =
-    let rec loop output input =
-        match fn input with
-            | (res, Some(nextInput)) ->
-                loop (res :: output) nextInput
-
-            | (res, None) ->
-                Nonempty(res, output)
-        in
-            loop [] >> Nonempty.rev
+let unfold : ('b -> 'a * 'b Option) -> 'b -> 'a Nonempty =
+  fun fn ->
+  let rec loop output input =
+    match fn input with
+      | (res, Some nextInput) -> loop (res :: output) nextInput
+      | (res, None) ->  Nonempty(res, output)
+  loop [] >> rev

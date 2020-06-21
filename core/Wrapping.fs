@@ -132,15 +132,10 @@ let wrap settings (prefixes, lines) : Lines =
 
     /// Tuple of widths for the first and other lines
     let lineWidths =
-        prefixes
-            |> Tuple.map
-                (Line.tabsToSpaces settings.tabWidth
-                    >> (fun s -> column - s.Length)
-                )
-
+        prefixes |> map (fun s -> column - (Line.tabsToSpaces settings.tabWidth s).Length)
     lines
         |> addDoubleSpaces
-        |> Nonempty.map freezeInlineTags
+        |> map freezeInlineTags
         |> wrapLines lineWidths
-        |> Nonempty.map unfreezeInlineTags
+        |> map unfreezeInlineTags
         |> addPrefixes prefixes

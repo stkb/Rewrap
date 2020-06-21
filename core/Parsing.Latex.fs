@@ -154,7 +154,7 @@ let latex (settings: Settings) : TotalParser =
         let processChunk =
             (Nonempty.mapTail freezeAnyEOLComment >> firstLineIndentParagraphBlock settings.reformat)
 
-        splitIntoChunks (afterRegex newlineRegex) >> Nonempty.map processChunk
+        splitIntoChunks (afterRegex newlineRegex) >> map processChunk
 
     /// Combination of other parsers
     and otherParsers =
