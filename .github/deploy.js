@@ -40,10 +40,10 @@ const getChangesText = () => {
 }
 
 const getBetaReleaseText = () => `
-This pre-release version has the following changes:
+**This pre-release version has the following changes:**
 ${getChangesText ()}
 
-### Beta versions ###
+#### Beta versions ####
 
 You can test pre-release (beta) versions by downloading and installing the \
 .vsix file from the "Assets" section below. Be sure to choose the correct \
