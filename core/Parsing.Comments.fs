@@ -106,7 +106,7 @@ let lineComment
             let newPrefix =
                 maybeReformat settings prefix
             Wrappable.fromLines (newPrefix, newPrefix)
-                >> Block.splitUp
+                >> Block.oldSplitUp
                     (stripLines prefixRegex prefixLength settings.tabWidth true
                         >> contentParser settings
                     )
@@ -201,7 +201,7 @@ let blockComment
             let otherLinesParser =
                 map stripLine
                     >> Wrappable.fromLines (newPrefix, newPrefix)
-                    >> Block.splitUp (contentParser settings)
+                    >> Block.oldSplitUp (contentParser settings)
 
             otherLinesParser
                 |> takeUntil stdDecLineParser
@@ -213,7 +213,7 @@ let blockComment
                     >> Nonempty.mapTail stripLine
                     >> Wrappable.fromLines
                         (maybeReformat settings headPrefix, newPrefix)
-                    >> Block.splitUp (contentParser settings)
+                    >> Block.oldSplitUp (contentParser settings)
 
             decorationLinesParser maybeMakeHeadDecLine lines
                 |> Option.defaultWith

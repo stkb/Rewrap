@@ -146,20 +146,10 @@ let rec markdown (settings: Settings): TotalParser =
                 |> Option.bind (Nonempty.span (fun s -> not (Line.isBlank s)))
 
         let mapper lines =
-            let Nonempty((firstPrefix, _), otherTuples) as tuples =
-                // We already know the first line contains a `>`
-                map (Line.split (Regex(" {0,3}>? ?"))) lines
-
-            let prefixes =
-                if settings.reformat then
-                   ("> ", "> ")
-                else
-                    match List.tryHead otherTuples with
-                        | Some (s: string, _) when not (s.Contains(">")) -> firstPrefix, s
-                        | _ -> firstPrefix, firstPrefix
-
-            (prefixes, map snd tuples)
-                |> Block.splitUp (markdown settings)
+            let splitLines = lines |> map (Line.split (Regex(" {0,3}>? ?")))
+            let prefixes = if settings.reformat then Nonempty.singleton "> "
+                           else map fst splitLines
+            Block.splitUp (markdown settings) (prefixes, map snd splitLines)
 
         optionParser splitter mapper
 
@@ -209,7 +199,7 @@ let rec markdown (settings: Settings): TotalParser =
                     , List.map (Line.split tailRegex >> snd) tailLines
                     )
               )
-                    |> Block.splitUp (markdown settings)
+                    |> Block.oldSplitUp (markdown settings)
             , remainingLines
             )
 

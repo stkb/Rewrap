@@ -111,3 +111,4 @@ module internal Tuple =
   let inline mapSecond f (a, b) = (a, f b)
   let inline replaceFirst x (_, b) = (x, b)
   let inline replaceSecond x (a, _) = (a, x)
+let inline tuple a b = a, b

@@ -40,9 +40,9 @@ type Lines =
 // CONSTRUCTORS
 ///////////////////////////////////////////////////////////////////////////////
 
-let comment parser wrappable: Block =
-    Comment (Block.splitUp parser wrappable)
-
+let comment parser wrappable : Block =
+    Comment (oldSplitUp parser wrappable)
+    
 let text wrappable: Block =
     Wrap wrappable
 
@@ -71,28 +71,39 @@ let length block =
 // MODIFYING BLOCKS
 ///////////////////////////////////////////////////////////////////////////////
 
-let splitUp (parser: Lines -> Blocks) ((pHead, pTail), lines) =
-
-    let concatPrefixes (head1, tail1) (head2, tail2) =
-        (head1 + head2, tail1 + tail2)
+/// Splits a Lines up into Blocks with the given parser, then prepends the given
+/// prefixes to those child blocks
+let splitUp : (Lines -> Blocks) -> (Nonempty<string> * Lines) -> Blocks =
+    let concatPrefixes (h1, t1) (h2, t2) = h1 + h2, t1 + t2
 
     let prependPrefixTrimEndOfBlankLine (p: string) (s: string) : string =
         if Line.isBlank s then p.TrimEnd() else p + s
 
-    let prependPrefixes p block =
-        match block with
-            | Comment subBlocks ->
-                // A comment in a comment (probably) won't happen :)
+    let takePrefixes : Nonempty<string> -> Block -> (string * string * Nonempty<string>) =
+        fun (Nonempty(pre1, preRest) as prefixes) block ->
+        // Drops up to n elements from a nonempt list, always leaving 1 remaining
+        let rec dropUpTo n (Nonempty(_, t) as neList) =
+            match Nonempty.fromList t with
+            | Some next when n > 0 -> dropUpTo (n - 1) next | _ -> neList
+        pre1, fromMaybe pre1 (List.tryHead preRest), dropUpTo (length block) prefixes
+
+    let prependPrefixes (prefixes, Nonempty(block, nextBlocks)) =
+        let pre1, pre2, preNext = takePrefixes prefixes block
+        let block' =
+            match block with
+            | Comment subBlocks -> // A comment in a comment (probably) won't happen :)
                 block
             | Wrap wrappable ->
-                Wrap (Wrappable.mapPrefixes (concatPrefixes p) wrappable)
-
+                Wrap (Wrappable.mapPrefixes (concatPrefixes (pre1, pre2)) wrappable)
             | NoWrap ls ->
                 ls
-                    |> Nonempty.mapHead (prependPrefixTrimEndOfBlankLine (fst p))
-                    |> Nonempty.mapTail (prependPrefixTrimEndOfBlankLine (snd p))
+                    |> Nonempty.mapHead (prependPrefixTrimEndOfBlankLine pre1)
+                    |> Nonempty.mapTail (prependPrefixTrimEndOfBlankLine pre2)
                     |> NoWrap
+        block', tuple preNext <<|> Nonempty.fromList nextBlocks
 
-    parser lines
-        |> Nonempty.mapHead (prependPrefixes (pHead, pTail))
-        |> Nonempty.mapTail (prependPrefixes (pTail, pTail))
+    fun parser (prefixes, lines) ->
+    Nonempty.unfold prependPrefixes (prefixes, parser lines)
+
+let oldSplitUp : (Lines -> Blocks) -> Wrappable -> Blocks =
+    fun parser ((pre1, pre2), lines) -> splitUp parser (Nonempty(pre1, [pre2]), lines)
