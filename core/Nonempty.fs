@@ -68,7 +68,7 @@ let concatMap : ('a -> 'b Nonempty) -> 'a Nonempty -> 'b Nonempty =
     | [] -> output | x :: xs -> loop (append (fn x) output) xs
   rev neList |> (fun (Nonempty(head, tail)) -> loop (fn head) tail)
 
-/// Splits the list at the given position. If n < 1 then n = 1
+/// Splits the list at the given position. If n is less than 1 then n = 1
 let splitAt : int -> 'a Nonempty -> ('a Nonempty * 'a Nonempty Option) =
   fun n (Nonempty(head, tail)) ->
   let rec loop count leftAcc maybeRightAcc =
