@@ -2,7 +2,7 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 
 ## Unreleased
 
-- Markdown: Fix preserving indents in blockquote (#204).
+- Markdown: Fix preserving indents in blockquote (#204) [attempt 2].
 
 
 ## 1.12.0

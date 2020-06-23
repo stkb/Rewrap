@@ -56,8 +56,11 @@ type These<'a, 'b> = This of 'a | That of 'b | These of 'a * 'b
 
 // ================ Other common functions ================ //
 
+let inline always (b: 'a) (a: 'a) : 'a = b
+
 // Maybe functions for Option
 let inline fromMaybe (b: 'a) (x: Option<'a>) : 'a = Option.defaultValue b x
+let inline (|?) (x: Option<'a>) (b: 'a) : 'a = Option.defaultValue b x
 let inline maybe (b: 'b) (f: 'a -> 'b) (x: Option<'a>) : 'b = fromMaybe b (map f x)
 
 // List extensions

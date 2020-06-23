@@ -147,9 +147,10 @@ let rec markdown (settings: Settings): TotalParser =
 
         let mapper lines =
             let splitLines = lines |> map (Line.split (Regex(" {0,3}>? ?")))
-            let prefixes = if settings.reformat then Nonempty.singleton "> "
-                           else map fst splitLines
-            Block.splitUp (markdown settings) (prefixes, map snd splitLines)
+            let prefixes, mkDefPrefix =
+                if settings.reformat then Nonempty.singleton "> ", always "> "
+                else map fst splitLines, id
+            Block.splitUp mkDefPrefix (markdown settings) (prefixes, map snd splitLines)
 
         optionParser splitter mapper
 

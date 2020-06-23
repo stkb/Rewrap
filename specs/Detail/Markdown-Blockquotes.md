@@ -27,3 +27,8 @@ Content can have varying prefixes. With reformat off this needs to be preserved.
     d    ¦              c d  ¦
     >    ¦              >    ¦
     >>> a¦              >>> a¦
+
+    > a  ¦               > a  ¦
+    >>> a b      ->      >>> a¦
+    >>>  ¦               >>> b¦
+                         >>>  ¦

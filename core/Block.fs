@@ -42,7 +42,7 @@ type Lines =
 
 let comment parser wrappable : Block =
     Comment (oldSplitUp parser wrappable)
-    
+
 let text wrappable: Block =
     Wrap wrappable
 
@@ -73,19 +73,18 @@ let length block =
 
 /// Splits a Lines up into Blocks with the given parser, then prepends the given
 /// prefixes to those child blocks
-let splitUp : (Lines -> Blocks) -> (Nonempty<string> * Lines) -> Blocks =
+let splitUp : (string -> string) -> (Lines -> Blocks) -> (Nonempty<string> * Lines) -> Blocks =
     let concatPrefixes (h1, t1) (h2, t2) = h1 + h2, t1 + t2
 
     let prependPrefixTrimEndOfBlankLine (p: string) (s: string) : string =
         if Line.isBlank s then p.TrimEnd() else p + s
 
+    fun makeDefPrefix ->
     let takePrefixes : Nonempty<string> -> Block -> (string * string * Nonempty<string>) =
-        fun (Nonempty(pre1, preRest) as prefixes) block ->
-        // Drops up to n elements from a nonempt list, always leaving 1 remaining
-        let rec dropUpTo n (Nonempty(_, t) as neList) =
-            match Nonempty.fromList t with
-            | Some next when n > 0 -> dropUpTo (n - 1) next | _ -> neList
-        pre1, fromMaybe pre1 (List.tryHead preRest), dropUpTo (length block) prefixes
+        fun prefixes block ->
+        let (Nonempty(p1, pBlockRest)), maybePRest = Nonempty.splitAt (length block) prefixes
+        let pRest = maybePRest |? (singleton (List.tryLast pBlockRest |? p1))
+        p1, List.tryHead pBlockRest |? makeDefPrefix p1, pRest
 
     let prependPrefixes (prefixes, Nonempty(block, nextBlocks)) =
         let pre1, pre2, preNext = takePrefixes prefixes block
@@ -106,4 +105,5 @@ let splitUp : (Lines -> Blocks) -> (Nonempty<string> * Lines) -> Blocks =
     Nonempty.unfold prependPrefixes (prefixes, parser lines)
 
 let oldSplitUp : (Lines -> Blocks) -> Wrappable -> Blocks =
-    fun parser ((pre1, pre2), lines) -> splitUp parser (Nonempty(pre1, [pre2]), lines)
+    fun parser ((pre1, pre2), lines) ->
+    splitUp (always pre2) parser (Nonempty(pre1, [pre2]), lines)
