@@ -32,7 +32,7 @@ let appendToList listA neListB =
 
 // ================ Getting elements or other ================ //
 
-let length : 'a Nonempty -> int = fun (Nonempty (_, t)) -> List.length t + 1
+//let length : 'a Nonempty -> int = fun (Nonempty (_, t)) -> List.length t + 1
 let head : 'a Nonempty -> 'a = fun (Nonempty (h, _)) -> h
 let tail : 'a Nonempty -> 'a List = fun (Nonempty (_, t)) -> t
 let last : 'a Nonempty -> 'a =

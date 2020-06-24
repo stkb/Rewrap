@@ -1,6 +1,7 @@
 module internal Parsing.SourceCode
 
 open Rewrap
+open Block
 open Core
 open Sgml
 
@@ -15,7 +16,7 @@ let sourceCode
         tryMany (List.map (fun cp -> cp settings) commentParsers)
 
     let codeParser =
-        (Block.ignore >> Nonempty.singleton)
+        (ignoreBlock >> Nonempty.singleton)
 
     takeUntil commentParsers codeParser |> repeatToEnd
 

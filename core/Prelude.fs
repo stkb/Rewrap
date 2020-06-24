@@ -13,8 +13,17 @@ let inline map (f: ^a -> ^b) (x: ^x) =
 let inline (<<|>) f x = map f x
 // Would add <|>> but it caused an issue in Fable
 
+/// Everything with a size/length
+type HasSize = HasSize with
+  static member inline size (HasSize, x: array<'a>) = x.Length
+  static member inline size (HasSize, x: List<'a>) = x.Length
+  // Would like to add string but this doesn't work?
 
-// ================ Common types ================ //
+let inline size (x: ^x) =
+  ((^x or ^HasSize): (static member size: ^HasSize * ^x -> int) (HasSize, x))
+
+
+// ================ Common generic types ================ //
 
 /// Non-empty list
 type Nonempty<'T> = Nonempty of 'T * List<'T> with
@@ -24,11 +33,11 @@ type Nonempty<'T> = Nonempty of 'T * List<'T> with
 
   static member inline map (Functor, f: 'a -> 'b, Nonempty(h, t): Nonempty<'a>) =
     Nonempty(f h, map f t)
+  static member size (HasSize, Nonempty(_, t): Nonempty<'T>) = t.Length + 1
 
   interface seq<'T> with
     member self.GetEnumerator() =
-      let (Nonempty (h, t)) = self
-      (Seq.ofList <| (h :: t)).GetEnumerator()
+      let (Nonempty (h, t)) = self in (Seq.ofList <| (h :: t)).GetEnumerator()
   interface System.Collections.IEnumerable with
     member r.GetEnumerator () =
       (r :> seq<'T>).GetEnumerator() :> System.Collections.IEnumerator
@@ -115,3 +124,25 @@ module internal Tuple =
   let inline replaceFirst x (_, b) = (x, b)
   let inline replaceSecond x (a, _) = (a, x)
 let inline tuple a b = a, b
+
+// ================ Common internal types ================ //
+
+type Lines = Nonempty<string>
+
+/// A tuple of two strings. The first represents the prefix used for the first
+/// line of a block of lines; the second the prefix for the rest. Some blocks,
+/// eg a list item or a block comment, will have a different prefix for the
+/// first line than for the rest. Others have the same for both.
+type Prefixes = string * string
+
+type Wrappable =  Prefixes * Lines
+
+type Block = Comment of Blocks | Wrap of Wrappable | NoWrap of Lines
+  with
+  static member size (HasSize, b: Block) =
+    match b with
+      | Comment subBlocks -> subBlocks |> Seq.sumBy (fun b -> Block.size(HasSize, b))
+      | NoWrap lines -> Nonempty.size (HasSize, lines)
+      | Wrap (_, lines) -> Nonempty.size (HasSize, lines)
+
+and Blocks = Nonempty<Block>

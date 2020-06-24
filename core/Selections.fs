@@ -141,8 +141,7 @@ let rec private processBlocks
 
         let rec loop output (sels: List<LineRange>) start (Nonempty(block, otherBlocks)) origLines =
 
-            let blockLength =
-                Block.length block
+            let blockLength = size block
             let selsTouching =
                 sels |> List.filter (fun s -> s.startLine < (start + blockLength))
             let hasEmptySelection =
@@ -186,7 +185,7 @@ let rec private processBlocks
             let consumedLineCount, nextBlocks =
                 match maybePartialBlock with
                     | Some partialBlock ->
-                        (blockLength - Block.length partialBlock, partialBlock :: otherBlocks)
+                        (blockLength - size partialBlock, partialBlock :: otherBlocks)
                     | None ->
                         (blockLength, otherBlocks)
             let newLines, maybeNextOrigLines =
@@ -261,7 +260,7 @@ let wrapSelected
 
     trimEdit originalLines <|
         { startLine = 0
-          endLine = Nonempty.length originalLines - 1
+          endLine = size originalLines - 1
           lines = newLines
           selections = selections
         }

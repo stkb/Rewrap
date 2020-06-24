@@ -75,7 +75,7 @@ let decorationLinesParser (fn: string -> Option<string>) lines
             (fun newLinesRev ->
                 ( Nonempty.singleton (NoWrap (Nonempty.rev newLinesRev))
                 , Nonempty.fromList
-                    (List.safeSkip (Nonempty.length newLinesRev) (Nonempty.toList lines))
+                    (List.safeSkip (size newLinesRev) (Nonempty.toList lines))
                 )
             )
 

@@ -1,6 +1,7 @@
 module internal Parsing.Sgml
 
 open Prelude
+open Block
 open Rewrap
 open Parsing.Core
 open System.Text.RegularExpressions
@@ -29,10 +30,10 @@ let sgml
                 match Nonempty.fromList (List.rev initLinesRev) with
                     | Some middleLines ->
                         Nonempty.snoc
-                            (Block.ignore (Nonempty.singleton (Nonempty.last lines)))
+                            (ignoreBlock (Nonempty.singleton (Nonempty.last lines)))
                             (contentParser settings middleLines)
                     | None ->
-                        Nonempty.singleton <| Block.ignore (Nonempty.singleton (Nonempty.last lines))
+                        Nonempty.singleton <| ignoreBlock (Nonempty.singleton (Nonempty.last lines))
             else contentParser settings lines
 
         optionParser
@@ -65,6 +66,6 @@ let sgml
     let paragraphBlocks =
         splitIntoChunks (splitBefore breakBefore)
             >> Nonempty.concatMap (splitIntoChunks (Nonempty.splitAfter breakAfter))
-            >> map (indentSeparatedParagraphBlock Block.text)
+            >> map (indentSeparatedParagraphBlock textBlock)
 
     takeUntil otherParsers paragraphBlocks |> repeatToEnd

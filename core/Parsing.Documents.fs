@@ -3,6 +3,7 @@ module internal Parsing.Documents
 open System
 open System.Text.RegularExpressions
 open Prelude
+open Block
 open Rewrap
 open Parsing.Core
 open Parsing.DocComments
@@ -14,7 +15,7 @@ let plainText settings =
     let paragraphs =
         splitIntoChunks (onIndent settings.tabWidth)
             >> Nonempty.concatMap (splitIntoChunks (afterRegex (Regex("  $"))))
-            >> map (indentSeparatedParagraphBlock Block.text)
+            >> map (indentSeparatedParagraphBlock textBlock)
 
     takeUntil blankLines paragraphs |> repeatToEnd
 

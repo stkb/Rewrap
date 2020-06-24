@@ -69,7 +69,7 @@ let javadoc =
         (fun m ->
             if Line.isBlank (m.Groups.Item(2).Value) then
                 if m.Groups.Item(1).Value.ToLower() = "example" then
-                    (fun _ -> Block.ignore >> Nonempty.singleton)
+                    (fun _ -> ignoreBlock >> Nonempty.singleton)
                 else
                     ignoreFirstLine markdown
             else
@@ -103,9 +103,9 @@ let psdoc =
 
         match Nonempty.span Line.isBlank lines with
             | Some (blankLines, None) ->
-                Nonempty.singleton (ignore blankLines)
+                Nonempty.singleton (ignoreBlock blankLines)
             | Some (blankLines, Some remaining) ->
-                Nonempty.cons (ignore blankLines)
+                Nonempty.cons (ignoreBlock blankLines)
                     (trimmedExampleSection settings remaining)
             | None ->
                 trimmedExampleSection settings lines
@@ -145,7 +145,7 @@ let godoc settings =
         |> repeatToEnd
 
 let xmldoc =
-    let blank _ = Nonempty.singleton << ignore
+    let blank _ = Nonempty.singleton << ignoreBlock
     let blockTags =
         [| "code"; "description"; "example"; "exception"; "include"
            "inheritdoc"; "list"; "listheader"; "item"; "para"; "param"

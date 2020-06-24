@@ -38,7 +38,7 @@ let optionParser (splitter: OptionSplitFunction) (parser: TotalParser): OptionPa
 
 /// Creates an OptionParser that will ignore the matched lines
 let ignoreParser (splitter: OptionSplitFunction): OptionParser =
-    splitter >> Option.map (Tuple.mapFirst (Block.ignore >> Nonempty.singleton))
+    splitter >> Option.map (Tuple.mapFirst (ignoreBlock >> Nonempty.singleton))
 
 
 //-----------------------------------------------------------------------------
@@ -151,13 +151,13 @@ let firstLineIndentParagraphBlock reformat (Nonempty(headLine, tailLines) as lin
                 |> Line.leadingWhitespace
             )
 
-    Block.text (prefixes, lines |> map String.trimStart)
+    textBlock (prefixes, lines |> map String.trimStart)
 
 
 /// Ignores the first line and parses the rest with the given parser
 let ignoreFirstLine otherParser settings (Nonempty(headLine, tailLines)) : Blocks =
     let headBlock =
-        Block.ignore (Nonempty.singleton headLine)
+        ignoreBlock (Nonempty.singleton headLine)
 
     Nonempty.fromList tailLines
         |> Option.map (Nonempty.cons headBlock << otherParser settings)
