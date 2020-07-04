@@ -115,7 +115,7 @@ namespace VS
                 textBuffer.ContentType.TypeName.Split( '.' ).Reverse().First().ToLower();
 
             // This happens with HTML files, and possibly some others.
-            if ( language == "projection" &&
+            if ( language.EndsWith("projection") &&
                 textBuffer.Properties.TryGetProperty( "IdentityMapping", out textBuffer )
             )
             {

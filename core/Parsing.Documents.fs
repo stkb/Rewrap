@@ -140,7 +140,7 @@ let mutable languages = [
               line "#"
             ]
         )
-    lang "HTML" "vue" ".htm|.html|.vue"
+    lang "HTML" "htmlx|vue" ".htm|.html|.vue"
         html
     lang "INI" "" ".ini"
         ( sourceCode [ line "[#;]" ] )
