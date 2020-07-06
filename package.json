@@ -76,7 +76,7 @@
           "description": "(EXPERIMEMTAL) When wrapping lines, reformat paragraph indents."
         },
         "rewrap.autoWrap.enabled": {
-          "scope": "application",
+          "scope": "window",
           "type": "boolean",
           "default": false,
           "description": "Wraps automatically when the cursor is past the wrapping column."
