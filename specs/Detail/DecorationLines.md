@@ -5,7 +5,7 @@ in comment blocks.
 
 > language: "java"
 
-== Line comments ==
+## Line comments ##
 
 A "decoration line" is defined as a line where the content after the comment
 marker (eg //):
@@ -22,20 +22,13 @@ are, with no extra space added.
     //  a    ¦              //  a    ¦              // a     ¦
     //------ ¦              //------ ¦              //------ ¦
 
-If the comment markers themselves are misaligned however, these are always
-re-aligned; the rest of the line moving with them.
-
-    ··//------   ¦      ->      ··//------ ¦     -or-     ··//------ ¦
-    ····//****** ¦              ··//****** ¦              ··//****** ¦
-    ////////     ¦              ··//////// ¦              ··//////// ¦
-
 If there is whitespace between the comment marker and the decoration symbols,
 then that line is treated like the rest of the markdown content - as a
 non-wrapping line - but the indent is preserved in the case of reformat off and
 normalized in the case of reformat on.
 
 
-== Block comments ==
+## Block comments ##
 
 A decoration line is defined as a line which:
 1. Is the first line of the comment, and

@@ -3,28 +3,38 @@
 > language: "javascript"
 
 A `*` at the beginning of each line is conventional but not required. The prefix
-for the whole comment is determined by the second line.
+or each line is preserved.
 
 Conventional:
 
-    /**        ¦        ->      /**        ¦
-     * aaa bbb ccc               * aaa bbb ¦
-       ddd     ¦                 * ccc ddd ¦
-     */        ¦                 */        ¦
+    /**    ¦      ->   /**    ¦
+     * a   ¦            * a b ¦
+     * b c ¦            * c   ¦
+     */    ¦            */    ¦
 
 Star absent on first line:
 
     /**        ¦        ->      /**        ¦
        aaa bbb ccc                 aaa bbb ¦
-     * ddd     ¦                   ccc ddd ¦
+     * ddd     ¦                 * ccc ddd ¦
      */        ¦                 */        ¦
 
-Alternative placement (or should this be corrected?):
+Irregular placement:
 
     /**        ¦        ->      /**        ¦
     *  aaa bbb ccc              *  aaa bbb ¦
-     * ddd     ¦                *  ccc ddd ¦
+     * ddd     ¦                 * ccc ddd ¦
     */         ¦                */         ¦
+
+## Stars in content ##
+
+In this example, the 
+
+    /**            ¦      ->      /**            ¦
+     * List:       ¦               * List:       ¦
+     * * Item A    ¦               * * Item A    ¦
+     * * Item B    ¦               * * Item B    ¦
+     */            ¦               */            ¦
 
 Since the *'s are optional, they should not be consumed if used as bullets in a
 comment where leading *'s are absent.
@@ -34,6 +44,9 @@ comment where leading *'s are absent.
      * Item A   ¦               * Item A   ¦
      * Item B   ¦               * Item B   ¦
     */          ¦              */          ¦
+
+Since the *'s are optional, they should not be consumed if used as bullets in a
+comment where leading *'s are absent.
 
 Unfortunately the following case fails. The bullets are incorrectly interpreted
 as leading *'s.
@@ -45,4 +58,4 @@ as leading *'s.
 */
 ```
 
-Relevant: http://www.stack.nl/~dimitri/doxygen/manual/markdown.html#mddox_stars
+Relevant: https://www.doxygen.nl/manual/markdown.html#mddox_stars

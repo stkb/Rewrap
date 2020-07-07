@@ -7,7 +7,7 @@ open Block
 open Parsing.Core
 
 
-let rec markdown (settings: Settings): TotalParser =
+let rec markdown (settings: Settings): TotalParser<string> =
 
     let shrinkIndentTo n (lines: Lines) : Lines =
         let minIndent =

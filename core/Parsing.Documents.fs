@@ -49,7 +49,7 @@ let mutable languages = [
         Markdown.markdown
     lang "C/C++" "c|c++|cpp" ".c|.cpp|.h"
         ( sourceCode
-            [ customBlock DocComments.javadoc ( "\\*?", " * " ) javadocMarkers
+            [ customBlock DocComments.javadoc ( "*", " * " ) javadocMarkers
               cBlock
               customLine xmldoc "///"
               customLine DocComments.javadoc "//!?"
@@ -59,14 +59,14 @@ let mutable languages = [
     lang "C#" "csharp" ".cs"
         ( sourceCode
             [ customLine xmldoc "///"; cLine
-              customBlock javadoc ( "\\*?", " * " ) javadocMarkers; cBlock
+              customBlock javadoc ( "*", " * " ) javadocMarkers; cBlock
             ]
         )
     lang "CMake" "" "CMakeLists.txt"
         configFile
     lang "CoffeeScript" "" ".coffee"
         ( sourceCode
-            [ customBlock javadoc ("[*#]", " * ") ( "###\\*", "###" )
+            [ customBlock javadoc ("*#", " * ") ( "###\\*", "###" )
               block ( "###", "###" )
               line "#"
             ]
@@ -82,8 +82,8 @@ let mutable languages = [
         ( sourceCode
             [ customLine ddoc "///"
               cLine
-              customBlock ddoc ( "\*", " * " ) javadocMarkers
-              customBlock ddoc ( "\+", " + " ) ("/\+\+", "\+/")
+              customBlock ddoc ( "*", " * " ) javadocMarkers
+              customBlock ddoc ( "+", " + " ) ("/\+\+", "\+/")
               cBlock
               block ( "/\+", "\+/" )
             ]
@@ -92,7 +92,7 @@ let mutable languages = [
         ( sourceCode
             [ customLine dartdoc "///"
               cLine
-              customBlock dartdoc ( "\*", " * " ) javadocMarkers
+              customBlock dartdoc ( "*", " * " ) javadocMarkers
               cBlock
             ]
         )
@@ -133,7 +133,7 @@ let mutable languages = [
         ( sourceCode [ line "--"; block ( "{-\s*\|?", "-}" ) ] )
     lang "HCL" "terraform" ".hcl|.tf"
         ( sourceCode
-            [ customBlock DocComments.javadoc ( "\\*?", " * " ) javadocMarkers
+            [ customBlock DocComments.javadoc ( "*", " * " ) javadocMarkers
               cBlock
               customLine DocComments.javadoc "//[/!]"
               cLine
@@ -181,7 +181,7 @@ let mutable languages = [
         configFile
     lang "PHP" "" ".php"
         ( sourceCode
-            [ customBlock javadoc ( "\\*", " * " ) javadocMarkers
+            [ customBlock javadoc ( "*", " * " ) javadocMarkers
               cBlock
               line @"(?://|#)"
             ]
@@ -190,7 +190,7 @@ let mutable languages = [
         ( sourceCode [ customLine psdoc "#"; customBlock psdoc ( "", "" ) ( "<#", "#>" ) ] )
     lang "Prolog" "" ""
         ( sourceCode
-            [ customBlock DocComments.javadoc ( "\\*?", " * " ) javadocMarkers
+            [ customBlock DocComments.javadoc ( "*", " * " ) javadocMarkers
               cBlock
               line "%[%!]?"
             ]
@@ -289,7 +289,7 @@ let languageForFile (file: File) : Option<Language> =
 /// Tries to find a known language (see `languageForFile`) and returns its
 /// parser. If no language is found, a default plain text parser is used.
 /// </remarks>
-let rec select (file: File) : Settings -> TotalParser =
+let rec select (file: File) : Settings -> TotalParser<string> =
     languageForFile file
         |> Option.orElseWith
             (fun () ->

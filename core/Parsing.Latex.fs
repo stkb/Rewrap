@@ -105,7 +105,7 @@ let private findPreserveSection beginMarker : Lines -> Blocks * Option<Lines> =
     )
 
 
-let latex (settings: Settings) : TotalParser =
+let latex (settings: Settings) : TotalParser<string> =
 
     /// Checks the first line of a block of lines to see what sort of command it
     /// starts with, and outputs the corresponding block.

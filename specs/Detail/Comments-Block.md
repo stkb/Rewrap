@@ -55,9 +55,13 @@ If the end marker is on a separate line, it remains where it is.
 
 ### Unusual alignment ###
 
+Like for line comments, the "base" indent is taken from the least-indented text
+line. However this doesn't include the first line (with the opening comment
+marker). This is treated separately.
+
     ··/* a   ¦      ->      ··/* a b ¦
     ··b      ¦                       ¦
-             ¦              ··c */   ¦
+             ¦              c */     ¦
     c */     ¦
 
 
@@ -73,16 +77,6 @@ required, so in a comment that lacks them, they will remain absent.
        @param n {number}  ¦                         value of n         ¦
     */                    ¦                         @param n {number}  ¦
                           ¦                      */                    ¦
-
-The `*` characters can be mis-aligned or absent. As always, the "prefix" for the
-middle lines is taken from the second line, and then applied to the rest,
-tidying things up.
-
-    ··/**    ¦      ->      ··/**
-       * a   ¦                 * a b
-     * b c   ¦                 * c d
-     d e f   ¦                 * e f
-    ···*/    ¦                 */
 
 If a java/jsdoc comment only has one line before wrapping, a default prefix of
 ` * ` is used for created lines.

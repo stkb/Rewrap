@@ -3,23 +3,14 @@ module internal Wrapping
 open Prelude
 open Rewrap
 open Block
+open Line
 open System.Text.RegularExpressions
 open System
 
-
-let charWidthEx tabSize index charCode =
-    match charCode with
-        | 0x0009us -> tabSize - (index % tabSize)
-        | 0x0000us -> 1 // We use this as a placeholder for non breaking spaces
-        | x when x < 0x0020us -> 0
-        | x when x < 0x2E80us -> 1
-        | x when x >= 0x2E80us && x <= 0xD7AFus -> 2
-        | x when x >= 0xF900us && x <= 0xFAFFus -> 2
-        | x when x >= 0xFF01us && x <= 0xFF5Eus -> 2
-        | _ -> 1
-
-let private charWidth =
-    charWidthEx 1 0
+// todo: Remove. This ignores the concept tabs, and is only used in the wrapping
+// function, where we don't know the current position on the line so can't use
+// charWidthEx.
+let private charWidth = Line.charWidth 1 0
 
 let private isWhitespace cc =
     // \0 is a special placeholder we use ourselves for non-breaking space

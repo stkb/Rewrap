@@ -2,7 +2,8 @@
 
 Tabs in the indent are preserved.
 
-As long as tab stops represent more that 1 space in the editor, a  single tab character will separate paragraphs by indent.
+As long as tab stops represent more that 1 space in the editor, a single tab
+character will separate paragraphs by indent.
 
 > language: "plaintext", tabWidth: 2
 
@@ -13,27 +14,9 @@ As long as tab stops represent more that 1 space in the editor, a  single tab ch
 
 ## Comments ##
 
-Tabs can be used as part of the "prefix" (whitespace around the comment marker).
-The width of the line is calculated using the current tab width setting in the
-editor, making the result look the same as if spaces had been used.
-
-> language: "c", tabWidth: 2
-
-    ····// text text text      ->      ····// text text   ¦
-        // text        ¦                   // text text   ¦
-                       ¦                                  ¦
-    -→-→// text text text      ->      -→-→// text text   ¦
-    -→-→// text        ¦               -→-→// text text   ¦
-
 > language: "c", tabWidth: 4
 
-    ········// text text text      ->      ········// text text   ¦
-            // text        ¦                       // text text   ¦
-                           ¦                                      ¦
-    ---→---→// text text text      ->      ---→---→// text text   ¦
-    ---→---→// text        ¦               ---→---→// text text   ¦
-
-Tabs between comment marker and text:
+All tabs in the comment prefix are preserved.
 
     ---→//-→text text text       ->      ---→//-→text text
     ---→//-→text        ¦                ---→//-→text text
@@ -50,7 +33,7 @@ Tabs in the comment content can make things tricky, and therefore all tabs
 that appear after the column where text begins are converted to spaces when wrapping.
 
     ---→//·text text text      ->      ---→//·text text   ¦
-    ---→//-→text      ¦                ---→//··text text   ¦
+    ---→//-→text      ¦                ---→//··text text  ¦
 
 ### Markdown ###
 

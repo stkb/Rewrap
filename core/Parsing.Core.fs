@@ -7,22 +7,17 @@ open Block
 
 /// A parser that when given lines, may consume some of them. If it does, it
 /// returns blocks created from the consumed lines, and lines remaining.
-type OptionParser =
-    Lines -> Option<Blocks * Option<Lines>>
+type OptionParser<'a,'b> = Nonempty<'a> -> Option<Blocks * Option<Nonempty<'b>>>
 
 /// A parser that consumes at least one of the lines given
-type PartialParser =
-    Lines -> Blocks * Option<Lines>
+type PartialParser<'a,'b> = Nonempty<'a> -> Blocks * Option<Nonempty<'b>>
 
 /// A parser that consumes all lines given and returns the block created
-type TotalParser =
-    Lines -> Blocks
+type TotalParser<'a> = Nonempty<'a> -> Blocks
 
-type SplitFunction =
-    Lines -> Lines * Option<Lines>
+type SplitFunction<'a,'b,'c> = Nonempty<'a> -> Nonempty<'b> * Option<Nonempty<'c>>
 
-type OptionSplitFunction =
-    Lines -> Option<Lines * Option<Lines>>
+type OptionSplitFunction<'a,'b,'c> = Nonempty<'a> -> Option<Nonempty<'b> * Option<Nonempty<'c>>>
 
 
 //-----------------------------------------------------------------------------
@@ -32,12 +27,13 @@ type OptionSplitFunction =
 
 /// Creates an OptionParser, taking a split function and a function to parse the
 /// lines into blocks
-let optionParser (splitter: OptionSplitFunction) (parser: TotalParser): OptionParser =
-    splitter >> Option.map (Tuple.mapFirst parser)
+let optionParser : OptionSplitFunction<'a,'b,'c> -> TotalParser<'b> -> OptionParser<'a,'c> =
+  fun splitter totalParser -> splitter >> Option.map (Tuple.mapFirst totalParser)
 
 
 /// Creates an OptionParser that will ignore the matched lines
-let ignoreParser (splitter: OptionSplitFunction): OptionParser =
+let ignoreParser : OptionSplitFunction<'a,string,'b> -> OptionParser<'a,'b> =
+  fun splitter ->
     splitter >> Option.map (Tuple.mapFirst (ignoreBlock >> Nonempty.singleton))
 
 
@@ -46,7 +42,8 @@ let ignoreParser (splitter: OptionSplitFunction): OptionParser =
 //-----------------------------------------------------------------------------
 
 
-let rec tryMany (parsers: list<OptionParser>) (lines: Lines): Option<Blocks * Option<Lines>> =
+let rec tryMany : List<OptionParser<'a,'a>> -> Nonempty<'a> -> Option<Blocks * Option<Nonempty<'a>>> =
+  fun parsers lines ->
     match parsers with
         | [] ->
             None
@@ -60,11 +57,8 @@ let rec tryMany (parsers: list<OptionParser>) (lines: Lines): Option<Blocks * Op
 
 /// Searches lines until an OptionParser matches. Parses those lines with the
 /// given TotalParser. Returns blocks from both parsers.
-let takeUntil
-    (otherParser: OptionParser)
-    (totalParser: TotalParser)
-    : PartialParser =
-
+let takeUntil : OptionParser<'a,'b> -> TotalParser<'a> -> PartialParser<'a,'b> =
+  fun otherParser totalParser ->
     let rec loop buffer (Nonempty(headLine, tailLines) as lines) =
         match otherParser lines with
             | Some (blocks, remainingLines) ->
@@ -85,7 +79,8 @@ let takeUntil
 
 
 // Repeats a PartialParser until all lines are consumed
-let repeatToEnd partialParser : TotalParser =
+let repeatToEnd : PartialParser<'a,'a> -> TotalParser<'a> =
+  fun partialParser ->
     let rec loop blocks lines =
         match partialParser lines with
             | (newBlocks, Some remainingLines) ->
@@ -101,8 +96,8 @@ let repeatToEnd partialParser : TotalParser =
 
 
 /// Takes a split function, and splits Lines into chunks of Lines
-let splitIntoChunks (splitFn: SplitFunction) : (Lines -> Nonempty<Lines>) =
-    Nonempty.unfold splitFn
+let splitIntoChunks : SplitFunction<'a,'b,'a> -> Nonempty<'a> -> Nonempty<Nonempty<'b>> =
+  fun splitFn -> Nonempty.unfold splitFn
 
 let splitBefore (predicate: string -> bool) (Nonempty(head, tail) as lines) =
     match Nonempty.span (not << predicate) lines with
@@ -113,12 +108,12 @@ let splitBefore (predicate: string -> bool) (Nonempty(head, tail) as lines) =
                 |> Tuple.mapSecond Nonempty.fromList
 
 /// Creates a SplitFunction that splits before a line matches the given regex
-let beforeRegex (regex: Regex) : SplitFunction =
-    splitBefore (Line.contains regex)
+let beforeRegex : Regex -> SplitFunction<string,string,string> =
+    fun regex -> splitBefore (Line.contains regex)
 
 /// Creates a SplitFunction that splits after a line matches the given regex
-let afterRegex regex : SplitFunction =
-    Nonempty.splitAfter (Line.contains regex)
+let afterRegex : Regex -> SplitFunction<string,string,string> =
+    fun regex -> Nonempty.splitAfter (Line.contains regex)
 
 
 /// Creates a SplitFunction that splits on indent differences > 2
@@ -201,5 +196,5 @@ let takeLinesBetweenMarkers
 
 
 /// Ignores blank lines
-let blankLines: OptionParser =
+let blankLines : OptionParser<string,string> =
     ignoreParser (Nonempty.span Line.isBlank)

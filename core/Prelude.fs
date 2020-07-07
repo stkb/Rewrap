@@ -67,10 +67,15 @@ type These<'a, 'b> = This of 'a | That of 'b | These of 'a * 'b
 
 let inline always (b: 'a) (a: 'a) : 'a = b
 
-// Maybe functions for Option
+// Option/Maybe
 let inline fromMaybe (b: 'a) (x: Option<'a>) : 'a = Option.defaultValue b x
 let inline (|?) (x: Option<'a>) (b: 'a) : 'a = Option.defaultValue b x
 let inline maybe (b: 'b) (f: 'a -> 'b) (x: Option<'a>) : 'b = fromMaybe b (map f x)
+type OptionBuilder() =
+  member _.Bind(x, f) = match x with None -> None | Some a -> f a
+  member _.Return(x) = Some x
+  member _.ReturnFrom(x) = x
+let option = new OptionBuilder()
 
 // List extensions
 module List =
@@ -96,6 +101,14 @@ module List =
       | head :: rest ->
         if predicate head then loop (head :: output) rest
         else List.rev output, remaining
+    loop []
+
+  let spanMaybes : ('a -> 'b Option) -> 'a list -> 'b list * 'a list =
+    fun fn ->
+    let rec loop acc = function
+      | h :: rest ->
+          match fn h with Some x -> loop (x :: acc) rest | None -> List.rev acc, h :: rest
+      | [] -> List.rev acc, []
     loop []
 
   /// splitAt that doesn't throw an error if n is too great; it just returns

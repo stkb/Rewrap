@@ -4,6 +4,8 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 
 - Markdown: Fix preserving indents in blockquote (#204) [attempt 2].
 - Fix HTML not working in Visual Studio.
+- Change how comment content is handled to allow indented code block on first
+  line.
 
 ## 1.12.0
 

@@ -5,7 +5,7 @@ open Parsing.Core
 open System
 
 type Language =
-    private Language of string * array<string> * array<string> * (Settings -> TotalParser)
+    private Language of string * array<string> * array<string> * (Settings -> TotalParser<string>)
 
 module Language =
 

@@ -12,8 +12,8 @@ let inline singleton x = x .@ []
 let fromList : 'a List -> 'a Nonempty Option =
   function | [] -> None | x :: xs -> Some (x .@ xs)
 
-let fromListUnsafe : 'a List -> 'a Nonempty =
-  fun xs -> List.head xs .@ List.tail xs
+let fromSeqUnsafe : 'a seq -> 'a Nonempty =
+  fun xs -> Seq.head xs .@ List.ofSeq (Seq.tail xs)
 
 let cons : 'a -> 'a Nonempty -> 'a Nonempty =
   fun h neList -> h .@ toList neList
@@ -32,7 +32,6 @@ let appendToList listA neListB =
 
 // ================ Getting elements or other ================ //
 
-//let length : 'a Nonempty -> int = fun (Nonempty (_, t)) -> List.length t + 1
 let head : 'a Nonempty -> 'a = fun (Nonempty (h, _)) -> h
 let tail : 'a Nonempty -> 'a List = fun (Nonempty (_, t)) -> t
 let last : 'a Nonempty -> 'a =
@@ -45,7 +44,7 @@ let tryFind : ('a -> bool) -> 'a Nonempty -> 'a Option =
 // ================ Transforming ================ //
 
 let rev : 'a Nonempty -> 'a Nonempty =
-  fun list -> list |> toList |> List.rev |> fromListUnsafe
+  fun list -> list |> toList |> List.rev |> fromSeqUnsafe
 
 let mapHead : ('a -> 'a) -> 'a Nonempty -> 'a Nonempty =
   fun fn (Nonempty (h, t)) -> fn h .@ t
@@ -56,8 +55,12 @@ let mapTail : ('a -> 'a) -> 'a Nonempty -> 'a Nonempty =
 let mapInit : ('a -> 'a) -> 'a Nonempty -> 'a Nonempty =
   fun fn -> rev >> mapTail fn >> rev
 
-let mapLast  : ('a -> 'a) -> 'a Nonempty -> 'a Nonempty =
+let mapLast : ('a -> 'a) -> 'a Nonempty -> 'a Nonempty =
   fun fn -> rev >> mapHead fn >> rev
+
+let mapFold : ('s -> 'a -> 'b * 's) -> 's -> 'a Nonempty -> 'b Nonempty * 's =
+  fun fn s (Nonempty (h,t)) ->
+    let h', s' = fn s h in List.mapFold fn s' t |> Tuple.mapFirst ((.@) h')
 
 let replaceHead : 'a -> 'a Nonempty -> 'a Nonempty =
   fun h -> mapHead (fun _ -> h)
@@ -88,6 +91,18 @@ let span : ('a -> bool) -> 'a Nonempty -> ('a Nonempty * 'a Nonempty Option) Opt
     match maybeRemaining with
       | Some (Nonempty(h, t)) when predicate h -> loop (h :: output) (fromList t)
       | _ -> fromList (List.rev output) |> map (fun o -> o, maybeRemaining)
+  Some >> loop []
+
+/// Like span, but instead of a function that returns a bool, uses one that
+/// returns an Option.
+let spanMaybes : ('a -> 'b Option) -> 'a Nonempty -> ('b Nonempty * 'a Nonempty Option) Option =
+  fun fn ->
+  let rec loop output maybeRemaining =
+    let inline finish () = fromList (List.rev output) |> map (fun o -> o, maybeRemaining)
+    match maybeRemaining with
+      | Some (Nonempty(h, t)) ->
+          match fn h with Some x -> loop (x :: output) (fromList t) | None -> finish ()
+      | _ -> finish ()
   Some >> loop []
 
 /// Splits after the first element where the predicate evaluates true

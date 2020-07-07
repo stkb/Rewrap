@@ -17,11 +17,11 @@ let private cssMarkers =
     (regex "<style", regex "</style>")
 
 let sgml
-    (scriptParser: Settings -> TotalParser)
-    (cssParser: Settings -> TotalParser)
+    (scriptParser: Settings -> TotalParser<string>)
+    (cssParser: Settings -> TotalParser<string>)
     (blockTags: seq<string>)
     (settings: Settings)
-    : TotalParser =
+    : TotalParser<string> =
 
     let embeddedScript (markers: Regex * Regex) contentParser =
         let afterFirstLine _ lines =

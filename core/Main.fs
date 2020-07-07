@@ -26,18 +26,12 @@ let rewrap file settings selections (getLine: Func<int, string>) =
         Seq.unfold
             (fun i -> Option.ofObj (getLine.Invoke(i)) |> Option.map (fun l -> (l,i+1)))
             0
-            |> List.ofSeq |> Nonempty.fromListUnsafe
+            |> Nonempty.fromSeqUnsafe
     linesList
         |> parser settings
         |> Selections.wrapSelected linesList selections settings
 
-/// Gets the visual width of a string, taking tabs into account
-let strWidth usTabSize (str: string) =
-    let tabSize = max usTabSize 1
-    let rec loop acc i =
-        if i >= str.Length then acc
-        else loop (acc + charWidthEx tabSize i ((uint16) str.[i])) (i + 1)
-    loop 0 0
+let strWidth tabSize str = Line.strWidth tabSize str
 
 /// The autowrap function, to be called by clients. Checks conditions and does
 /// an autowrap if all pass.
