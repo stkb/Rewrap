@@ -264,7 +264,7 @@ let private addCustomLanguage name (markers: CustomMarkers) =
     let escape = System.Text.RegularExpressions.Regex.Escape
     let maybeLine = map (line << escape) markers.line
     let maybeBlock = map (block << map escape) markers.block
-    let list = List.choose id [ maybeLine; maybeBlock ]
+    let list = maybe [] List.singleton maybeBlock @ maybe [] List.singleton maybeLine
     let cl = lang name "" "" (sourceCode list)
     languages <- cl :: languages
     cl

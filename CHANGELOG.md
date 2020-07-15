@@ -6,6 +6,7 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 - Fix HTML not working in Visual Studio.
 - Change how comment content is handled to allow indented code block on first
   line.
+- Fix issues that broke extension-contributed languages
 
 ## 1.12.0
 

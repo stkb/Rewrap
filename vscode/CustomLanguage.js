@@ -1,6 +1,7 @@
 const Path = require('path')
 const FS = require('fs')
 const JSON = require('json5')
+const { CustomMarkers } = require('./compiled/Types')
 
 const getConfig = (getText, path) => {
     let config = { line: null, block: null }
@@ -63,13 +64,12 @@ const getCommentMarkers = (exts, getFileText) => {
     return lang => {
         cache = cache || createCache(exts)
 
-        if (cache[lang]) {
-            if(typeof cache[lang] === 'string')
-                cache[lang] = getConfig(getFileText, cache[lang])
-            if(cache[lang].line || cache[lang].block) return cache[lang]
-            else return null
+        if (typeof cache[lang] === 'string') {
+            const config = getConfig(getFileText, cache[lang])
+            cache[lang] = (config.line || config.block) ?
+                new CustomMarkers(config.line, config.block) : null
         }
-        else return null
+        return cache[lang]
     }
 }
 
