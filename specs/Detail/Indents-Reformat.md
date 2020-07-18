@@ -37,6 +37,8 @@ lines with ```. Relative indents of the content are preserved.
         code block ¦                  code block ¦                code block ¦
     ···```         ¦              ···```         ¦              ```          ¦
 
+    ··```          ¦      ->      ··```          ¦     -or-     ```          ¦
+
 With list items, the whitespace between the bullet marker and the
 item content is reduced to 1 space. The bullet markers for sub-items are
 lined-up with this content.

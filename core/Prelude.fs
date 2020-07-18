@@ -116,6 +116,13 @@ module List =
   let safeSplitAt (n: int) (list: List<'T>): List<'T> * List<'T> =
     List.truncate n list, safeSkip n list
 
+  /// List min but with a starter value, which will be returned if the list is
+  /// empty.
+  let minWith : 'a -> 'a list -> 'a =
+    fun def -> function
+      | [] -> def
+      | xs -> min def (List.min xs)
+
 /// String extensions
 module internal String =
   // Error-safe drops up to n chars from start of string

@@ -37,11 +37,9 @@ let rec markdown (settings: Settings): TotalParser<string> =
 
             let outputLines =
                 if settings.reformat then
-                    let contentIndentShift: int =
-                        contentLines
-                            |> List.map (fun l -> l.Length)
-                            |> List.min
-                            |> min startLineIndent
+                    let contentIndentShift =
+                        let indentLength l = (Line.leadingWhitespace l).Length
+                        contentLines |> map indentLength |> List.minWith startLineIndent
                     Nonempty
                         ( String.trimStart headLine
                         , List.map (String.dropStart contentIndentShift) contentLines
