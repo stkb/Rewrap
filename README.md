@@ -1,16 +1,10 @@
-**Latest version: 1.12.0**. New in this version ([full
+**Latest version: 1.13.0**. New in this version ([full
 changelog](https://github.com/stkb/vscode-rewrap/releases)):
 
-Lots of minor improvements. General:
-- Can now preserve a line break after any line by ending it with two spaces (was just for Markdown, now for all types).
-- VSCode: support new ruler objects in settings.
-
-Language-specific:
-- LaTeX: break after a paragraph that ends in an end-of-line comment.
-- LaTeX: allow any number of optional arguments to commands.
-- Python & Julia: all triple-quote strings should now work (however rST support is not there yet).
-- Support Octave
-- .Net XML docs: Only preserve line breaks before/after certain "block" elements; wrap all other elements inline.
+- Change to how the indent of comment content is handled. This allows the first line of a comment to be an indented code block, which previously wasn't possible.
+- Fix issues that broke wrapping for extension-contributed languages in v1.12.0.
+- Markdown: Fix preserving indents in blockquote.
+- Fix HTML not working in Visual Studio.
 
 
 # Rewrap

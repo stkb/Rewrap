@@ -1,12 +1,17 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
-## Unreleased
+## 1.13.0
 
-- Markdown: Fix preserving indents in blockquote (#204) [attempt 2].
+- Change to how the indent of comment content is handled. Now, instead of taking
+  the indent of the first line and applying it to rest of the comment, the whole
+  comment is taken as-is with all indents being relative to the least indented
+  line (that has text). [This allows the first line of a comment to be an
+  indented code
+  block](https://github.com/stkb/Rewrap/issues/203#issuecomment-637767932),
+  which previously wasn't possible.
+- Fix issues that broke wrapping for extension-contributed languages in v1.12.0.
+- Markdown: Fix preserving indents in blockquote (#204).
 - Fix HTML not working in Visual Studio.
-- Change how comment content is handled to allow indented code block on first
-  line.
-- Fix issues that broke extension-contributed languages
 
 ## 1.12.0
 
