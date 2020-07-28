@@ -73,7 +73,7 @@
           "scope": "language-overridable",
           "type": "boolean",
           "default": false,
-          "description": "(EXPERIMEMTAL) When wrapping lines, reformat paragraph indents."
+          "description": "(EXPERIMENTAL) When wrapping lines, reformat paragraph indents."
         },
         "rewrap.autoWrap.enabled": {
           "scope": "application",
