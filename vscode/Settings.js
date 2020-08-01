@@ -5,110 +5,58 @@ module.exports = getSettings
 
 const {workspace} = require('vscode')
 
-/** Gets a settings object from vscode's configuration. Doing this is not
- *  normally expensive. */
+/** Gets and validates a settings object from vscode's configuration. Doing this
+ *  is not normally expensive. */
 function getSettings(editor)
 {
-    const setting = settingGetter(editor)
-    const settings = {
-        columns: getWrappingColumns(setting),
+    const docID = editor.document.uri.toString()
+    const config = workspace.getConfiguration('', editor.document)
+    const setting = name => config.get(name)
+    const checkColumn = col =>
+        !Number.isInteger(col) || col < 1 ? warnings.column(docID, col, 0)
+        : col > 120 ? warnings.largeColumn(docID, col, col)
+        : col
+    const checkTabSize = size =>
+        !Number.isInteger(size) || size < 1 ? warnings.tabSize(docID, size, 4) : size
+
+    return {
+        columns: getWrappingColumns(setting).map(checkColumn),
         doubleSentenceSpacing: setting('rewrap.doubleSentenceSpacing'),
         wholeComment: setting('rewrap.wholeComment'),
         reformat: setting('rewrap.reformat'),
-        tabWidth: validateTabSize(editor.options.tabSize),
+        tabWidth: checkTabSize(editor.options.tabSize),
     }
-    return validateSettings(editor.document.uri, settings);
 }
 
 /** Gets an array of the available wrapping column(s) from the user's settings.
  */
-function getWrappingColumns(setting)
-{
-    let extensionColumn, rulers
-
-    if(extensionColumn = setting('rewrap.wrappingColumn'))
-        return [extensionColumn]
-    else if((rulers = setting('editor.rulers'))[0])
+const getWrappingColumns = getSetting => {
+    let wcSetting, rulers
+    const rulerValue = r => r.column != undefined ? r.column : r
+    return (wcSetting = getSetting('rewrap.wrappingColumn')) ? [wcSetting]
         // Rulers might be {"column": 80, "color": "#000000"} objects
-        return rulers.map(
-            (ruler) => Number.isInteger(ruler) ? ruler : ruler.column
-        )
-    else
-        return [setting('editor.wordWrapColumn')]
-        // The default for this is already 80
+        : (rulers = getSetting('editor.rulers'))[0] ? rulers.map(rulerValue)
+        : [getSetting('editor.wordWrapColumn')] // default for this is already 80
 }
 
-// For each invalid value for each document, remember that we've warned so that
-// we don't flood the console with the same warnings
-let warningCache = {}
+/** Deals with writing warnings for invalid values. */
+const warnings = (() => {
+    // For each invalid value for each document, remember that we've warned so
+    // that we don't flood the console with the same warnings
+    let cache = {}
 
-/** Since the settings come from the user's own settings.json file, there may be
- *  invalid values. */
-function validateSettings(docID, settings)
-{
-    // Check all columns
-    settings.columns = settings.columns.map(checkWrappingColumn)
-    return settings;
-
-    function checkWrappingColumn(col)
-    {
-        if(!Number.isInteger(col) || col < 1) {
-            warn(
-                "Rewrap: wrapping column is set at '%o'. " +
-                "This will be treated as infinity.", col
-            )
-            col = 0
-        }
-        else if(col > 120) {
-            warn("Rewrap: wrapping column is a rather large value (%d).", col)
-        }
-        return col
+    const warn = (setting, msg) => (docID, val, def) => {
+        const key = docID + "|" + setting + "|" + val
+        if (!cache[key]) { cache[key] = true; console.warn("Rewrap: " + msg, val, def) }
+        return def
     }
 
-    function warn(msg, val) {
-        const key = docID + "|" + val
-        if(warningCache[key]) return
-        console.warn(msg, val)
-        warningCache[key] = true
-    }
-}
+    const column = warn('wrappingColumn',
+        "wrapping column is set at '%o'. This will be treated as infinity.")
+    const largeColumn = warn('wrappingColumn',
+        "wrapping column is a rather large value (%d).")
+    const tabSize = warn('tabSize',
+        "tab size is an invalid value (%o). Using the default of (%d) instead.")
 
-function validateTabSize(size) {
-    // Check tab width
-    if(!Number.isInteger(size) || size < 1) {
-        console.warn(
-            "Rewrap: tab size is an invalid value (%o). " +
-            "Using the default of (4) instead.", size
-        )
-        return 4
-    }
-    else return size
-}
-
-/** Returns a function for getting a setting. That function looks first for a
- *  language-specific setting before finding the general. */
-function settingGetter(editor)
-{
-    const language = editor.document.languageId
-        , config = workspace.getConfiguration('', editor.document.uri)
-        , languageSection = config.get('[' + language + ']')
-
-    return setting => {
-        const s = langSetting(languageSection, setting.split('.'))
-        return s != undefined ? s : config.get(setting)
-    }
-
-    function langSetting(obj, pathParts)
-    {
-        if(!pathParts.length) return undefined
-
-        const [next, ...rest] = pathParts
-        if(obj) {
-            const s = obj[pathParts.join('.')]
-            return s != undefined ? s : langSetting(obj[next], rest)
-        }
-        else {
-            return undefined
-        }
-    }
-}
+    return {column, largeColumn, tabSize}
+})()

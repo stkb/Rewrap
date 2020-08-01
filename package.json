@@ -10,7 +10,7 @@
     "fill",
     "multi-root ready"
   ],
-  "version": "1.13.1-beta.3",
+  "version": "1.13.1-beta.4",
   "publisher": "stkb",
   "icon": "images/logo.png",
   "repository": {
@@ -23,7 +23,7 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "engines": {
-    "vscode": "^1.36.0"
+    "vscode": "^1.45.0"
   },
   "categories": [
     "Formatters"
@@ -104,7 +104,7 @@
     "@babel/core": "^7.11.1",
     "@babel/preset-env": "^7.11.0",
     "@octokit/rest": "^18.0.3",
-    "@types/vscode": "1.36.0",
+    "@types/vscode": "1.45.0",
     "eslint": "^7.6.0",
     "fable-compiler": "2.10.2",
     "fable-splitter": "^2.2.1",
