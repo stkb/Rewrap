@@ -10,3 +10,4 @@ package-lock.json
 /vscode/compiled/
 bin/
 obj/
+/*.vsix
