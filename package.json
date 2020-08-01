@@ -10,7 +10,7 @@
     "fill",
     "multi-root ready"
   ],
-  "version": "1.13.0",
+  "version": "1.13.1-beta.1",
   "publisher": "stkb",
   "icon": "images/logo.png",
   "repository": {
@@ -49,7 +49,7 @@
       }
     ],
     "configuration": {
-      "title": "Rewrap configuration",
+      "title": "Rewrap",
       "properties": {
         "rewrap.wrappingColumn": {
           "scope": "language-overridable",
