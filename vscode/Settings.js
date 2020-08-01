@@ -107,7 +107,3 @@ function settingGetter(editor)
         }
     }
 }
-
-// Invalidate cache if configuration changed. This is pretty crude and we could
-// use e.affectsConfiguration(section, uri) to be a bit smarter.
-workspace.onDidChangeConfiguration(e => cache = {})
