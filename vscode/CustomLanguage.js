@@ -1,10 +1,12 @@
+'use strict'
+
 const Path = require('path')
 const FS = require('fs')
 const JSON = require('json5')
-const { CustomMarkers } = require('./compiled/Types')
+const {CustomMarkers} = require('./compiled/Types')
 
 const getConfig = (getText, path) => {
-    let config = { line: null, block: null }
+    let config = {line: null, block: null}
     let warnings = [], error
     try {
         const c = JSON.parse(getText(path), null, true).comments

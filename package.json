@@ -98,13 +98,15 @@
     "dev": "npm run fable-splitter -- --watch",
     "fable-splitter": "cd vscode && npx fable-splitter --config .fableconfig.js",
     "clean": "rimraf vscode/compiled",
-    "vscode:prepublish": "npm run clean && npm run compile && npm test"
+    "lint": "npx eslint vscode",
+    "vscode:prepublish": "npm run clean && npm run compile && npm test && npm run lint"
   },
   "devDependencies": {
     "@babel/core": "^7.10.3",
     "@babel/preset-env": "^7.10.3",
     "@octokit/rest": "^18.0.0",
     "@types/vscode": "1.36.0",
+    "eslint": "^7.5.0",
     "fable-compiler": "^2.10.1",
     "fable-splitter": "^2.2.0",
     "rimraf": "^3.0.2",

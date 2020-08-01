@@ -1,7 +1,9 @@
+'use strict'
+
 // Gets editor settings from the environment
 module.exports = getSettings
 
-const { workspace } = require('vscode')
+const {workspace} = require('vscode')
 
 /** Gets a settings object from vscode's configuration. Doing this is not
  *  normally expensive. */

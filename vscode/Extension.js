@@ -1,9 +1,11 @@
+'use strict'
+
 const vscode = require('vscode')
-const { Range, commands, workspace, window } = vscode
+const {Range, commands, workspace, window} = vscode
 const getSettings = require('./Settings')
 const getCustomMarkers = require('./CustomLanguage')()
 const fixSelections = require('./FixSelections')
-const { DocState, Position, Selection } = require('./compiled/Types')
+const {DocState, Position, Selection} = require('./compiled/Types')
 const Rewrap = require('./compiled/Main')
 
 /** Function to activate the extension. */
@@ -37,8 +39,7 @@ exports.activate = async function activate(context)
 
         columnStr = await window.showInputBox({
             prompt: "Enter a column number to wrap the selection to. Leave blank to remove wrapping instead.",
-            value: columnStr,
-            placeHolder: ""
+            value: columnStr, placeHolder: "",
         })
         if(columnStr === undefined) return // The user pressed cancel
 
@@ -64,12 +65,11 @@ const catchErr = err => {
 
 /** Gets the path and language of the document. These are used to determine the
  *  parser used for it. */
-const docType = document =>
-    ( { path: document.fileName
-      , language: document.languageId
-      , getMarkers: () => getCustomMarkers(document.languageId)
-      }
-    )
+const docType = document => ({
+    path: document.fileName,
+    language: document.languageId,
+    getMarkers: () => getCustomMarkers(document.languageId),
+})
 
 /** Converts a selection-like object to a vscode Selection object */
 const vscodeSelection = s =>
@@ -182,7 +182,7 @@ const checkChange = e => {
     // There's more than one change if there were multiple selections,
     // or a whole line is moved up/down with alt+up/down
     if(e.contentChanges.length != 1) return
-    const { text: newText, range, rangeLength } = e.contentChanges[0]
+    const {text: newText, range, rangeLength} = e.contentChanges[0]
     if(rangeLength > 0) return
 
     try {

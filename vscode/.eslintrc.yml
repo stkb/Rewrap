@@ -1,0 +1,17 @@
+env:
+  shared-node-browser: true
+  commonjs: true
+  es2020: true
+ignorePatterns: [compiled/**]
+parserOptions:
+  ecmaVersion: 11
+rules:
+  comma-dangle: [error, {arrays: always-multiline, objects: always-multiline, functions: never}]
+  eol-last: error
+  object-curly-spacing: error
+  no-debugger: error
+  no-multiple-empty-lines: [error, {max: 2, maxEOF: 0}]
+  no-trailing-spaces: [error, ignoreComments: true]
+  no-undef: error
+  no-unreachable: error
+  strict: error

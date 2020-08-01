@@ -22,7 +22,7 @@ module.exports = function (oldLines, selections, edit)
     )
 
     let runningLineGrowth = 0;
-    const { startLine, endLine } = edit
+    const {startLine, endLine} = edit
          , newStartLine = startLine + runningLineGrowth
          , oldLineCount = endLine - startLine + 1
          , diff = fd(oldLines.join('\n'), edit.lines.join('\n'))
