@@ -93,13 +93,12 @@
   },
   "scripts": {
     "test": "node tests",
-    "postinstall": "dotnet restore core",
-    "compile": "npm run fable-splitter",
-    "dev": "npm run fable-splitter -- --watch",
-    "fable-splitter": "cd vscode && npx fable-splitter --config .fableconfig.js",
+    "build:dev": "cd vscode && fable-splitter --config .fableconfig.js",
+    "watch": "npm run build:dev -- --watch",
     "clean": "rimraf vscode/compiled",
-    "lint": "npx eslint vscode",
-    "vscode:prepublish": "npm run clean && npm run compile && npm test && npm run lint"
+    "lint": "eslint vscode",
+    "build:prod": "npm run lint && npm i && npm run clean && npm run build:dev && npm test",
+    "vscode:prepublish": "npm run build:prod"
   },
   "devDependencies": {
     "@babel/core": "^7.10.3",

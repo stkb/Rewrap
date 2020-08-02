@@ -1,38 +1,27 @@
-// Available variables which can be used inside of strings.
-// ${workspaceRoot}: the root folder of the team
-// ${file}: the current opened file
-// ${fileBasename}: the current opened file's basename
-// ${fileDirname}: the current opened file's dirname
-// ${fileExtname}: the current opened file's extension
-// ${cwd}: the current working directory of the spawned process
-
 {
-	"version": "0.1.0",
-	// show the output window only if unrecognized errors occur.
-	"showOutput": "silent",
-	"command": "npm",
-	"isShellCommand": true,
-	"tasks": [
-		{
-			"taskName": "compile",
-			"args": ["run", "compile", "--loglevel", "silent"],
-			"suppressTaskName": true,
-			"isBuildCommand": true,
-			"isShellCommand": true
-		},
-		{
-			"taskName": "dev",
-			"args": ["run", "dev", "--loglevel", "silent"],
-			"suppressTaskName": true,
-			"isBuildCommand": false,
-			"isShellCommand": true
-		},
-		{
-			"taskName": "test",
-			"args": ["test", "--loglevel", "silent"],
-			"isTestCommand": true,
-			"suppressTaskName": true,
-			"isShellCommand": true
-		}
-	]
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "npm",
+            "script": "watch",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": [],
+            "label": "npm: watch",
+            "detail": "Dev watch script"
+        },
+        {
+            "type": "npm",
+            "script": "build:dev",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [],
+            "label": "npm: build:dev",
+            "detail": "Dev build script"
+        }
+    ]
 }
