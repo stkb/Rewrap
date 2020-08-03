@@ -10,7 +10,7 @@
     "fill",
     "multi-root ready"
   ],
-  "version": "1.13.1-beta.1",
+  "version": "1.13.1-beta.2",
   "publisher": "stkb",
   "icon": "images/logo.png",
   "repository": {
@@ -101,13 +101,13 @@
     "vscode:prepublish": "npm run build:prod"
   },
   "devDependencies": {
-    "@babel/core": "^7.10.3",
-    "@babel/preset-env": "^7.10.3",
-    "@octokit/rest": "^18.0.0",
+    "@babel/core": "^7.11.1",
+    "@babel/preset-env": "^7.11.0",
+    "@octokit/rest": "^18.0.3",
     "@types/vscode": "1.36.0",
-    "eslint": "^7.5.0",
-    "fable-compiler": "^2.10.1",
-    "fable-splitter": "^2.2.0",
+    "eslint": "^7.6.0",
+    "fable-compiler": "2.10.2",
+    "fable-splitter": "^2.2.1",
     "rimraf": "^3.0.2",
     "root-require": "^0.3.1",
     "xml2js": "^0.4.23"
