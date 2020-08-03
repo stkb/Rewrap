@@ -92,7 +92,7 @@
     ]
   },
   "scripts": {
-    "test": "node tests",
+    "test": "node tests && node vscode.tests/run",
     "build:dev": "cd vscode && fable-splitter --config .fableconfig.js",
     "watch": "npm run build:dev -- --watch",
     "clean": "rimraf vscode/compiled",
@@ -110,6 +110,7 @@
     "fable-splitter": "^2.2.1",
     "rimraf": "^3.0.2",
     "root-require": "^0.3.1",
+    "vscode-test": "^1.4.0",
     "xml2js": "^0.4.23"
   },
   "dependencies": {

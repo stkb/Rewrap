@@ -1,0 +1,14 @@
+{
+    "editor.rulers": [{"column": 45}, 90],
+    "editor.tabSize": 2,
+    "rewrap.doubleSentenceSpacing": true,
+    "rewrap.reformat": true,
+    "rewrap.wholeComment": false,
+    "[markdown]": {
+        "rewrap.wrappingColumn": 60,
+        "editor.tabSize": 6,
+        "rewrap.doubleSentenceSpacing": false,
+        "rewrap.reformat": false,
+        "rewrap.wholeComment": true,
+    }
+}

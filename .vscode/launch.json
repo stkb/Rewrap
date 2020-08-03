@@ -1,21 +1,32 @@
 // A launch configuration that launches the extension inside a new window
 {
-    "version": "0.1.0",
+    "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch Extension",
+            "name": "Extension",
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
-            "args": ["--extensionDevelopmentPath=${workspaceRoot}" ],
-            "stopOnEntry": false
+            "args": ["--extensionDevelopmentPath=${workspaceFolder}" ]
         },
         {
+            "name": "Spec Tests",
             "type": "node",
             "request": "launch",
-            "name": "Run Tests",
             "program": "${workspaceFolder}/tests.js",
-            "args": [ ]
+            "args": []
+        },
+        {
+            "name": "Extension Tests",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--disable-extensions",
+                "--extensionDevelopmentPath=${workspaceFolder}",
+                "--extensionTestsPath=${workspaceFolder}/vscode.tests/tests",
+                "${workspaceFolder}/vscode.tests/fixture"
+            ]
         }
     ]
 }
