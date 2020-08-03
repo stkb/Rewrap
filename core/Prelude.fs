@@ -1,6 +1,7 @@
 module Prelude
 
 // ================ Pseudo-typeclasses ================ //
+#nowarn "64"
 
 type Functor = Functor with
   static member inline map (Functor, f: 'a -> 'b, x: Option<'a>) = Option.map f x
