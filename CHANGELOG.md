@@ -1,5 +1,11 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
+
+## Unreleased
+
+- Fix per-language settings sometimes not applying.
+
+
 ## 1.13.0
 
 - Change to how the indent of comment content is handled. Now, instead of taking
@@ -12,6 +18,7 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 - Fix issues that broke wrapping for extension-contributed languages in v1.12.0.
 - Markdown: Fix preserving indents in blockquote (#204).
 - Fix HTML not working in Visual Studio.
+
 
 ## 1.12.0
 

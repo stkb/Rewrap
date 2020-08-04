@@ -93,8 +93,10 @@ function settingGetter(editor)
         , config = workspace.getConfiguration('', editor.document.uri)
         , languageSection = config.get('[' + language + ']')
 
-    return setting =>
-        langSetting(languageSection, setting.split('.')) || config.get(setting)
+    return setting => {
+        const s = langSetting(languageSection, setting.split('.'))
+        return s != undefined ? s : config.get(setting)
+    }
 
     function langSetting(obj, pathParts)
     {
@@ -102,7 +104,8 @@ function settingGetter(editor)
 
         const [next, ...rest] = pathParts
         if(obj) {
-            return obj[pathParts.join('.')] || langSetting(obj[next], rest)
+            const s = obj[pathParts.join('.')]
+            return s != undefined ? s : langSetting(obj[next], rest)
         }
         else {
             return undefined
