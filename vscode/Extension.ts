@@ -1,12 +1,11 @@
-'use strict'
-
-const vscode = require('vscode')
-const {Range, commands, workspace, window} = vscode
-const getSettings = require('./Settings')
-const getCustomMarkers = require('./CustomLanguage')()
-const fixSelections = require('./FixSelections')
-const {DocState, Position, Selection} = require('./compiled/Types')
-const Rewrap = require('./compiled/Main')
+import * as vscode from 'vscode'
+import {Range, commands, workspace, window} from  'vscode'
+import getSettings from './Settings'
+import GetCustomMarkers from './CustomLanguage'
+const getCustomMarkers = GetCustomMarkers()
+import fixSelections from './FixSelections'
+const {DocState, Position, Selection} = require('./core/Types')
+const Rewrap = require('./core/Main')
 
 /** Function to activate the extension. */
 exports.activate = async function activate(context)
@@ -111,7 +110,7 @@ const applyEdit = (editor, edit) => {
     const selections = edit.selections.map(vscodeSelection)
     const doc = editor.document
     const docVersion = doc.version
-    const oldLines = Array(edit.endLine - edit.startLine + 1).fill()
+    const oldLines = Array(edit.endLine - edit.startLine + 1).fill(null)
         .map((_, i) => doc.lineAt(edit.startLine + i).text)
     const getDocRange = () => doc.validateRange
             (new Range(0, 0, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER))
@@ -147,7 +146,7 @@ const applyEdit = (editor, edit) => {
  *  is applied, returns an updated DocState object, else returns null.
  *  Takes an optional customColumn to wrap at.
  */
-const doWrap = (editor, customColumn) => {
+const doWrap = (editor, customColumn?) => {
     const doc = editor.document
     try {
         const docState = getDocState(editor)

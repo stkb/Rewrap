@@ -1,9 +1,7 @@
-'use strict'
-
 const Path = require('path')
 const FS = require('fs')
 const JSON = require('json5')
-const {CustomMarkers} = require('./compiled/Types')
+const {CustomMarkers} = require('./core/Types')
 
 const getConfig = (getText, path) => {
     let config = {line: null, block: null}
@@ -56,7 +54,7 @@ const createCache = exts => {
 }
 
 /* Can take exts & getFileText mocks for testing */
-const getCommentMarkers = (exts, getFileText) => {
+export default function(exts?, getFileText?) {
     exts = exts || require('vscode').extensions.all
     if(!exts.length)
         console.warn("`vscode.extensions.all` returned an empty array. Something is wrong.")
@@ -74,5 +72,3 @@ const getCommentMarkers = (exts, getFileText) => {
         return cache[lang]
     }
 }
-
-module.exports = getCommentMarkers

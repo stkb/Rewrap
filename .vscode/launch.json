@@ -7,7 +7,8 @@
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
-            "args": ["--extensionDevelopmentPath=${workspaceFolder}" ]
+            "args": ["--extensionDevelopmentPath=${workspaceFolder}" ],
+            "sourceMaps": true
         },
         {
             "name": "Spec Tests",
@@ -26,7 +27,8 @@
                 "--extensionDevelopmentPath=${workspaceFolder}",
                 "--extensionTestsPath=${workspaceFolder}/vscode.tests/tests",
                 "${workspaceFolder}/vscode.tests/fixture"
-            ]
+            ],
+            "sourceMaps": true
         }
     ]
 }

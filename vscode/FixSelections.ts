@@ -1,4 +1,3 @@
-"use strict";
 // When we replace lines of text in the editor with new text that's been
 // wrapped, the original cursor position/selections can get messed up; ie. the
 // cursor isn't by the word it used to be.
@@ -7,13 +6,13 @@
 // fast-diff), and uses it to calculate where the selections should be after
 // wrapping, so they can be re-applied in the editor after the edit(s) have been
 // done.
-const vscode = require("vscode");
+import * as vscode from 'vscode'
 const fd = require('fast-diff');
 
 /** Given lines of original text, a set of selections and a set of edits,
  *  returns the positions of the selections for after the edits have been
  *  applied. */
-module.exports = function (oldLines, selections, edit)
+export default function (oldLines, selections, edit)
 {
     if(!edit || !edit.lines.length) return selections
 

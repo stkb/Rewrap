@@ -1,0 +1,12 @@
+{
+	"files": [ "Extension.ts" ],
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "es2019",
+		"lib": ["ES2019"],
+		"outDir": "compiled",
+		"sourceMap": true,
+		"alwaysStrict": true,
+		"rootDir": ".",
+	}
+}

@@ -92,8 +92,8 @@ function reloadModules()
         }
     }
 
-    deleteModule('./vscode/compiled/Main')
-    Core = require('./vscode/compiled/Main')
+    deleteModule('./vscode/compiled/core/Main')
+    Core = require('./vscode/compiled/core/Main')
 }
 
 

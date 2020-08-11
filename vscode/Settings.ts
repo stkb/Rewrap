@@ -1,9 +1,7 @@
-'use strict'
-
 // Gets editor settings from the environment
-module.exports = getSettings
+export default getSettings
 
-const {workspace} = require('vscode')
+import {workspace} from 'vscode'
 
 /** Gets and validates a settings object from vscode's configuration. Doing this
  *  is not normally expensive. */
@@ -20,6 +18,7 @@ function getSettings(editor)
         !Number.isInteger(size) || size < 1 ? warnings.tabSize(docID, size, 4) : size
 
     return {
+        column: undefined,
         columns: getWrappingColumns(setting).map(checkColumn),
         doubleSentenceSpacing: setting('rewrap.doubleSentenceSpacing'),
         wholeComment: setting('rewrap.wholeComment'),

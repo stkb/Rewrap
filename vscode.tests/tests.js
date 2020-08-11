@@ -1,6 +1,6 @@
 const assert = require('assert')
 const {window, workspace} = require('vscode')
-const getSettings = require('../vscode/Settings')
+const getSettings = require('../vscode/compiled/Settings').default
 
 const testSettings = async (language, expected) => {
     const doc = await workspace.openTextDocument({language, content: ""})
@@ -11,6 +11,7 @@ const testSettings = async (language, expected) => {
 
 const settingsData = {
     plaintext: {
+        column: undefined,
         columns: [45, 90],
         doubleSentenceSpacing: true,
         wholeComment: false,
@@ -18,6 +19,7 @@ const settingsData = {
         tabWidth: 2,
     },
     markdown: {
+        column: undefined,
         columns: [60],
         doubleSentenceSpacing: false,
         wholeComment: true,

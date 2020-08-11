@@ -3,8 +3,11 @@ env:
   commonjs: true
   es2020: true
 ignorePatterns: [compiled/**]
+parser: "@typescript-eslint/parser"
 parserOptions:
   ecmaVersion: 11
+  sourceType: module
+plugins: ["@typescript-eslint"]
 rules:
   comma-dangle: [error, {arrays: always-multiline, objects: always-multiline, functions: never}]
   eol-last: error
@@ -14,4 +17,4 @@ rules:
   no-trailing-spaces: [error, ignoreComments: true]
   no-undef: error
   no-unreachable: error
-  strict: error
+root: true

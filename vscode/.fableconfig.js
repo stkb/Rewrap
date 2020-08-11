@@ -11,7 +11,7 @@ function runTests() {
 
 module.exports = {
   entry: "../core/Core.fsproj",
-  outDir: "compiled",
+  outDir: "compiled/core",
   babel: {
     presets: [[ "@babel/preset-env", { targets: { node: "current" }, modules: "commonjs" }]],
     sourceMaps: false,

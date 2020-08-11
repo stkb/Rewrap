@@ -1,14 +1,9 @@
 **
 
 # Whitelist
-
 !images/**
 !node_modules/**
 !vscode/compiled/**
-!vscode/Settings.js
-!vscode/CustomLanguage.js
-!vscode/Extension.js
-!vscode/FixSelections.js
 !CHANGELOG.md
 !package.json
 !README.md

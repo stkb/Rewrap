@@ -10,7 +10,7 @@
     "fill",
     "multi-root ready"
   ],
-  "version": "1.13.1-beta.4",
+  "version": "1.13.1-beta.5",
   "publisher": "stkb",
   "icon": "images/logo.png",
   "repository": {
@@ -32,7 +32,7 @@
   "activationEvents": [
     "*"
   ],
-  "main": "./vscode/Extension",
+  "main": "./vscode/compiled/Extension",
   "contributes": {
     "commands": [
       {
@@ -93,11 +93,11 @@
   },
   "scripts": {
     "test": "node tests && node vscode.tests/run",
-    "build:dev": "cd vscode && fable-splitter --config .fableconfig.js",
+    "build:dev": "cd vscode && tsc && fable-splitter --config .fableconfig.js",
     "watch": "npm run build:dev -- --watch",
     "clean": "rimraf vscode/compiled",
-    "lint": "eslint vscode",
-    "build:prod": "npm run lint && npm i && npm run clean && npm run build:dev && npm test",
+    "lint": "eslint vscode --ext .ts",
+    "build:prod": "npm i && npm run lint && npm run clean && npm run build:dev && npm test",
     "vscode:prepublish": "npm run build:prod"
   },
   "devDependencies": {
@@ -105,11 +105,14 @@
     "@babel/preset-env": "^7.11.0",
     "@octokit/rest": "^18.0.3",
     "@types/vscode": "1.45.0",
+    "@typescript-eslint/eslint-plugin": "^3.9.0",
+    "@typescript-eslint/parser": "^3.9.0",
     "eslint": "^7.6.0",
     "fable-compiler": "2.10.2",
     "fable-splitter": "^2.2.1",
     "rimraf": "^3.0.2",
     "root-require": "^0.3.1",
+    "typescript": "^3.9.7",
     "vscode-test": "^1.4.0",
     "xml2js": "^0.4.23"
   },
