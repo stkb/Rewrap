@@ -1,26 +1,23 @@
-import * as vscode from 'vscode'
-import {Range, commands, workspace, window} from  'vscode'
-import getSettings from './Settings'
-import GetCustomMarkers from './CustomLanguage'
-const getCustomMarkers = GetCustomMarkers()
-import fixSelections from './FixSelections'
 const {DocState, Position, Selection} = require('./core/Types')
-const Rewrap = require('./core/Main')
+import {Rewrap, applyEdit, catchErr, docType, docLine} from './Common'
+const Rewrap: Rewrap = require('./core/Main')
+import * as vscode from 'vscode'
+import {commands, window} from 'vscode'
+import {getCoreSettings} from './Settings'
+import AutoWrap from './AutoWrap'
+import fixSelections from './FixSelections'
+
 
 /** Function to activate the extension. */
 exports.activate = async function activate(context)
 {
-    const toggleAutoWrapCommand =
-        await initAutoWrap (workspace, context.globalState, window)
+    const autoWrap = AutoWrap(context.workspaceState)
 
     // Register the commands
     context.subscriptions.push
-        ( commands.registerTextEditorCommand
-            ( 'rewrap.rewrapComment', rewrapCommentCommand )
-        , commands.registerTextEditorCommand
-            ( 'rewrap.rewrapCommentAt', rewrapCommentAtCommand )
-        , commands.registerCommand
-            ( 'rewrap.toggleAutoWrap', toggleAutoWrapCommand )
+        ( commands.registerTextEditorCommand('rewrap.rewrapComment', rewrapCommentCommand)
+        , commands.registerTextEditorCommand('rewrap.rewrapCommentAt', rewrapCommentAtCommand)
+        , commands.registerTextEditorCommand('rewrap.toggleAutoWrap', autoWrap.editorToggle)
         )
 
     /** Standard rewrap command */
@@ -47,34 +44,6 @@ exports.activate = async function activate(context)
     }
 }
 
-/** Catches any error and displays a friendly message to the user. */
-const catchErr = err => {
-    console.error("====== Rewrap: Error ======")
-    console.log(err)
-    console.error(
-        "^^^^^^ Rewrap: Please report this (with a copy of the above lines) ^^^^^^\n" +
-        "at https://github.com/stkb/vscode-rewrap/issues"
-    )
-    vscode.window.showInformationMessage(
-        "Sorry, there was an error in Rewrap. " +
-        "Go to: Help -> Toggle Developer Tools -> Console " +
-        "for more information."
-    )
-}
-
-/** Gets the path and language of the document. These are used to determine the
- *  parser used for it. */
-const docType = document => ({
-    path: document.fileName,
-    language: document.languageId,
-    getMarkers: () => getCustomMarkers(document.languageId),
-})
-
-/** Converts a selection-like object to a vscode Selection object */
-const vscodeSelection = s =>
-    new vscode.Selection
-        (s.anchor.line, s.anchor.character, s.active.line, s.active.character)
-
 /** Converts a selection-like object to a rewrap Selection object */
 const rewrapSelection = s =>
     new Selection
@@ -97,50 +66,6 @@ const getDocState = editor => {
         )
 }
 
-/** Returns a function for the given document, that gets the line at the given
- *  index. */
-const docLine =
-    document => i => i < document.lineCount ? document.lineAt(i).text : null
-
-/** Applies an edit to the document. Also fixes the selections afterwards. If
- * the edit is empty this is a no-op */
-const applyEdit = (editor, edit) => {
-    if (!edit.lines.length) return Promise.resolve()
-
-    const selections = edit.selections.map(vscodeSelection)
-    const doc = editor.document
-    const docVersion = doc.version
-    const oldLines = Array(edit.endLine - edit.startLine + 1).fill(null)
-        .map((_, i) => doc.lineAt(edit.startLine + i).text)
-    const getDocRange = () => doc.validateRange
-            (new Range(0, 0, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER))
-    const wholeDocSelected = selections[0].isEqual(getDocRange())
-
-    return editor
-        .edit(editBuilder => {
-            // Execution of this callback is delayed. Check the document is
-            // still as we expect it.
-            // todo: see if vscode already makes this check anyway
-            if(doc.version !== docVersion) return false
-
-            const range = doc.validateRange
-                ( new Range(edit.startLine, 0, edit.endLine, Number.MAX_VALUE) )
-            // vscode takes care of converting to \r\n if necessary
-            const text = edit.lines.join('\n')
-
-            return editBuilder.replace(range, text)
-        })
-        .then(didEdit => {
-            if(!didEdit) return
-            if(wholeDocSelected) {
-                const wholeRange = getDocRange()
-                editor.selection =
-                    new vscode.Selection(wholeRange.start, wholeRange.end)
-            }
-            else editor.selections = fixSelections(oldLines, selections, edit)
-        })
-}
-
 /** Collects the information for a wrap from the editor, passes it to the
  *  wrapping code, and then applies the result to the document. If an edit
  *  is applied, returns an updated DocState object, else returns null.
@@ -150,83 +75,13 @@ const doWrap = (editor, customColumn?) => {
     const doc = editor.document
     try {
         const docState = getDocState(editor)
-        let settings = getSettings(editor)
-        settings.column = !isNaN(customColumn) ? customColumn
-            : Rewrap.maybeChangeWrappingColumn(docState, settings.columns)
+        const toCol = cs => !isNaN(customColumn) ?
+            customColumn : Rewrap.maybeChangeWrappingColumn(docState, cs)
+        let settings = getCoreSettings(editor, toCol)
         const selections = editor.selections.map(rewrapSelection)
 
         const edit = Rewrap.rewrap(docType(doc), settings, selections, docLine(doc))
         return applyEdit(editor, edit).then(null, catchErr)
     }
     catch(err) { catchErr(err) }
-}
-
-/********** Auto-Wrap **********/
-
-const checkChange = e => {
-    // Make sure we're in the active document
-    const editor = window.activeTextEditor
-    if(!editor || !e || editor.document !== e.document) return
-    const doc = e.document;
-
-    // We only want to trigger on normal typing and input with IME's, not other
-    // sorts of edits. With normal typing the range (text insertion point) and
-    // selection will be both empty and equal to each other (the selection state
-    // is still from *before* the edit). IME's make edits where the range is not
-    // empty (as text is replaced), but the selection should still be empty. We
-    // can also restrict it to single-line ranges (this filters out in
-    // particular undo edits immediately after an auto-wrap).
-    if(editor.selections.length != 1) return
-    if(!editor.selection.isEmpty) return
-    // There's more than one change if there were multiple selections,
-    // or a whole line is moved up/down with alt+up/down
-    if(e.contentChanges.length != 1) return
-    const {text: newText, range, rangeLength} = e.contentChanges[0]
-    if(rangeLength > 0) return
-
-    try {
-        const file = docType(doc)
-        let settings = getSettings(editor)
-        settings.column = Rewrap.getWrappingColumn(file.path, settings.columns)
-
-        // maybeAutoWrap does more checks: that newText isn't empty, but is only
-        // whitespace. Don't call this in a promise: it causes timing issues.
-        const edit =
-            Rewrap.maybeAutoWrap(file, settings, newText, range.start, docLine(doc))
-        return applyEdit(editor, edit).then(null, catchErr)
-    }
-    catch(err) { catchErr(err) }
-}
-
-const initAutoWrap = async (workspace, extState, window) => {
-    const config = workspace.getConfiguration('rewrap.autoWrap')
-    const getEnabledSetting = () => config.inspect('enabled').globalValue
-    const getEnabled = () => { // can still return null/undefined
-        const s = getEnabledSetting ()
-        return s !== undefined ? s : extState.get('autoWrap')
-    }
-
-    let changeHook
-    const setEnabled = async (on) => {
-        if (on && !changeHook)
-            changeHook = workspace.onDidChangeTextDocument(checkChange)
-        else if (!on && changeHook) {
-            changeHook.dispose()
-            changeHook = null
-        }
-        const s = getEnabledSetting ()
-        if (s === undefined) await extState.update('autoWrap', on)
-        else {
-            await extState.update('autoWrap', null)
-            if (s !== on) await config.update('enabled', on, true)
-        }
-        await window.setStatusBarMessage(`Auto-wrap: ${on?'On':'Off'}`, 7000)
-    }
-
-    const checkState = async () => setEnabled (getEnabled ())
-    workspace.onDidChangeConfiguration(e => {
-        if (e.affectsConfiguration('rewrap.autoWrap')) checkState ()
-    })
-    await checkState ()
-    return async () => { setEnabled (!getEnabled()) }
 }

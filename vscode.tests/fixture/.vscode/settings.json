@@ -10,5 +10,8 @@
         "rewrap.doubleSentenceSpacing": false,
         "rewrap.reformat": false,
         "rewrap.wholeComment": true,
+    },
+    "[ahk]": {
+        "rewrap.wrappingColumn": 40,
     }
 }
