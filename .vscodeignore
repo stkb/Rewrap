@@ -6,5 +6,6 @@
 !vscode/compiled/**
 !CHANGELOG.md
 !package.json
+!package-lock.json
 !README.md
 !LICENSE
