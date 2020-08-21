@@ -2,8 +2,8 @@ const Path = require ("path")
 const FS = require ("fs")
 const Xml2JS = require ("xml2js")
 const { Octokit } = require ("@octokit/rest")
-const Rewrap = require('root-require')('./vscode/compiled/Main')
-const { Position, Selection } = require('root-require')('./vscode/compiled/Types')
+const Rewrap = require('root-require')('./vscode/compiled/core/Main')
+const { Position, Selection } = require('root-require')('./vscode/compiled/core/Types')
 
 
 //================ General stuff ================
@@ -31,7 +31,7 @@ const getChangesText = () => {
   
   // 'Unwrap' for github markdown
   const docType = {path: "", language: "markdown", getMarkers: () => null}
-  const settings = { column: 0 }
+  const settings = {column: 0}
   const selections = [new Selection(new Position(0, 0), new Position(999,999))]
   const docLine = i => lines[i]
   const edit = Rewrap.rewrap(docType, settings, selections, docLine)
@@ -43,7 +43,7 @@ const getBetaReleaseText = () => `
 **This pre-release version has the following changes:**
 ${getChangesText ()}
 
-#### Beta versions ####
+#### Installing ####
 
 You can test pre-release (beta) versions by downloading and installing the \
 .vsix file from the "Assets" section below. Be sure to choose the correct \
@@ -67,29 +67,31 @@ version.)
 
 //================ Uploading to GitHub ================
 
-const github = new Octokit({
-  auth: process.env.GITHUB_PAT
-}).repos
+const github = new Octokit({auth: process.env.GITHUB_PAT}).repos
 const ownerRepo = {owner: "stkb", repo: "Rewrap"}
 
 async function uploadGithubBetaRelease (version, vscVsix, vsVsix) {
-  const release_id = (await github.getReleaseByTag({tag: "beta", ...ownerRepo})).data.id
+  let old_release
+  try { old_release = await github.getReleaseByTag({tag: "beta", ...ownerRepo}) }
+  catch { }
+  if (old_release)
+    await github.deleteRelease({release_id: old_release.data.id, ...ownerRepo})
 
-  // Delete old assets
-  const assets = (await github.listReleaseAssets ({release_id, ...ownerRepo})).data
-  await Promise.all (assets.map (a => github.deleteReleaseAsset({asset_id: a.id, ...ownerRepo})))
+  // Create new release
+  const release_opts = {name: "v" + version, tag_name: "beta", prerelease: true, 
+                        body: getBetaReleaseText (), ...ownerRepo}
+  const release_id = (await github.createRelease(release_opts)).data.id
 
   // Upload new assets
   const uploadAsset = async ({path, name}) => {
-    const data = await FS.promises.readFile(path)
+    let data
+    try { data = await FS.promises.readFile(path) }
+    catch { console.warn("Couldn't read from %s", path); return }
+
     const headers = {"content-type": "application/vsix", "content-length": data.length}
     return github.uploadReleaseAsset ({headers, release_id, name, data, ...ownerRepo})
   }
   await Promise.all ([uploadAsset (vscVsix), uploadAsset (vsVsix)])
-
-  // Update name & text body
-  return github.updateRelease
-    ({release_id, name: "v" + version, body: getBetaReleaseText (), ...ownerRepo})
 }
 
 
