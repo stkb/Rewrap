@@ -64,11 +64,19 @@ let mutable languages = [
         )
     lang "CMake" "" "CMakeLists.txt"
         configFile
+    lang "Clojure" "" ".clj|.cljs|.cljc|.cljx|.edn"
+        ( sourceCode [ line ";+" ] )
     lang "CoffeeScript" "" ".coffee"
         ( sourceCode
             [ customBlock javadoc ("*#", " * ") ( "###\\*", "###" )
               block ( "###", "###" )
               line "#"
+            ]
+        )
+    lang "Common Lisp" "commonlisp|lisp" ".lisp"
+        ( sourceCode
+            [ line ";+"
+              block ( @"#\|", @"\|#" )
             ]
         )
     lang "Configuration" "properties" ".conf|.gitconfig"
@@ -102,6 +110,8 @@ let mutable languages = [
         ( sourceCode [ line "#"; block ("@(module|type|)doc\s+\"\"\"", "\"\"\"") ] )
     lang "Elm" "" ".elm"
         ( sourceCode [ line "--"; block ( "{-\|?", "-}" ) ] )
+    lang "Emacs Lisp" "elisp|emacslisp" ".el"
+        ( sourceCode [ line ";+" ] )
     lang "F#" "fsharp" ".fs|.fsx"
         ( sourceCode
             [ customLine xmldoc "///"; cLine;
@@ -144,6 +154,8 @@ let mutable languages = [
         html
     lang "INI" "" ".ini"
         ( sourceCode [ line "[#;]" ] )
+    lang "J" "" ".ijs"
+        ( sourceCode [ line @"NB\." ] )
     lang "Java" "" ".java"
         java
     lang "JavaScript" "javascriptreact|js" ".js|.jsx"
@@ -230,6 +242,12 @@ let mutable languages = [
         java
     lang "Scala" "" ".scala"
         java
+    lang "Scheme" "" ".scm|.ss|.sch|.rkt"
+        ( sourceCode
+            [ line ";+"
+              block ( @"#\|", @"\|#" )
+            ]
+        )
     lang "Shaderlab" "" ".shader"
         java
     lang "Shell script" "shellscript" ".sh"
