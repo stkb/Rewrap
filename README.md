@@ -15,7 +15,7 @@ Reformats code comments and other text to a given line length. For VSCode and
 <!-- VS
 ![Example](/268780/1/example-smaller.png)
 <!-- VSCODE -->
-![Example](https://github.com/stkb/Rewrap/wiki/images/example.png)
+![Example](https://stkb.github.io/Rewrap/images/example.png)
 <!-- -->
 
 Similar to wrap/fill paragraph in Sublime (alt+q) Emacs (M-q) or Vim (gq); but
@@ -45,9 +45,9 @@ invoke the command to wrap to the preset column (default is 80). You can also
 select just a few lines, or multiple comments in one selection.
 
 Also available is an Emacs-style [auto-wrap/fill
-mode](https://github.com/stkb/Rewrap/wiki/Auto-wrap).
+mode](https://stkb.github.io/Rewrap/#/auto-wrap).
 
-**See the [Features](https://github.com/stkb/Rewrap/wiki/Features) page for more
+**See the [Features](https://stkb.github.io/Rewrap/#/features) page for more
 examples on how to use.**
 
 
@@ -57,7 +57,7 @@ examples on how to use.**
 Go to _Tools -> Options -> Rewrap_ to configure.
 <!-- -->
 
-See the [wiki](https://github.com/stkb/vscode-rewrap/wiki) for pages on
+See the [docs](https://stkb.github.io/Rewrap) for pages on
 configuring settings and keybindings.
 
 

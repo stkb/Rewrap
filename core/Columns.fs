@@ -1,7 +1,7 @@
 module internal Columns
 
 // Deals the [wrapping to rulers
-// feature](https://github.com/stkb/Rewrap/wiki/Settings-VSCode#wrapping-to-rulers).
+// feature](https://stkb.github.io/Rewrap/#/settings-vscode#wrapping-to-rulers).
 // The user can have multiple "rulers" (potential wrapping columns) set, either
 // with the `editor.rulers` setting in VSCode or the Guidelines extension in VS.
 //

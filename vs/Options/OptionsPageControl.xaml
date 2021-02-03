@@ -242,7 +242,7 @@
                 </TextBlock>
                 <TextBlock TextWrapping="WrapWithOverflow">
                     <Hyperlink
-                        NavigateUri="https://github.com/stkb/Rewrap/wiki/Settings-Visual-Studio"
+                        NavigateUri="https://stkb.github.io/Rewrap/#/settings-visualstudio"
                         RequestNavigate="OpenLinkInBrowser"
                         >
                             More info at can be found here

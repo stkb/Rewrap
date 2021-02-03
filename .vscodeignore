@@ -1,7 +1,7 @@
 **
 
 # Whitelist
-!images/**
+!docs/**
 !node_modules/**
 !vscode/compiled/**
 !CHANGELOG.md
