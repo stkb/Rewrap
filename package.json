@@ -1,13 +1,15 @@
 {
   "name": "rewrap",
   "displayName": "Rewrap",
-  "description": "Re-wraps comments and other text to a given line length.",
+  "description": "Hard word wrapping for comments and other text at a given column.",
   "keywords": [
-    "wraps",
+    "word wrap",
+    "hard wrap",
     "comments",
     "column",
-    "length",
+    "line length",
     "fill",
+    "paragraph",
     "multi-root ready"
   ],
   "version": "1.14.0-beta.4",
