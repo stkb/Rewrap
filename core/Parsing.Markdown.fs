@@ -205,7 +205,7 @@ let rec markdown (settings: Settings): TotalParser<string> =
         Line.tryMatch listItemRegex firstLine |> Option.map doStuff
 
     let paragraph =
-        splitIntoChunks (afterRegex (Regex(@"(\\|\s{2})$")))
+        splitIntoChunks (afterRegex (Regex(@"(\\|\s{2}|<br/?>)$", RegexOptions.IgnoreCase)))
             >> map (firstLineIndentParagraphBlock settings.reformat)
 
     let paragraphTerminator =

@@ -31,6 +31,14 @@ or two spaces.
     Another line break··            break··          ¦
     More text        ¦              More text        ¦
 
+Line breaks are also preserved after a line that ends in `<br>` or `<br/>`
+
+    HTML           ¦              HTML line      ¦
+    line break<br> ¦      ->      break<br>      ¦
+    HTML           ¦              HTML line      ¦
+    line break<br/>¦              break<br/>     ¦
+    Text           ¦              Text           ¦
+
 
 ## Markdown features ##
 

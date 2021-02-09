@@ -11,6 +11,7 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
   workspace (#231); fixes locally-installed language extensions not being found
   when used with remote workspaces (#201).
 - Add PostgreSQL (.p(g)sql)
+- Markdown: preserve line-breaks after `<br(/)>` (#223).
 
 
 ## 1.13.0
