@@ -62,10 +62,10 @@ let mutable languages = [
               customBlock javadoc ( "*", " * " ) javadocMarkers; cBlock
             ]
         )
-    lang "CMake" "" "CMakeLists.txt"
-        configFile
     lang "Clojure" "" ".clj|.cljs|.cljc|.cljx|.edn"
         ( sourceCode [ line ";+" ] )
+    lang "CMake" "" "CMakeLists.txt"
+        configFile
     lang "CoffeeScript" "" ".coffee"
         ( sourceCode
             [ customBlock javadoc ("*#", " * ") ( "###\\*", "###" )
