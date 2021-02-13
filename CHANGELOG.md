@@ -3,6 +3,7 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 
 ## Unreleased
 
+- Add Clojure, Common Lisp, Emacs Lisp, Scheme, and J (#246, #240)
 - Fix per-language settings sometimes not applying.
 - Declare as a UI extension so it doesn't have to be installed in the remote
   workspace (#231); fixes locally-installed language extensions not being found
