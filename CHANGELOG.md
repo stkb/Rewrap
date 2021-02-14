@@ -1,7 +1,7 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
 
-## Unreleased
+## 1.14.0
 
 - Make `autoWrap.enabled` a per-language setting; auto-wrap toggle command a
   per-document override. (#149)

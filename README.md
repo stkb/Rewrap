@@ -1,10 +1,12 @@
-**Latest version: 1.13.0**. New in this version ([full
+**Latest version: 1.14.0**. New in this version ([full
 changelog](https://github.com/stkb/vscode-rewrap/releases)):
 
-- Change to how the indent of comment content is handled. This allows the first line of a comment to be an indented code block, which previously wasn't possible.
-- Fix issues that broke wrapping for extension-contributed languages in v1.12.0.
-- Markdown: Fix preserving indents in blockquote.
-- Fix HTML not working in Visual Studio.
+- Auto-wrap can now be enabled per-language ([see docs](http://stkb.github.io/Rewrap/#/auto-wrap)).
+- Add Clojure, Common Lisp, Emacs Lisp, Scheme, J and PostgreSQL.
+- Markdown: preserve line-breaks after a `<br>` tag.
+- Declare as a UI extension so it doesn't have to be installed in the remote
+  workspace;  fixes locally-installed language extensions not being found
+  when used with remote workspaces.
 
 
 # Rewrap
