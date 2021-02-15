@@ -121,23 +121,24 @@
     "vscode:prepublish": "npm run build:prod"
   },
   "devDependencies": {
-    "@babel/core": "^7.11.1",
-    "@babel/preset-env": "^7.11.0",
-    "@octokit/rest": "^18.0.3",
+    "@babel/core": "^7.12.16",
+    "@babel/preset-env": "^7.12.16",
+    "@octokit/rest": "^18.1.1",
+    "@types/node": "^14.14.28",
     "@types/vscode": "1.45.0",
-    "@typescript-eslint/eslint-plugin": "^3.9.0",
-    "@typescript-eslint/parser": "^3.9.0",
-    "eslint": "^7.6.0",
-    "fable-compiler": "2.10.2",
+    "@typescript-eslint/eslint-plugin": "^4.15.0",
+    "@typescript-eslint/parser": "^4.15.0",
+    "eslint": "^7.20.0",
+    "fable-compiler": "2.13.0",
     "fable-splitter": "^2.2.1",
     "rimraf": "^3.0.2",
     "root-require": "^0.3.1",
-    "typescript": "^3.9.7",
-    "vscode-test": "^1.4.0",
+    "typescript": "^4.1.5",
+    "vscode-test": "^1.5.0",
     "xml2js": "^0.4.23"
   },
   "dependencies": {
     "fast-diff": "^1.2.0",
-    "json5": "^2.1.3"
+    "json5": "^2.2.0"
   }
 }
