@@ -1,6 +1,6 @@
+import {getWrappingColumn, maybeAutoWrap} from './Core'
 import {Memento, ThemeColor, workspace, window, TextDocumentChangeEvent, TextEditor} from 'vscode'
-import {Rewrap, applyEdit, catchErr, docLine, docType} from './Common'
-const Rewrap: Rewrap = require('./core/Main')
+import {applyEdit, catchErr, docLine, docType} from './Common'
 import {EditorSettings, getCoreSettings, getEditorSettings} from './Settings'
 
 /** Handler that's called if the text in the active editor changes */
@@ -27,12 +27,10 @@ const checkChange = (e: TextDocumentChangeEvent) => {
 
     try {
         const file = docType(doc)
-        const settings =
-            getCoreSettings(editor, cs => Rewrap.getWrappingColumn(file.path, cs))
+        const settings = getCoreSettings(editor, cs => getWrappingColumn(file.path, cs))
         // maybeAutoWrap does more checks: that newText isn't empty, but is only
         // whitespace. Don't call this in a promise: it causes timing issues.
-        const edit =
-            Rewrap.maybeAutoWrap(file, settings, newText, range.start, docLine(doc))
+        const edit = maybeAutoWrap(file, settings, newText, range.start, docLine(doc))
         return applyEdit(editor, edit).then(null, catchErr)
     }
     catch(err) { catchErr(err) }

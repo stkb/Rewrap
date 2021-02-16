@@ -1,11 +1,8 @@
-const {DocState, Position, Selection} = require('./core/Types')
-import {Rewrap, applyEdit, catchErr, docType, docLine} from './Common'
-const Rewrap: Rewrap = require('./core/Main')
-import * as vscode from 'vscode'
-import {commands, window} from 'vscode'
+import {DocState, maybeChangeWrappingColumn, rewrap, saveDocState} from './Core'
+import {applyEdit, catchErr, docType, docLine} from './Common'
+import {TextEditor, commands, window} from 'vscode'
 import {getCoreSettings} from './Settings'
 import AutoWrap from './AutoWrap'
-import fixSelections from './FixSelections'
 
 
 /** Function to activate the extension. */
@@ -23,7 +20,7 @@ exports.activate = async function activate(context)
     /** Standard rewrap command */
     function rewrapCommentCommand(editor)
     {
-        doWrap(editor).then(() => Rewrap.saveDocState(getDocState(editor)))
+        doWrap(editor).then(() => saveDocState(getDocState(editor)))
     }
 
     let customWrappingColumn = 0;
@@ -44,26 +41,13 @@ exports.activate = async function activate(context)
     }
 }
 
-/** Converts a selection-like object to a rewrap Selection object */
-const rewrapSelection = s =>
-    new Selection
-        ( new Position(s.anchor.line, s.anchor.character)
-        , new Position(s.active.line, s.active.character)
-        )
-
 /** Gets an object representing the state of the document and selections. When a
  *  standard wrap is done, the state is compared with the state after the last
  *  wrap. If they are equal, and there are multiple rulers for the document, the
  *  next ruler is used for wrapping instead. */
-const getDocState = editor => {
-    const doc = editor.document
-    // Conversion of selections is needed for equality operations within Fable
-    // code
-    return new DocState
-        ( docType(doc).path
-        , doc.version
-        , editor.selections.map(rewrapSelection)
-        )
+const getDocState = (editor: TextEditor) : DocState => {
+    const doc = editor.document, selections = editor.selections
+    return {filePath: docType(doc).path, version: doc.version, selections}
 }
 
 /** Collects the information for a wrap from the editor, passes it to the
@@ -76,11 +60,11 @@ const doWrap = (editor, customColumn?) => {
     try {
         const docState = getDocState(editor)
         const toCol = cs => !isNaN(customColumn) ?
-            customColumn : Rewrap.maybeChangeWrappingColumn(docState, cs)
+            customColumn : maybeChangeWrappingColumn(docState, cs)
         let settings = getCoreSettings(editor, toCol)
-        const selections = editor.selections.map(rewrapSelection)
+        const selections = editor.selections
 
-        const edit = Rewrap.rewrap(docType(doc), settings, selections, docLine(doc))
+        const edit = rewrap(docType(doc), settings, selections, docLine(doc))
         return applyEdit(editor, edit).then(null, catchErr)
     }
     catch(err) { catchErr(err) }
