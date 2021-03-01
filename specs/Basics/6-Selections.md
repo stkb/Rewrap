@@ -52,11 +52,11 @@ Rewrap works only with whole lines, so a (non-empty) selection of part of a line
 
 Multiple line selections in the same paragraph is fine.
 
-    «Wrap» this¦line      ->      Wrap this¦
-    Don't wrap this               line     ¦
-    Wrap «this»¦line              Don't wrap this
-               ¦                  Wrap this¦
-               ¦                  line     ¦
+    «Wrap» this line      ->      Wrap this ¦
+    Don't wrap¦this               line      ¦
+    Wrap «this» line              Don't wrap¦this
+              ¦                   Wrap this ¦
+              ¦                   line      ¦
 
 
 ## Comments ##

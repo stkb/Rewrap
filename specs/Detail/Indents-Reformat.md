@@ -11,33 +11,33 @@ Rewrap has two settings for indentation:
 
 This example compares reformat off (left) and on (right)
 
-    ·First          ¦      ->      ·First paragraph ¦    -or-    First paragraph  ¦
-     paragraph      ¦                               ¦                             ¦
-                    ¦              ···Second        ¦            Second paragraph ¦
-    ···Second paragraph            ···paragraph     ¦                             ¦
-                    ¦                               ¦            * Item 1         ¦
-    ·*  Item 1      ¦              ·*  Item 1       ¦            * Item 2         ¦
-    ···* Item 2     ¦              ···* Item 2      ¦            ··* Subitem 2.1  ¦
-    ······* Subitem 2.1            ······* Subitem  ¦                             ¦
-                    ¦                      2.1      ¦                Para 2       ¦
-            ·Para 2 ¦                               ¦                             ¦
-                    ¦                      ·Para 2  ¦                             ¦
+    ·First          ¦      ->      ·First paragraph¦    -or-    First paragraph ¦
+     paragraph      ¦                              ¦                            ¦
+                    ¦              ···Second       ¦            Second paragraph¦
+    ···Second paragraph            ···paragraph    ¦                            ¦
+                    ¦                              ¦            * Item 1        ¦
+    ·*  Item 1      ¦              ·*  Item 1      ¦            * Item 2        ¦
+    ···* Item 2     ¦              ···* Item 2     ¦            ··* Subitem 2.1 ¦
+    ······* Subitem 2.1            ······* Subitem ¦                            ¦
+                    ¦                      2.1     ¦                Para 2      ¦
+            ·Para 2 ¦                              ¦                            ¦
+                    ¦                      ·Para 2 ¦                            ¦
 
 Indented code blocks, where indented more than 4 spaces, are reduced to a
 4-space indent.
 
-    ······Indented code    ->      ······Indented code   -or-    ····Indented code¦
-    ·······block    ¦              ·······block     ¦            ·····block       ¦
+    ······Indented code    ->      ······Indented code   -or-    ····Indented code
+    ·······block    ¦              ·······block    ¦             ·····block      ¦
 
 With fenced code blocks, like normal paragraphs, any indent is removed from the
 lines with ```. Relative indents of the content are preserved.
 
-    ··```          ¦      ->      ··```          ¦     -or-     ```          ¦
-       Fenced      ¦                 Fenced      ¦               Fenced      ¦
-        code block ¦                  code block ¦                code block ¦
-    ···```         ¦              ···```         ¦              ```          ¦
+    ··```         ¦      ->      ··```         ¦     -or-     ```           ¦
+       Fenced     ¦                 Fenced     ¦               Fenced       ¦
+        code block¦                  code block¦                code block  ¦
+    ···```        ¦              ···```        ¦              ```           ¦
 
-    ··```          ¦      ->      ··```          ¦     -or-     ```          ¦
+    ··```         ¦      ->      ··```         ¦     -or-     ```           ¦
 
 With list items, the whitespace between the bullet marker and the
 item content is reduced to 1 space. The bullet markers for sub-items are
