@@ -112,7 +112,7 @@
     ]
   },
   "scripts": {
-    "test": "node tests && node vscode.tests/run",
+    "test": "node tests && node vscode.test/run",
     "build:dev": "cd vscode && tsc && fable-splitter --config .fableconfig.js",
     "watch": "npm run build:dev -- --watch",
     "clean": "rimraf vscode/compiled",
