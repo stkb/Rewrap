@@ -344,9 +344,10 @@ function runTests(tests)
 
         try {
             const getLine = i => i < input.length ? input[i] : null
+            const getMarkers = () => ({line: "", block: ["",""]})
             const edit =
                 Core.rewrap
-                    ( { language: settings.language, path: '', getMarkers: () => { } }
+                    ( { language: settings.language, path: '', getMarkers }
                     , Object.assign(settings, { column: wrappingColumn })
                     , selections
                     , getLine

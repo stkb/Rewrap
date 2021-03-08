@@ -277,15 +277,20 @@ let mutable languages = [
         )
     ]
 
-/// Creates a custom language parser. Also adds it to the list of languages
-let private addCustomLanguage name (markers: CustomMarkers) =
+/// Creates a custom language parser, if the given CustomMarkers are valid. Also
+/// adds it to the list of languages
+let private maybeAddCustomLanguage name (markers: CustomMarkers) : Option<Language> =
     let escape = System.Text.RegularExpressions.Regex.Escape
-    let maybeLine = map (line << escape) markers.line
-    let maybeBlock = map (block << map escape) markers.block
-    let list = maybe [] List.singleton maybeBlock @ maybe [] List.singleton maybeLine
+    let isInvalid = String.IsNullOrEmpty
+    let maybeLine = if isInvalid markers.line then None else Some (line (escape markers.line))
+    let maybeBlock =
+      if isInvalid (fst markers.block) || isInvalid (snd markers.block) then None
+      else Some (block (map escape markers.block))
+    let list = [maybeBlock; maybeLine] |> List.choose id
+    if List.isEmpty list then None else
     let cl = lang name "" "" (sourceCode list)
     languages <- cl :: languages
-    cl
+    Some cl
 
 /// Tries to find a known Language for the given File, using its language ID. If
 /// that is empty or the default ('plaintext'), it tries using the file's
@@ -310,9 +315,5 @@ let languageForFile (file: File) : Option<Language> =
 let rec select (file: File) : Settings -> TotalParser<string> =
     languageForFile file
         |> Option.orElseWith
-            (fun () ->
-                match file.getMarkers.Invoke() with
-                | null -> None
-                | x -> Some (addCustomLanguage file.language x)
-            )
+            (fun () -> maybeAddCustomLanguage file.language (file.getMarkers.Invoke()))
         |> maybe plainText Language.parser

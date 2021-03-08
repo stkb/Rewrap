@@ -1,11 +1,7 @@
-const Types = require('./core/Types')
 const Main = require('./core/Main')
 
 
 export interface CustomMarkers { line: string, block: [string, string] }
-export interface CustomMarkersStatic {
-  new(line: string, block: string[]): CustomMarkers
-}
 
 export interface DocState { filePath: string, version: number, selections: Selection[] }
 
@@ -33,8 +29,6 @@ export interface Settings {
   reformat: boolean
   wholeComment: boolean
 }
-
-export const CustomMarkers: CustomMarkersStatic = Types.CustomMarkers
 
 /** Gets the current wrapping column used for the given document */
 export const getWrappingColumn: (path: string, columns: number[]) => number =

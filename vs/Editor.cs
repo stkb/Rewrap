@@ -24,7 +24,8 @@ namespace VS
         {
             var textBuffer = textView.TextBuffer;
             var snapshot = textBuffer.CurrentSnapshot;
-            var file = new File(GetLanguage(textBuffer), GetFilePath(textBuffer), () => null);
+            var noCustomMarkers = new CustomMarkers("", Tuple.Create("", ""));
+            var file = new File(GetLanguage(textBuffer), GetFilePath(textBuffer), () => noCustomMarkers);
             DocState getDocState(ITextSnapshot ss) =>
                 new DocState(file.path, ss.Version.VersionNumber, GetSelections(textView, ss));
 

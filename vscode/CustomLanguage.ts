@@ -1,7 +1,6 @@
 const Path = require('path')
 const FS = require('fs')
 const JSON = require('json5')
-const {CustomMarkers} = require('./core/Types')
 
 const getConfig = (getText, path) => {
     let config = {line: null, block: null}
@@ -61,14 +60,16 @@ export default function(exts?, getFileText?) {
 
     getFileText = getFileText || (p => FS.readFileSync(p))
     let cache = null
+    const noMarkers = {line: "", block: ["", ""]}
     return lang => {
         cache = cache || createCache(exts)
 
         if (typeof cache[lang] === 'string') {
             const config = getConfig(getFileText, cache[lang])
             cache[lang] = (config.line || config.block) ?
-                new CustomMarkers(config.line, config.block) : null
+                {line: config.line, block: config.block} : noMarkers
         }
+        else if (!cache[lang]) cache[lang] = noMarkers
         return cache[lang]
     }
 }

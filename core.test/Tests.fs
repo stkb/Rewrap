@@ -243,7 +243,7 @@ let printFailure (test: Test) (actual: Lines) =
 /// Runs a test
 let runTest (test: Test) =
   let getLine = Func<int,string>(fun i -> if i < test.input.Length then test.input.[i] else null)
-  let file = { language = test.language; path = ""; getMarkers = Func<CustomMarkers>(fun () -> null) }
+  let file = {language = test.language; path = ""; getMarkers = Func<CustomMarkers>(fun () -> {line = ""; block = ("","")})}
   let edit = Core.rewrap file test.settings test.selections getLine
   let actual = applyEdit edit test.input
   let arrayEqual (a: 'a[]) (b: 'a[]) = (a.Length = b.Length && not (Seq.exists2 (fun x y -> x <> y) a b))
