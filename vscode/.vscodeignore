@@ -1,11 +1,10 @@
 **
 
 # Whitelist
-!docs/**
+!bin/**
+!LICENSE
+!logo.png
 !node_modules/**
-!vscode/compiled/**
-!CHANGELOG.md
 !package.json
 !package-lock.json
 !README.md
-!LICENSE

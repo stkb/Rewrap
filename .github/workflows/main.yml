@@ -26,4 +26,4 @@ jobs:
     - name: Build & Run Tests
       uses: GabrielBB/xvfb-action@v1.2
       with:
-        run: npm run vscode:prepublish --silent
+        run: ./do build vscode --production

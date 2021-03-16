@@ -1,0 +1,10 @@
+{
+    "type": "module",
+    "main": "bin/Release/js/index.js",
+    "source": "bin/Debug/js/Tests.js",
+    "targets": {
+        "main": {
+            "outputFormat": "esmodule"
+        }
+    }
+}

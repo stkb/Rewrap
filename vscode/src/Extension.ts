@@ -4,10 +4,10 @@ import {TextEditor, commands, window} from 'vscode'
 import {getCoreSettings} from './Settings'
 import AutoWrap from './AutoWrap'
 
+export {activate, getCoreSettings}
 
 /** Function to activate the extension. */
-exports.activate = async function activate(context)
-{
+async function activate(context) {
     const autoWrap = AutoWrap(context.workspaceState)
 
     // Register the commands

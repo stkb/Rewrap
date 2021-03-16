@@ -31,11 +31,17 @@ type SelPosType = Anchor | Active
 
 /// Functions that are native to the test platform (.Net or JS)
 module Native =
+#if FABLE_COMPILER
+  open Fable.Core.JsInterop
+  let files : Lines = importMember "./Native.js"
+  let readFile : string -> Lines = importMember "./Native.js"
+#else
   open System.IO
   let files =
     let dir = Directory.GetCurrentDirectory() + "/../../../../specs"
     Directory.GetFiles(dir, "*.md", SearchOption.AllDirectories)
   let readFile p = File.ReadAllLines(p)
+#endif
 
 let maybe def f = Option.map f >> Option.defaultValue def
 
@@ -272,4 +278,4 @@ let main argv =
   let init = {passes = 0; failures = 0; errors = 0}
   let results = Native.files |> Seq.collect readSamplesInFile |> Seq.fold processTest init
   printfn "Passed: %i; Failed: %i; Errored: %i" results.passes results.failures results.errors
-  0
+  results.failures + results.errors

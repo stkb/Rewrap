@@ -1,4 +1,6 @@
-const Main = require('./core/Main')
+// This file serves as a wrapper to the core JS library. It does nothing more
+// than a .d.ts file would do, except keeping this ugly import path to one place
+import * as Main from '../../core/bin/Debug/js/Main.js'
 
 
 export interface CustomMarkers { line: string, block: [string, string] }

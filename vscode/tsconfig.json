@@ -1,12 +1,11 @@
 {
-	"files": [ "Extension.ts" ],
+	"files": [ "src/Extension.ts" ],
 	"compilerOptions": {
 		"module": "commonjs",
 		"target": "es2019",
 		"lib": ["ES2019"],
-		"outDir": "compiled",
+		"outDir": "bin",
 		"sourceMap": true,
-		"alwaysStrict": true,
-		"rootDir": ".",
+		"alwaysStrict": true
 	}
 }

@@ -4,9 +4,11 @@
 
 /packages/
 /node_modules/
+/vscode/node_modules/
 /.vscode-test/
+/.parcel-cache/
 
 /vscode/compiled/
 bin/
 obj/
-/*.vsix
+*.vsix
