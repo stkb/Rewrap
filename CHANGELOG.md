@@ -1,5 +1,8 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
+## Unreleased
+
+- Add ERB (HTML) `.html.erb` (#265).
 
 ## 1.14.0
 
