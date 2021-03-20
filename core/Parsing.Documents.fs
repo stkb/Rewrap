@@ -131,7 +131,7 @@ let mutable languages = [
     lang "GraphQL" "" ".graphql|.gql"
         ( sourceCode
             [ line "#"
-              block ( @".*?""""""", "\"\"\"" )
+              block ( "\"\"\"", "\"\"\"" )
             ]
         )
     lang "Groovy" "" ".groovy"
