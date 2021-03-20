@@ -17,3 +17,10 @@ operations.
     a b c d e f g h i              a b c d e¦
     """      ¦                     f g h i  ¦
              ¦                     """      ¦
+
+    foo {        ¦               foo {        ¦
+      bar(baz: """                 bar(baz: """
+        a b c d e f      ->          a b c d e¦
+        g h      ¦                   f g h    ¦
+      """)       ¦                 """)       ¦
+    }            ¦               }            ¦
