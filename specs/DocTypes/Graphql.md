@@ -18,6 +18,14 @@ operations.
     """      ¦                     f g h i  ¦
              ¦                     """      ¦
 
+    type Mutation {  ¦                    type Mutation {  ¦
+        """          ¦                        """          ¦
+        This is a long line.      ->          This is a    ¦
+        """          ¦                        long line.   ¦
+        loginUser() String                    """          ¦
+    }                ¦                        loginUser() String
+                     ¦                    }                ¦
+
     foo {        ¦               foo {        ¦
       bar(baz: """                 bar(baz: """
         a b c d e f      ->          a b c d e¦
