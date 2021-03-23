@@ -264,6 +264,8 @@ let mutable languages = [
         java
     lang "Verilog/SystemVerilog" "systemverilog|verilog" ".sv|.svh|.v|.vh|.vl"
         java
+    lang "XAML" "" ".xaml"
+        html
     lang "XML" "xsl" ".xml|.xsl"
         html
     lang "YAML" "" ".yaml|.yml"

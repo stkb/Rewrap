@@ -3,6 +3,8 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 ## Unreleased
 
 - Add ERB (HTML) `.html.erb` (#265).
+- Add XAML type (#263).
+
 
 ## 1.14.0
 
