@@ -2,6 +2,7 @@ import * as Path from 'path'
 import {readFileSync} from 'fs'
 import * as JSON from 'json5'
 import * as vscode from 'vscode'
+import {noCustomMarkers} from './Core'
 
 const getConfig = (getText, path) => {
     let config = {line: null, block: null}
@@ -61,16 +62,15 @@ export default function(exts?, getFileText?) {
 
     getFileText = getFileText || (p => readFileSync(p))
     let cache = null
-    const noMarkers = {line: "", block: ["", ""]}
     return lang => {
         cache = cache || createCache(exts)
 
         if (typeof cache[lang] === 'string') {
             const config = getConfig(getFileText, cache[lang])
             cache[lang] = (config.line || config.block) ?
-                {line: config.line, block: config.block} : noMarkers
+                {line: config.line, block: config.block} : noCustomMarkers
         }
-        else if (!cache[lang]) cache[lang] = noMarkers
+        else if (!cache[lang]) cache[lang] = noCustomMarkers
         return cache[lang]
     }
 }

@@ -24,8 +24,7 @@ namespace VS
         {
             var textBuffer = textView.TextBuffer;
             var snapshot = textBuffer.CurrentSnapshot;
-            var noCustomMarkers = new CustomMarkers("", Tuple.Create("", ""));
-            var file = new File(GetLanguage(textBuffer), GetFilePath(textBuffer), () => noCustomMarkers);
+            var file = new File(GetLanguage(textBuffer), GetFilePath(textBuffer), () => Core.noCustomMarkers);
             DocState getDocState(ITextSnapshot ss) =>
                 new DocState(file.path, ss.Version.VersionNumber, GetSelections(textView, ss));
 
@@ -43,7 +42,7 @@ namespace VS
         {
             var textBuffer = textView.TextBuffer;
             var snapshot = textBuffer.CurrentSnapshot;
-            var file = new File(GetLanguage(textBuffer), GetFilePath(textBuffer), () => null);
+            var file = new File(GetLanguage(textBuffer), GetFilePath(textBuffer), () => Core.noCustomMarkers);
 
             var settings = GetSettings
                 (textView, rs => Core.getWrappingColumn(file.path, rs));
@@ -57,7 +56,7 @@ namespace VS
             (IWpfTextView textView, Func<int[], int> getColumn)
         {
             var textBuffer = textView.TextBuffer;
-            var file = new File(GetLanguage(textBuffer), GetFilePath(textBuffer), () => null);
+            var file = new File(GetLanguage(textBuffer), GetFilePath(textBuffer), () => Core.noCustomMarkers);
             var options = OptionsPage.GetOptions(file);
 
             int[] rulers;

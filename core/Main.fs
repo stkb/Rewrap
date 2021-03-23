@@ -12,6 +12,8 @@ let getWrappingColumn filePath rulers = getWrappingColumn filePath rulers
 let maybeChangeWrappingColumn docState rulers = maybeChangeWrappingColumn docState rulers
 let saveDocState docState = saveDocState docState
 
+/// Empty CustomMarkers object, for when no custom markers are supplied.
+let noCustomMarkers : CustomMarkers = {line = ""; block = ("","")}
 
 let languageNameForFile (file: File) : string =
     maybe null Language.name (languageForFile file)

@@ -44,6 +44,8 @@ export const maybeAutoWrap:
 export const maybeChangeWrappingColumn:
   (docState: DocState, columns: number[]) => number = Main.maybeChangeWrappingColumn
 
+export const noCustomMarkers : CustomMarkers = Main.noCustomMarkers
+
 export const rewrap:
   (docType: DocType, settings: Settings,
    selections: Selection[], docLine: (i:number) => string) => Edit =
