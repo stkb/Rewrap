@@ -3,9 +3,9 @@
 Multiple selections on the same line count as just one selection.
 
     Don't wrap this         ->      Don't wrap this
-    «Wrap» «this»¦line              Wrap this¦
+    «Wrap» «this» line              Wrap this¦
     Don't wrap this                 line     ¦
-                 ¦                  Don't wrap this
+             ¦                      Don't wrap this
 
 The same as multiple empty selections in the same paragraph.
 

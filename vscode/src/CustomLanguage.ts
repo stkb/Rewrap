@@ -1,13 +1,14 @@
-const Path = require('path')
-const FS = require('fs')
-const JSON = require('json5')
-const {CustomMarkers} = require('./core/Types')
+import * as Path from 'path'
+import {readFileSync} from 'fs'
+import * as JSON from 'json5'
+import * as vscode from 'vscode'
+import {noCustomMarkers} from './Core'
 
 const getConfig = (getText, path) => {
     let config = {line: null, block: null}
     let warnings = [], error
     try {
-        const c = JSON.parse(getText(path), null, true).comments
+        const c = JSON.parse(getText(path)).comments
         if(c) {
             // 'line' must be a string or null.
             if(typeof c.lineComment === 'string') config.line = c.lineComment
@@ -55,11 +56,11 @@ const createCache = exts => {
 
 /* Can take exts & getFileText mocks for testing */
 export default function(exts?, getFileText?) {
-    exts = exts || require('vscode').extensions.all
+    exts = exts || vscode.extensions.all
     if(!exts.length)
         console.warn("`vscode.extensions.all` returned an empty array. Something is wrong.")
 
-    getFileText = getFileText || (p => FS.readFileSync(p))
+    getFileText = getFileText || (p => readFileSync(p))
     let cache = null
     return lang => {
         cache = cache || createCache(exts)
@@ -67,8 +68,9 @@ export default function(exts?, getFileText?) {
         if (typeof cache[lang] === 'string') {
             const config = getConfig(getFileText, cache[lang])
             cache[lang] = (config.line || config.block) ?
-                new CustomMarkers(config.line, config.block) : null
+                {line: config.line, block: config.block} : noCustomMarkers
         }
+        else if (!cache[lang]) cache[lang] = noCustomMarkers
         return cache[lang]
     }
 }

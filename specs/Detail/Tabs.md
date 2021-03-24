@@ -32,8 +32,8 @@ It also works with a mix of tabs and spaces on one line
 Tabs in the comment content can make things tricky, and therefore all tabs
 that appear after the column where text begins are converted to spaces when wrapping.
 
-    ---→//·text text text      ->      ---→//·text text   ¦
-    ---→//-→text      ¦                ---→//··text text  ¦
+    ---→//·text text text      ->      ---→//·text text  ¦
+    ---→//-→text      ¦                ---→//··text text ¦
 
 ### Markdown ###
 

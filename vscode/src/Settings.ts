@@ -17,13 +17,6 @@ export interface AutoWrapSettings
 export interface Setting<T>
     { name: string; value: T; origin: {scope: number, language: string} }
 
-export interface CoreSettings {
-    column: number
-    tabWidth: number
-    doubleSentenceSpacing: boolean
-    reformat: boolean
-    wholeComment: boolean
-}
 
 /** Gets and validates a settings object from vscode's configuration. Doing this
  *  is not normally expensive. */

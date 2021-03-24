@@ -2,10 +2,11 @@ namespace Rewrap
 
 open System
 
-[<AllowNullLiteral>]
-type CustomMarkers(line: Option<string>, block: Option<string * string>) =
-    member this.line = line
-    member this.block = block
+// Set of comment markers provided by the editor to create a custom language. To
+// be valid, either `line` must be a nonempty string or `block` two nonempty
+// strings.
+type CustomMarkers = { line: string; block : string * string }
+
 
 /// File language and path. Used to select a parser.
 type File = { language: string; path: string; getMarkers: Func<CustomMarkers> }

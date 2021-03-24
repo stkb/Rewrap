@@ -102,7 +102,7 @@ async function uploadGithubBetaRelease (version, vscVsix, vsVsix) {
 
   uploadGithubBetaRelease
     ( version
-    , {name: `Rewrap-VSCode-${version}.vsix`, path: fromRoot (`rewrap-${version}.vsix`)}
+    , {name: `Rewrap-VSCode-${version}.vsix`, path: fromRoot (`vscode/rewrap-${version}.vsix`)}
     , {name: `Rewrap-VS-${version}_${vsVersion}`, path: fromRoot ("vs/bin/Release/Rewrap-VS.vsix")}
     )
 })()

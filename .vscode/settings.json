@@ -3,7 +3,7 @@
     "files.exclude": {
         "**/.vs/": true,
         "node_modules/": true,
-        "**/bin/": true,
+        "**/bin/*/net*": true,
         "**/obj/": true,
         "packages/": true,
         "fable": true

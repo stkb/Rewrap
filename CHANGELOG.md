@@ -6,6 +6,7 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 - Add support for [Block
   Strings](https://github.com/graphql/graphql-spec/pull/327)
   in GraphQL files. (#261)
+- Add XAML type (#263).
 
 
 ## 1.14.0

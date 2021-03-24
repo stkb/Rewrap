@@ -1,0 +1,123 @@
+{
+  "name": "rewrap",
+  "displayName": "Rewrap",
+  "description": "Hard word wrapping for comments and other text at a given column.",
+  "keywords": [
+    "word wrap",
+    "hard wrap",
+    "comments",
+    "column",
+    "line length",
+    "fill",
+    "paragraph",
+    "multi-root ready"
+  ],
+  "version": "1.14.1-alpha.4",
+  "publisher": "stkb",
+  "icon": "logo.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stkb/Rewrap.git"
+  },
+  "bugs": {
+    "url": "https://github.com/stkb/Rewrap/issues",
+    "email": "scsavtnk@gmail.com"
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "engines": {
+    "node": ">=12.x",
+    "vscode": "^1.45.0"
+  },
+  "extensionKind": [
+    "ui",
+    "workspace"
+  ],
+  "categories": [
+    "Formatters"
+  ],
+  "markdown": "standard",
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./bin/Extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "rewrap.rewrapComment",
+        "title": "Rewrap Comment / Text"
+      },
+      {
+        "command": "rewrap.rewrapCommentAt",
+        "title": "Rewrap/Unwrap Text At Column..."
+      },
+      {
+        "command": "rewrap.toggleAutoWrap",
+        "title": "Rewrap: Toggle Auto-Wrap for Current Document"
+      }
+    ],
+    "configuration": {
+      "title": "Rewrap",
+      "properties": {
+        "rewrap.wrappingColumn": {
+          "scope": "language-overridable",
+          "type": "number",
+          "default": 0,
+          "description": "Controls after how many characters text is wrapped."
+        },
+        "rewrap.doubleSentenceSpacing": {
+          "scope": "language-overridable",
+          "type": "boolean",
+          "default": false,
+          "description": "When wrapping lines that end in a period, adds two spaces after that sentence in the wrapped text."
+        },
+        "rewrap.wholeComment": {
+          "scope": "language-overridable",
+          "type": "boolean",
+          "default": true,
+          "description": "With the cursor inside a comment block, wrap the whole comment block instead of just a single paragraph."
+        },
+        "rewrap.reformat": {
+          "scope": "language-overridable",
+          "type": "boolean",
+          "default": false,
+          "description": "(EXPERIMENTAL) When wrapping lines, reformat paragraph indents."
+        },
+        "rewrap.autoWrap.enabled": {
+          "scope": "language-overridable",
+          "type": "boolean",
+          "default": false,
+          "description": "Wraps automatically when the cursor is past the wrapping column."
+        },
+        "rewrap.autoWrap.notification": {
+          "scope": "language-overridable",
+          "type": "string",
+          "description": "Notification type for when auto-wrap is on/off for the current document.",
+          "enum": [
+            "icon",
+            "text"
+          ],
+          "enumDescriptions": [
+            "Shows permanently when auto-wrap is on in the current document; hidden when it is off",
+            "Shows briefly the auto-wrap state for the current document, only when it is toggled on/off manually via the command"
+          ],
+          "default": "icon"
+        }
+      }
+    },
+    "keybindings": [
+      {
+        "command": "rewrap.rewrapComment",
+        "key": "alt+q",
+        "when": "editorTextFocus"
+      }
+    ]
+  },
+  "dependencies": {
+    "fast-diff": "^1.2.0",
+    "json5": "^2.2.0"
+  },
+  "devDependencies": {
+    "vsce": "^1.87.0"
+  },
+  "source": "src/Extension.ts"
+}

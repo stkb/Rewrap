@@ -1,28 +1,13 @@
-import * as vscode from 'vscode'
-import {Range, window} from 'vscode'
-import {CoreSettings} from './Settings'
+import {DocType} from './Core'
+import {Range, Selection, TextDocument, window} from 'vscode'
 import fixSelections from './FixSelections'
 import GetCustomMarkers from './CustomLanguage'
 const getCustomMarkers = GetCustomMarkers()
 
-export interface DocType {
-    path: string,
-    language: string,
-    getMarkers: () => any,
-}
-
-export interface Rewrap {
-    getWrappingColumn(path: string, columns: number[])
-    maybeAutoWrap(docType: DocType, settings: CoreSettings, newText: string, pos: vscode.Position, docLine: any)
-    maybeChangeWrappingColumn(docState: any, columns: [number])
-    rewrap(docType: DocType, settings: CoreSettings, selections: any, docLine: any)
-    saveDocState(docState: any): void
-}
 
 /** Converts a selection-like object to a vscode Selection object */
 const vscodeSelection = s =>
-    new vscode.Selection
-        (s.anchor.line, s.anchor.character, s.active.line, s.active.character)
+    new Selection(s.anchor.line, s.anchor.character, s.active.line, s.active.character)
 
 /** Applies an edit to the document. Also fixes the selections afterwards. If
  * the edit is empty this is a no-op */
@@ -56,8 +41,7 @@ export function applyEdit (editor, edit) {
             if(!didEdit) return
             if(wholeDocSelected) {
                 const wholeRange = getDocRange()
-                editor.selection =
-                    new vscode.Selection(wholeRange.start, wholeRange.end)
+                editor.selection = new Selection(wholeRange.start, wholeRange.end)
             }
             else editor.selections = fixSelections(oldLines, selections, edit)
         })
@@ -86,10 +70,7 @@ export function docLine(document) {
 
 /** Gets the path and language of the document. These are used to determine the
  *  parser used for it. */
-export function docType(document): DocType {
-    return {
-        path: document.fileName,
-        language: document.languageId,
-        getMarkers: () => getCustomMarkers(document.languageId),
-    }
+export function docType(document: TextDocument): DocType {
+    const path = document.fileName, language = document.languageId
+    return {path, language, getMarkers: () => getCustomMarkers(language)}
 }

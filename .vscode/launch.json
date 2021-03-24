@@ -7,14 +7,14 @@
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
-            "args": ["--extensionDevelopmentPath=${workspaceFolder}" ],
+            "args": ["--extensionDevelopmentPath=${workspaceFolder}/vscode" ],
             "sourceMaps": true
         },
         {
             "name": "Spec Tests",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceFolder}/tests.js",
+            "program": "${workspaceFolder}/core.test/bin/Debug/js/Tests.js",
             "args": []
         },
         {
@@ -24,9 +24,9 @@
             "runtimeExecutable": "${execPath}",
             "args": [
                 "--disable-extensions",
-                "--extensionDevelopmentPath=${workspaceFolder}",
-                "--extensionTestsPath=${workspaceFolder}/vscode.tests/tests",
-                "${workspaceFolder}/vscode.tests/fixture"
+                "--extensionDevelopmentPath=${workspaceFolder}/vscode",
+                "--extensionTestsPath=${workspaceFolder}/vscode.test/tests",
+                "${workspaceFolder}/vscode.test/fixture"
             ],
             "sourceMaps": true
         }

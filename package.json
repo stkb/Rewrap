@@ -1,143 +1,18 @@
 {
-  "name": "rewrap",
-  "displayName": "Rewrap",
-  "description": "Hard word wrapping for comments and other text at a given column.",
-  "keywords": [
-    "word wrap",
-    "hard wrap",
-    "comments",
-    "column",
-    "line length",
-    "fill",
-    "paragraph",
-    "multi-root ready"
-  ],
-  "version": "1.14.1-alpha.1",
-  "publisher": "stkb",
-  "icon": "docs/images/logo.png",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/stkb/Rewrap.git"
-  },
-  "bugs": {
-    "url": "https://github.com/stkb/Rewrap/issues",
-    "email": "scsavtnk@gmail.com"
-  },
-  "license": "SEE LICENSE IN LICENSE",
-  "engines": {
-    "vscode": "^1.45.0"
-  },
-  "extensionKind": [
-    "ui",
-    "workspace"
-  ],
-  "categories": [
-    "Formatters"
-  ],
-  "markdown": "standard",
-  "activationEvents": [
-    "*"
-  ],
-  "main": "./vscode/compiled/Extension",
-  "contributes": {
-    "commands": [
-      {
-        "command": "rewrap.rewrapComment",
-        "title": "Rewrap Comment / Text"
-      },
-      {
-        "command": "rewrap.rewrapCommentAt",
-        "title": "Rewrap/Unwrap Text At Column..."
-      },
-      {
-        "command": "rewrap.toggleAutoWrap",
-        "title": "Rewrap: Toggle Auto-Wrap for Current Document"
-      }
-    ],
-    "configuration": {
-      "title": "Rewrap",
-      "properties": {
-        "rewrap.wrappingColumn": {
-          "scope": "language-overridable",
-          "type": "number",
-          "default": 0,
-          "description": "Controls after how many characters text is wrapped."
-        },
-        "rewrap.doubleSentenceSpacing": {
-          "scope": "language-overridable",
-          "type": "boolean",
-          "default": false,
-          "description": "When wrapping lines that end in a period, adds two spaces after that sentence in the wrapped text."
-        },
-        "rewrap.wholeComment": {
-          "scope": "language-overridable",
-          "type": "boolean",
-          "default": true,
-          "description": "With the cursor inside a comment block, wrap the whole comment block instead of just a single paragraph."
-        },
-        "rewrap.reformat": {
-          "scope": "language-overridable",
-          "type": "boolean",
-          "default": false,
-          "description": "(EXPERIMENTAL) When wrapping lines, reformat paragraph indents."
-        },
-        "rewrap.autoWrap.enabled": {
-          "scope": "language-overridable",
-          "type": "boolean",
-          "default": false,
-          "description": "Wraps automatically when the cursor is past the wrapping column."
-        },
-        "rewrap.autoWrap.notification": {
-          "scope": "language-overridable",
-          "type": "string",
-          "description": "Notification type for when auto-wrap is on/off for the current document.",
-          "enum": [
-            "icon",
-            "text"
-          ],
-          "enumDescriptions": [
-            "Shows permanently when auto-wrap is on in the current document; hidden when it is off",
-            "Shows briefly the auto-wrap state for the current document, only when it is toggled on/off manually via the command"
-          ],
-          "default": "icon"
-        }
-      }
-    },
-    "keybindings": [
-      {
-        "command": "rewrap.rewrapComment",
-        "key": "alt+q",
-        "when": "editorTextFocus"
-      }
-    ]
-  },
-  "scripts": {
-    "test": "node tests && node vscode.tests/run",
-    "build:dev": "cd vscode && tsc && fable-splitter --config .fableconfig.js",
-    "watch": "npm run build:dev -- --watch",
-    "clean": "rimraf vscode/compiled",
-    "lint": "eslint vscode --ext .ts",
-    "build:prod": "npm i && npm run lint && npm run clean && npm run build:dev && npm test",
-    "vscode:prepublish": "npm run build:prod"
-  },
   "devDependencies": {
-    "@babel/core": "^7.11.1",
-    "@babel/preset-env": "^7.11.0",
-    "@octokit/rest": "^18.0.3",
+    "@babel/core": "^7.12.16",
+    "@babel/preset-env": "^7.12.16",
+    "@octokit/rest": "^18.1.1",
+    "@types/node": "^14.14.28",
     "@types/vscode": "1.45.0",
-    "@typescript-eslint/eslint-plugin": "^3.9.0",
-    "@typescript-eslint/parser": "^3.9.0",
-    "eslint": "^7.6.0",
-    "fable-compiler": "2.10.2",
-    "fable-splitter": "^2.2.1",
+    "@typescript-eslint/eslint-plugin": "^4.15.0",
+    "@typescript-eslint/parser": "^4.15.0",
+    "eslint": "^7.20.0",
+    "parcel": "^2.0.0-beta.2",
     "rimraf": "^3.0.2",
     "root-require": "^0.3.1",
-    "typescript": "^3.9.7",
-    "vscode-test": "^1.4.0",
+    "typescript": "^4.1.5",
+    "vscode-test": "^1.5.0",
     "xml2js": "^0.4.23"
-  },
-  "dependencies": {
-    "fast-diff": "^1.2.0",
-    "json5": "^2.1.3"
   }
 }
