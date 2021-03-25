@@ -2,26 +2,22 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "type": "npm",
-            "script": "watch",
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            },
-            "problemMatcher": [],
-            "label": "npm: watch",
-            "detail": "Dev watch script"
-        },
-        {
-            "type": "npm",
-            "script": "build:dev",
+            "type": "shell",
+            "command": "./do build vscode",
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
-            "problemMatcher": [],
-            "label": "npm: build:dev",
-            "detail": "Dev build script"
+            "label": "Build extension"
+        },
+        {
+            "type": "shell",
+            "command": "./do core test",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "label": "Run core tests"
         }
     ]
 }
