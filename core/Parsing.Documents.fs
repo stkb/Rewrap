@@ -129,7 +129,11 @@ let mutable languages = [
     lang "Git commit" "git-commit" "tag_editmsg"
         Markdown.markdown
     lang "GraphQL" "" ".graphql|.gql"
-        configFile
+        ( sourceCode
+            [ line "#"
+              block ( @".*?""""""", "\"\"\"" )
+            ]
+        )
     lang "Groovy" "" ".groovy"
         java
     lang "Handlebars" "" ".handlebars|.hbs"
