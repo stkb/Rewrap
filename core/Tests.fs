@@ -215,13 +215,13 @@ let applyEdit (edit: Edit) (oldLines: Lines) : Lines =
 
 /// Prints details of a test failure with input, expected and actual columns
 let printFailure (test: Test) (actual: Lines) =
-  printfn "Failed: %A" test.fileName
-  printfn "%s %A" test.language test.settings
+  eprintfn "Failed: %A" test.fileName
+  eprintfn "%s %A" test.language test.settings
   let width = test.settings.column
   let colWidth = width + 10
   let print (cols: string[]) =
     let cols = cols |> Array.map (fun c -> c.PadRight(colWidth).Substring(0, colWidth))
-    printfn "%s" (String.Join(" | ", cols))
+    eprintfn "%s" (String.Join(" | ", cols))
 
   let columns = [| test.input; test.expected; actual |]
 
@@ -269,13 +269,13 @@ let main argv =
         Option.fold run (run acc test) maybeReformatTest
 
     | Error (fileName, lines, err) ->
-        printfn "Error: %A" err
-        printfn "%s" fileName
-        printfn "==%s==" "Input"
-        Seq.iter (printfn "%s") lines
+        eprintfn "Error: %A" err
+        eprintfn "%s" fileName
+        eprintfn "==%s==" "Input"
+        Seq.iter (eprintfn "%s") lines
         { acc with errors = acc.errors + 1 }
 
   let init = {passes = 0; failures = 0; errors = 0}
   let results = Native.files |> Seq.collect readSamplesInFile |> Seq.fold processTest init
-  printfn "Passed: %i; Failed: %i; Errored: %i" results.passes results.failures results.errors
+  eprintfn "Passed: %i; Failed: %i; Errored: %i" results.passes results.failures results.errors
   results.failures + results.errors
