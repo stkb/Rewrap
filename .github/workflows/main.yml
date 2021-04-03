@@ -26,4 +26,4 @@ jobs:
     - name: Build & Run Tests
       uses: GabrielBB/xvfb-action@v1.2
       with:
-        run: ./do build vscode --production
+        run: ./do build test --production
