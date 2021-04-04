@@ -8,7 +8,8 @@
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "args": ["--extensionDevelopmentPath=${workspaceFolder}/vscode" ],
-            "sourceMaps": true
+            "sourceMaps": true,
+            "preLaunchTask": "Build extension"
         },
         {
             "name": "Spec Tests",

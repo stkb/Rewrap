@@ -3,7 +3,7 @@
     "tasks": [
         {
             "type": "shell",
-            "command": "./do build vscode",
+            "command": "node do build vscode",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -12,12 +12,20 @@
         },
         {
             "type": "shell",
-            "command": "./do core test",
+            "command": "node do core test",
             "group": {
                 "kind": "test",
                 "isDefault": true
             },
             "label": "Run core tests"
+        },
+        {
+            "type": "shell",
+            "command": "node do watch",
+            "group": "build",
+            "isBackground": true,
+            "label": "Watch",
+            "problemMatcher": []
         }
     ]
 }
