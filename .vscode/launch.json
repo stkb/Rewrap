@@ -15,8 +15,9 @@
             "name": "Spec Tests",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceFolder}/core.test/bin/Debug/js/Tests.js",
-            "args": []
+            "program": "${workspaceFolder}/core/bin/Debug/js/Tests.js",
+            "args": [],
+            "preLaunchTask": "Build extension"
         },
         {
             "name": "Extension Tests",
@@ -29,7 +30,8 @@
                 "--extensionTestsPath=${workspaceFolder}/vscode.test/tests",
                 "${workspaceFolder}/vscode.test/fixture"
             ],
-            "sourceMaps": true
+            "sourceMaps": true,
+            "preLaunchTask": "Build extension"
         }
     ]
 }

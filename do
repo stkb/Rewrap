@@ -6,7 +6,13 @@ const FS = require('fs')
 const operations = ['clean', 'build', 'watch', 'test', 'package']
 const components = ['core', 'vscode']
 
-const testsDev = 'core/bin/Debug/js/Tests.js'
+// File paths
+const corePkg = require ('./core/package.json')
+const coreTestDev = 'core/' + corePkg.source
+const coreTestProd = 'core/' + corePkg.main
+const vscodePkg = require ('./vscode/package.json')
+const vscodeMain = 'vscode/' + vscodePkg.main
+const vscodeSrc = 'vscode/src'
 
 // Process input args
 let args = process.argv.slice(2);
@@ -34,21 +40,10 @@ function main () {
 
   // Test Core
   if (supplied ('test'))
-    run ('Running Core tests', `node ${production ? 'core': testsDev}`, {showOutput: true})
+    run ('Running Core tests', `node ${production ? 'core': coreTestDev}`, {showOutput: true})
 
   // Build VS Code
-  if (suppliedAll ('build', 'vscode')) {
-    if (notExists ('vscode/node_modules'))
-      run ("Installing VS Code Extension NPM modules", 'npm install', {cwd:'./vscode'})
-    if (outdated ('vscode/bin/Extension.js', 'vscode/src')) {
-      run ("Typechecking TypeScript", npx `tsc -p vscode --noEmit`)
-      if (production) {
-        run ("Linting TypeScript", npx `eslint vscode --ext .ts`)
-        run ("Building TypeScript", npx `parcel build vscode --no-source-maps`)
-      }
-      else run ("Building TypeScript", npx `parcel build vscode --no-optimize`)
-    }
-  }
+  if (suppliedAll ('build', 'vscode')) buildVSCode ()
 
   // Test VS Code
   if (suppliedAll ('test', 'vscode') && process.env.TERM_PROGRAM != 'vscode')
@@ -77,14 +72,34 @@ function buildCore ({watch} = {}) {
     
     const fableArgs = 'core/Core.Test.fsproj -o core/bin/Debug/js --noRestore'
 
-    if (outdated (testsDev, 'core')) run ("Fable building Core", `dotnet fable ${fableArgs}`)
+    if (outdated (coreTestDev, 'core')) run ("Fable building Core", `dotnet fable ${fableArgs}`)
 
     if (watch) {
-      const cmd = `dotnet fable watch ${fableArgs} --runWatch "node ${testsDev}"`
+      const cmd = `dotnet fable watch ${fableArgs} --runWatch "node ${coreTestDev}"`
       runAsync ("Fable watching...", cmd)
     }
-    else if (production && supplied ('test') && outdated ('core/bin/Release/js/index.js', testsDev))
+    else if (production && supplied ('test') && outdated (coreTestProd, coreTestDev))
       run ("Parcel bundling Core", npx `parcel build core`)
+}
+
+
+/** Builds the VS Code extension */
+function buildVSCode() {
+  if (notExists ('vscode/node_modules'))
+    run ("Installing VS Code Extension NPM modules", 'npm install', {cwd:'./vscode'})
+
+  const srcMap = vscodeMain + '.map'
+  // Crude way to check if last build was production mode
+  const lastBuildProduction = ! FS.existsSync (srcMap)
+  if (production == lastBuildProduction && ! outdated (vscodeMain, vscodeSrc, 'core')) return
+
+  run ("Typechecking TypeScript", npx `tsc -p vscode --noEmit`)
+  if (production) {
+    run ("Linting TypeScript", npx `eslint vscode --ext .ts`)
+    run ("Parcel bundling", npx `parcel build vscode --no-source-maps`)
+    FS.rmSync (srcMap, {force:true})
+  }
+  else run ("Parcel bundling", npx `parcel build vscode --no-optimize`)
 }
 
 
@@ -96,11 +111,11 @@ const notExists = (...ps) => ps.some(p => !FS.existsSync(p))
 const npx = ([cmd], a1 = '') => 'npx --silent ' + cmd + a1
 
 
-/** Checks if the target is outdated compared with the source */
-function outdated (target, source) {
+/** Checks if the target is outdated compared with the source(s) */
+function outdated (target, ...sources) {
   function lastModified (path) {
     const s = FS.statSync(path, {throwIfNoEntry: false})
-    if (!s) return 0
+    if (!s) return -Infinity
     if (s.isDirectory()) {
       const times =
         FS.readdirSync (path, {encoding: 'utf8', withFileTypes: true})
@@ -111,7 +126,8 @@ function outdated (target, source) {
     else return s.mtimeMs
   }
 
-  return lastModified (target) < (source ? lastModified (source) : 1)
+  const sourcesLatestTimestamp = Math.max(...sources.map(lastModified))
+  return lastModified (target) <= sourcesLatestTimestamp
 }
 
 
@@ -128,7 +144,7 @@ function processArgs () {
 
   // If no other operations given then 'build' is default
 
-  if (! suppliedAny (...operations)) args.push(build)
+  if (! suppliedAny (...operations)) args.push('build')
   // If no components given then do for all
   if (! suppliedAny (...components)) args.push(...components)
   if (supplied ('test')) args.push('build')

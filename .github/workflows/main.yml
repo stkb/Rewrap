@@ -19,9 +19,9 @@ jobs:
         dotnet-version: 2.1.805
 
     - name: Setup Node.js
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v2
       with:
-        node-version: 12.x
+        node-version: 14
 
     - name: Build & Run Tests
       uses: GabrielBB/xvfb-action@v1.2

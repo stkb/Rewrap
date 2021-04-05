@@ -2,6 +2,9 @@
     "type": "module",
     "main": "bin/Release/js/index.js",
     "source": "bin/Debug/js/Tests.js",
+    "engines": {
+        "node": ">=14.x"
+    },
     "targets": {
         "main": {
             "outputFormat": "esmodule"
