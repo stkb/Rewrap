@@ -1,0 +1,12 @@
+{
+    "prod": "prod.js",
+    "main": "../dist/dev/Tests.js",
+    "engines": {
+        "node": ">=14.x"
+    },
+    "targets": {
+        "prod": {
+            "source": "../dist/dev/Tests.js"
+        }
+    }
+}

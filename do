@@ -8,8 +8,10 @@ const components = ['core', 'vscode']
 
 // File paths
 const corePkg = require ('./core/package.json')
-const coreTestDev = 'core/' + corePkg.source
-const coreTestProd = 'core/' + corePkg.main
+const coreProd = 'core/' + corePkg.module
+const coreTestPkg = require ('./core/test/package.json')
+const coreTestDev = 'core/test/' + coreTestPkg.main
+const coreTestProd = 'core/test/' + coreTestPkg.prod
 const vscodePkg = require ('./vscode/package.json')
 const vscodeMain = 'vscode/' + vscodePkg.main
 const vscodeSrc = 'vscode/src'
@@ -31,16 +33,22 @@ function main () {
 
   // Clean
   if (supplied ('clean')) {
-    if (supplied ('core')) rmDir ('core/bin')
-    if (supplied ('vscode')) rmDir ('vscode/bin', 'vscode/node_modules')
+    if (supplied ('core')) {
+      rmDir ('.obj/.net/core/bin', 'core/dist')
+      ;[coreTestProd, coreTestProd + '.map'].forEach(x => FS.rmSync (x, {force:true}))
+    }
+    if (supplied ('vscode')) rmDir ('vscode/dist', 'vscode/node_modules')
   }
 
   // Build Core
   if (supplied ('build')) buildCore ()
 
   // Test Core
-  if (supplied ('test'))
-    run ('Running Core tests', `node ${production ? 'core': coreTestDev}`, {showOutput: true})
+  if (supplied ('test')) {
+    if (production && outdated (coreTestProd, coreTestDev))
+      run ("Parcel bundling Core.Test", parcel `build core/test`)
+    run ('Running Core tests', `node core/test${production ? '/prod': ''}`, {showOutput: true})
+  }
 
   // Build VS Code
   if (suppliedAll ('build', 'vscode')) buildVSCode ()
@@ -58,7 +66,7 @@ function main () {
     buildCore ({watch: true})
     if (supplied ('vscode')) {
       runAsync ("TypeScript watching...", npx `tsc -w -p vscode --noEmit`)
-      runAsync ("Parcel watching...", npx `parcel watch vscode`)
+      runAsync ("Parcel watching...", parcel `watch vscode`)
     }
   }
 }
@@ -66,20 +74,20 @@ function main () {
 
 /** Builds the Core JS files */
 function buildCore ({watch} = {}) {
-    const paj = x => `core/obj/${x}/project.assets.json`
-    if (notExists (paj ('core'), paj ('test')))
-      run ("Restoring Core dependencies", "dotnet restore core/Core.Test.fsproj")
-    
-    const fableArgs = 'core/Core.Test.fsproj -o core/bin/Debug/js --noRestore'
+  const paj = x => `.obj/.net/${x}/project.assets.json`
+  if (notExists (paj ('core'), paj ('test')))
+    run ("Restoring Core dependencies", "dotnet restore core/Core.Test.fsproj")
+  
+  const fableArgs = 'core/Core.Test.fsproj -o core/dist/dev --noRestore'
 
-    if (outdated (coreTestDev, 'core')) run ("Fable building Core", `dotnet fable ${fableArgs}`)
+  if (outdated (coreTestDev, 'core')) run ("Fable building Core", `dotnet fable ${fableArgs}`)
 
-    if (watch) {
-      const cmd = `dotnet fable watch ${fableArgs} --runWatch "node ${coreTestDev}"`
-      runAsync ("Fable watching...", cmd)
-    }
-    else if (production && supplied ('test') && outdated (coreTestProd, coreTestDev))
-      run ("Parcel bundling Core", npx `parcel build core`)
+  if (watch) {
+    const cmd = `dotnet fable watch ${fableArgs} --runWatch "node core/test"`
+    runAsync ("Fable watching...", cmd)
+  }
+  else if (production && outdated (coreProd, 'core'))
+    run ("Parcel bundling Core", parcel `build core`)
 }
 
 
@@ -96,10 +104,10 @@ function buildVSCode() {
   run ("Typechecking TypeScript", npx `tsc -p vscode --noEmit`)
   if (production) {
     run ("Linting TypeScript", npx `eslint vscode --ext .ts`)
-    run ("Parcel bundling", npx `parcel build vscode --no-source-maps`)
+    run ("Parcel bundling", parcel `build vscode --no-source-maps`)
     FS.rmSync (srcMap, {force:true})
   }
-  else run ("Parcel bundling", npx `parcel build vscode --no-optimize`)
+  else run ("Parcel bundling VS Code Extension", parcel `build vscode --no-optimize`)
 }
 
 
@@ -108,7 +116,13 @@ const notExists = (...ps) => ps.some(p => !FS.existsSync(p))
 
 
 /** Runs a command under npx */
-const npx = ([cmd], a1 = '') => 'npx --silent ' + cmd + a1
+const npx = (arr1, ...arr2) => {
+  for (var cmd = 'npx --silent ', i = 0; i < arr1.length || i < arr2.length; i++) {
+    if (arr1[i]) cmd += arr1[i]
+    if (arr2[i]) cmd += arr2[i]
+  }
+  return cmd
+}
 
 
 /** Checks if the target is outdated compared with the source(s) */
@@ -130,6 +144,9 @@ function outdated (target, ...sources) {
   return lastModified (target) <= sourcesLatestTimestamp
 }
 
+
+/** Runs Parcel */
+const parcel = ([args]) => npx `parcel ${args} --cache-dir .obj/parcel`
 
 /** Processes the args given to this script. Returns production and verbose values */
 function processArgs () {
@@ -169,7 +186,11 @@ function run (msg, cmd, {cwd, showOutput} = {}) {
     if (showOutput || verbose) console.log(output)
   }
   catch (err) {
+    console.error(`Error running: ${cmd}`)
     console.error(err.stderr)
+    // dotnet cli writes errors to stdout
+    console.error(err.stdout)
+
     process.exit (1)
   }
 }

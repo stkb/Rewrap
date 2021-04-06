@@ -1,14 +1,14 @@
 /.vs/
 *.csproj.user
 /.ionide/
+/.vscode-test/
+/.obj/
 
-/packages/
 /node_modules/
 /vscode/node_modules/
-/.vscode-test/
-/.parcel-cache/
 
-/vscode/compiled/
+/core/dist/
+/core/test/prod.js*
+/vscode/dist/
 bin/
 obj/
-*.vsix

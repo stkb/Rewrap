@@ -3,7 +3,8 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <BaseIntermediateOutputPath>obj\test\</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath>..\.obj\.net\test</BaseIntermediateOutputPath>
+    <BaseOutputPath>..\.obj\.net\test\bin</BaseOutputPath>
   </PropertyGroup>
 
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
