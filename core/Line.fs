@@ -92,9 +92,9 @@ let strWidth : int -> string -> int = strWidth' 0
 /// context-sensitive; eg first comment markers may be parsed and put into the
 /// prefix, and then later markdown blockquote markers may by added to the
 /// prefix, and the rest of the content parsed.
-type Line(left: string, right: string) =
-  member _.prefix = left
-  member _.content = right
+type Line(prefix: string, content: string) =
+  member _.prefix = prefix
+  member _.content = content
 
   new(str: string, splitAt: int) =
     Line(str.Substring(0, splitAt), str.Substring(splitAt))

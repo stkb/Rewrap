@@ -3,8 +3,10 @@ module Prelude
 // ================ Pseudo-typeclasses ================ //
 #nowarn "64"
 
+/// Functor
 type Functor = Functor with
   static member inline map (Functor, f: 'a -> 'b, x: Option<'a>) = Option.map f x
+  static member inline map (Functor, f: 'a -> 'b, x: array<'a>) = Array.map f x
   static member inline map (Functor, f: 'a -> 'b, x: List<'a>) = List.map f x
   static member inline map (Functor, f: 'a -> 'b, (x: 'a, y: 'a)) = (f x, f y)
   static member inline map (Functor, f: 'a -> 'b, x: 'r -> 'a) = f << x
@@ -12,7 +14,19 @@ type Functor = Functor with
 let inline map (f: ^a -> ^b) (x: ^x) =
   ((^x or ^Functor): (static member map: ^Functor * (^a -> ^b) * ^x -> ^r) (Functor, f, x))
 let inline (<<|>) f x = map f x
-// Would add <|>> but it caused an issue in Fable
+let inline (<|>>) x f = map f x // This operator sometimes causes issues in Fable?
+
+/// Bifunctor
+type Bifunctor = Bifunctor with
+  static member inline bimap (Bifunctor, f: 'a -> 'b, g: 'c -> 'd, (x: 'a, y: 'c)) = (f x, g y)
+
+let inline bimap (f: ^a -> ^b) (g: ^c -> ^d) (x: ^x) =
+  ((^x or ^Bifunctor): (static member bimap: ^Bifunctor * (^a -> ^b) * (^c -> ^d) * ^x -> ^r) (Bifunctor, f, g, x))
+let inline lmap (f: ^a -> ^b) (x: ^x) =
+  ((^x or ^Bifunctor): (static member bimap: ^Bifunctor * (^a -> ^b) * (^c -> ^d) * ^x -> ^r) (Bifunctor, f, id, x))
+let inline rmap (g: ^c -> ^d) (x: ^x) =
+  ((^x or ^Bifunctor): (static member bimap: ^Bifunctor * (^a -> ^b) * (^c -> ^d) * ^x -> ^r) (Bifunctor, id, g, x))
+
 
 /// Everything with a size/length
 type HasSize = HasSize with
@@ -67,6 +81,8 @@ type These<'a, 'b> = This of 'a | That of 'b | These of 'a * 'b
 // ================ Other common functions ================ //
 
 let inline always (b: 'a) (a: 'a) : 'a = b
+let inline flip (f: 'a -> 'b -> 'c) (b: 'b) (a: 'a) = f a b
+let inline uncurry (f: ^a -> ^b -> ^c) (a: ^a, b: ^b) = f a b
 
 // Option/Maybe
 let inline fromMaybe (b: 'a) (x: Option<'a>) : 'a = Option.defaultValue b x
@@ -123,6 +139,9 @@ module List =
     fun def -> function
       | [] -> def
       | xs -> min def (List.min xs)
+
+  let inline maybeCons (mX: ^a option) (xs: ^a list) : ^a list =
+    maybe xs (fun x -> x :: xs) mX
 
 /// String extensions
 module internal String =
