@@ -15,8 +15,8 @@ Japanese
 
 In Korean, lines are split on spaces
 
-    힘차게 이상 사랑의      ->      힘차게 이상   ¦
-                  ¦                 사랑의        ¦
+    힘차게        ¦      ->      힘차게 이상   ¦
+    이상 사랑의   ¦              사랑의        ¦
 
 Some characters may not appear at the start or end of a line (this applies to
 all text in all languages)

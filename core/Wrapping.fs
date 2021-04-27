@@ -2,131 +2,140 @@ module internal Wrapping
 
 open Prelude
 open Rewrap
-open Block
 open Line
-open System.Text.RegularExpressions
 open System
 
-// todo: Remove. This ignores the concept tabs, and is only used in the wrapping
-// function, where we don't know the current position on the line so can't use
-// charWidthEx.
-let private charWidth = Line.charWidth 1 0
 
 let private isWhitespace cc =
-    // \0 is a special placeholder we use ourselves for non-breaking space
-    cc <> 0x0000us && cc <= 0x0020us || cc = 0x3000us
+  // \0 is a special placeholder we use ourselves for non-breaking space
+  cc <> 0x0000us && cc <= 0x0020us || cc = 0x3000us
 
-let isCJK charCode =
-    (charCode >= 0x3040us && charCode <= 0x30FFus)
-        || (charCode >= 0x3400us && charCode <= 0x4DBFus)
-        || (charCode >= 0x4E00us && charCode <= 0x9FFFus)
 
-type CanBreak = Always | Sometimes | Never
+/// If a char is Chinese or Japanese. These chars can generally be broken between and
+/// don't have spaces added between them if lines are concatenated.
+let isCJ charCode =
+  (charCode >= 0x3040us && charCode <= 0x30FFus)
+  || (charCode >= 0x3400us && charCode <= 0x4DBFus)
+  || (charCode >= 0x4E00us && charCode <= 0x9FFFus)
 
-let private specialChars =
-    [| (Never, Sometimes), "})]?,;¢°′″‰℃"
-       (Never, Always)
-       , "、。｡､￠，．：；？！％・･ゝゞヽヾーァィゥェォッャュョヮヵヶぁ"
-            + "ぃぅぇぉっゃゅょゎゕゖㇰㇱㇲㇳㇴㇵㇶㇷㇸㇹㇺㇻㇼㇽㇾㇿ々〻ｧｨｩｪｫｬｭｮｯｰ”"
-            + "〉》」』】〕）］｝｣"
-       (Sometimes, Never), "([{"
-       (Always, Never), "‘“〈《「『【〔（［｛｢£¥＄￡￥＋"
-    |]
-        |> Array.map
-            (Tuple.mapSecond (fun s -> s.ToCharArray() |> Array.map (uint16)))
 
-let canBreak charCode =
-    if isWhitespace charCode then (Always, Always)
-    else
-        match Array.tryFind (snd >> Array.contains charCode) specialChars with
-            | Some (res, _) -> res
-            | None ->
-                if isCJK charCode then (Always, Always) else (Sometimes, Sometimes)
+// Chars that under CJ rules, can't start or end a line, unless the is
+// whitespace before/after them
+let cjNoStart =
+  ( "})]?,;¢°′″‰℃、。｡､￠，．：；？！％・･ゝゞヽヾーァィゥェォッャュョヮヵヶぁ"
+  + "ぃぅぇぉっゃゅょゎゕゖㇰㇱㇲㇳㇴㇵㇶㇷㇸㇹㇺㇻㇼㇽㇾㇿ々〻ｧｨｩｪｫｬｭｮｯｰ”〉》」』】〕）］｝｣"
+  ).ToCharArray() |> map (uint16)
+let cjNoEnd = "([{‘“〈《「『【〔（［｛｢£¥＄￡￥＋".ToCharArray() |> map (uint16)
 
-let private canBreakBefore = fst << canBreak
-let private canBreakAfter = snd << canBreak
-
+/// Returns whether we're allowed to break between the two given chars
 let canBreakBetweenChars c1 c2 =
-    match (canBreakAfter c1, canBreakBefore c2) with
-        | Sometimes, Sometimes -> false
-        | Never, _ -> false
-        | _, Never -> false
-        | _ -> true
+  if isWhitespace c1 || isWhitespace c2 then true
+  elif Array.contains c1 cjNoEnd || Array.contains c2 cjNoStart then false
+  elif isCJ c1 || isCJ c2 then true
+  else false
 
-// Wraps a string without newlines and returns a Lines with all lines but
-// the last trimmed at the end. Takes a tuple of line widths for the first
-// and rest of the lines.
-let private wrapLines (headWidth, tailWidth) lines : Lines =
-    let addEolSpacesWhereNeeded (ls: List<string>) (l: string) =
-        let compare (h: string) =
-            match (canBreakAfter (uint16 h.[h.Length-1]), canBreakBefore (uint16 l.[0])) with
-                | Sometimes, Sometimes -> l :: " " :: ls
-                | _ -> l :: ls
-        match ls with | [] -> [l] | h :: _ -> compare h
 
-    let str =
-        List.fold addEolSpacesWhereNeeded [] (Nonempty.toList lines)
-            |> List.rev |> String.concat ""
+/// When concatenating lines before breaking up again, whether to add a space
+/// between chars
+let addSpaceBetweenChars c1 c2 = if isCJ c1 || isCJ c2 then false else true
 
-    let rec findBreakPos min p =
-        if p = min then min
-        elif canBreakBetweenChars (uint16 str.[p-1]) (uint16 str.[p]) then p
-        else findBreakPos min (p - 1)
 
-    let rec loop acc mw s p w =
-        if p >= str.Length then Nonempty(str.Substring(s), acc) else
-        let cc = uint16 str.[p]
-        if p = s && isWhitespace cc then loop acc mw (s+1) (p+1) w else
-        let w' = w + charWidth cc //todo: change to charWidthEx
-        if w' <= mw then loop acc mw s (p+1) w' else
-        let bP = findBreakPos s p
-        if bP = s then loop acc mw s (p+1) w' else
-        let line = str.Substring(s, bP - s).TrimEnd()
-        loop (line :: acc) tailWidth bP bP 0
+/// Concatenates lines into a single string, adding the right amount of
+/// whitespace inbetween where necessary
+let concatLines doubleSentenceSpacing lines =
+  let addLine (acc: string) (line: string) =
+    let stops = [| 0x2Eus; 0x3Fus; 0x21us |]
+    let acc = acc.TrimEnd()
+    let accEnd = uint16 acc.[acc.Length-1]
+    let space = 
+      if doubleSentenceSpacing && Array.contains accEnd stops then "  " else " "
+    if addSpaceBetweenChars accEnd (uint16 line.[0]) then acc + space + line else acc + line
+  List.reduce addLine (Nonempty.toList lines)
 
-    loop [] headWidth 0 0 0 |> Nonempty.rev
 
-let private inlineTagRegex =
-    Regex(@"{@[a-z]+.*?[^\\]}", RegexOptions.IgnoreCase)
+/// Breaks a string up into lines using the given prefixes and max width
+let breakUpString addLine tabWidth maxWidth (str: string) =
+  let popOrPeek (Nonempty(first, rest) as list) =
+    first, Nonempty.fromList rest |? list
 
-let private addPrefixes prefixes =
-    Nonempty.mapHead ((+) (fst prefixes))
-        >> Nonempty.mapTail ((+) (snd prefixes))
+  /// Gets the width of the first prefix in the given list
+  let prefixWidth prefixes = (strWidth tabWidth (Nonempty.head prefixes))
 
-/// Wraps a Wrappable, creating lines prefixed with its Prefixes
-let wrap settings (prefixes, lines) : Lines =
+  /// Tries to find a break position, searching back from the given position as
+  /// far as the given min position (exclusive). If none is found, returns the
+  /// min position.
+  let rec findBreakPos min p =
+    if p = min then min
+    elif canBreakBetweenChars (uint16 str.[p-1]) (uint16 str.[p]) then p
+    else findBreakPos min (p - 1)
 
-    /// If the setting is set, adds an extra space to lines ending with .?!
-    let addDoubleSpaces =
-        Nonempty.mapInit
-            (fun (s: string) ->
-                let t = s.TrimEnd()
-                if settings.doubleSentenceSpacing
-                    && Array.exists (fun (c: string) -> t.EndsWith(c)) [| ".";"?";"!" |]
-                then t + "  "
-                else t
-            )
+  // If pEnd <= pStart it's ignored and we take the rest of the string, and
+  // don't trim the end
+  let outputLine prefixes pStart pEnd =
+    let prefix, nextPrefixes = popOrPeek prefixes
+    let content =
+      if pEnd > pStart then str.Substring(pStart, pEnd - pStart).Trim()
+      else str.Substring(pStart)
+    addLine (prefix + content.Replace('\000', ' '))
+    nextPrefixes
 
-    /// "Freezes" inline tags ({@tag }) so that they don't get broken up
-    let freezeInlineTags str =
-        inlineTagRegex.Replace
-            ( str
-            , (fun (m: Match) -> m.Value.Replace(' ', '\000'))
-            )
+  /// Iterate through chars of string
+  let rec loop prefixes lineStart curWidth pStr =
+    // If we're at the end
+    if pStr >= str.Length then outputLine prefixes lineStart 0 |> ignore
+    else
+    let charCode = uint16 str.[pStr]
+    // Skip whitespace at start of line content
+    if pStr = lineStart && isWhitespace charCode then 
+      loop prefixes (lineStart+1) curWidth (pStr+1)
+    else
+    let newWidth = curWidth + Line.charWidth tabWidth curWidth charCode
+    if newWidth <= maxWidth then loop prefixes lineStart newWidth (pStr+1) else
+    // Try to find a break position before current position. If we don't find one keep going
+    let breakPos = findBreakPos lineStart pStr
+    if breakPos <= lineStart then loop prefixes lineStart newWidth (pStr+1) else
+    // We found a break pos. Output the line & start the next one
+    let nextPrefixes = outputLine prefixes lineStart breakPos
+    loop nextPrefixes breakPos (prefixWidth nextPrefixes) breakPos
 
-    /// "Unfreezes" inline tags
-    let unfreezeInlineTags (str: string) =
-        str.Replace('\000', ' ')
+  fun prefixes ->
+    loop prefixes 0 (prefixWidth prefixes) 0
 
-    // If column < 1, treat it as infinite (no wrapping)
-    let column = if settings.column < 1 then Int32.MaxValue else settings.column
 
-    /// Tuple of widths for the first and other lines
-    let lineWidths =
-        prefixes |> map (fun s -> column - (Line.tabsToSpaces settings.tabWidth s).Length)
-    lines
-        |> addDoubleSpaces
-        |> map freezeInlineTags
-        |> wrapLines lineWidths
-        |> map unfreezeInlineTags
-        |> addPrefixes prefixes
+/// OutputBuffer came from an experiment in outputting all content using a
+/// StringBuilder-type setup instead of a list of strings. That turned out not
+/// to be faster in JS, but this still functions as a single object that holds
+/// the settings and keeps track of where the edit starts and ends, and the new
+/// content lines. Its future is uncertain. It may be turned into a monad.
+type OutputBuffer(settings : Settings) =
+  let mutable startLine = 0
+  let mutable linesConsumed = 0
+  let mutable outputLines = []
+
+  member private _.IsEmpty = outputLines.IsEmpty
+
+  member this.skip (lines: string Nonempty) =
+    if this.IsEmpty then startLine <- startLine + size lines
+    else this.noWrap lines
+
+  member _.noWrap (lines: string Nonempty) =
+    let consumed, newOutputLines =
+      lines |> Seq.fold (fun (c, ls) l -> (c + 1, l :: ls)) (0, outputLines)
+    linesConsumed <- linesConsumed + consumed
+    outputLines <- newOutputLines
+
+  member this.wrap (lines: Line Nonempty) =
+    let prefixes = lines |> map (fun l -> l.prefix)
+    let contents = lines |> map (fun l -> l.content)
+    this.wrap (prefixes, contents)
+
+  member _.wrap (prefixes: string Nonempty, contents: string Nonempty) =
+    let addLine line = outputLines <- line :: outputLines
+    let str = concatLines settings.doubleSentenceSpacing contents
+    breakUpString addLine settings.tabWidth settings.column str prefixes
+    linesConsumed <- linesConsumed + size contents
+
+  member _.toEdit () =
+    { startLine = startLine; endLine = startLine + linesConsumed - 1
+      lines = List.toArray (List.rev outputLines); selections = [||]
+    }

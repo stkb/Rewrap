@@ -88,8 +88,8 @@ type ParseResult = {startLine : int; originalLines : Lines; blocks : Blocks}
 
 /// Process blocks into lines, given the given selections. This might be called
 /// on the subblocks of a comment.
-let rec private processBlocks : Settings -> LineRange list -> ParseResult -> Lines =
-  fun settings selections parseResult ->
+let rec private processBlocks : OutputBuffer -> Settings -> LineRange list -> ParseResult -> unit =
+  fun output settings selections parseResult ->
 
   // Splits a block into 2 parts at n lines
   let splitBlock n block : (Block * Option<Block>) =
@@ -102,86 +102,92 @@ let rec private processBlocks : Settings -> LineRange list -> ParseResult -> Lin
     | Comment _ -> raise (System.Exception("Not going to split a comment"))
 
   // Processes a block as if it were completely selected
-  let rec processWholeBlock block : string Nonempty =
+  let rec processWholeBlock length origLines block : int * string Nonempty option =
     match block with
-    | Wrap wrappable -> Wrapping.wrap settings wrappable
-    | NoWrap lines -> lines
-    | Comment subBlocks -> Nonempty.concatMap processWholeBlock subBlocks
+    | Wrap ((f, s), lines) -> output.wrap (f .@ [s], lines)
+    | NoWrap lines -> output.noWrap lines
+    | Comment subBlocks ->
+        subBlocks |> Seq.iter (processWholeBlock 1 origLines >> ignore)
+    length, origLines |> Nonempty.splitAt length |> snd
 
-  let rec loop output (sels: List<LineRange>) start (Nonempty(block, otherBlocks)) origLines =
+  let skipLines count lines : int * string Nonempty Option =
+    count, lines |> Nonempty.splitAt count |> lmap output.skip |> snd
+
+  let rec loop (sels: List<LineRange>) start (Nonempty(block, otherBlocks)) origLines =
     let blockLength = size block
     let selsTouching = sels |> List.filter (fun s -> s.startLine < (start + blockLength))
     let hasEmptySelection = selsTouching |> List.exists (fun s -> s.isEmpty)
 
-    let maybeNewLines, maybePartialBlock =
+    let (consumedLineCount, nextOrigLines), maybeRemainingPartialBlock =
       match List.tryHead selsTouching with
-      | None -> None, None
+      | None -> skipLines blockLength origLines, None
       | Some sel ->
           match block with
           | Wrap _ | NoWrap _ ->
-              if hasEmptySelection then Some (processWholeBlock block), None else
-              let splitAt, mapFirst =
-                if sel.startLine > start then sel.startLine - start, (fun _ -> None)
-                else sel.endLine - start + 1, Some << processWholeBlock
-              splitBlock splitAt block |> lmap mapFirst
-
+            if hasEmptySelection then processWholeBlock blockLength origLines block, None
+            elif sel.startLine <= start then // First lines of block selected
+              let splitAt = min (sel.endLine - start + 1) blockLength
+              splitBlock splitAt block |> lmap (processWholeBlock splitAt origLines)
+            else // First lines of block not selected
+              let splitAt = sel.startLine - start
+              splitBlock splitAt block |> lmap (fun _ -> skipLines splitAt origLines)
           | Comment subBlocks ->
               if hasEmptySelection && settings.wholeComment then
-                  Some (processWholeBlock block), None
+                processWholeBlock blockLength origLines block, None
               else
                 let pr = {startLine = start; originalLines = origLines; blocks = subBlocks}
-                Some (processBlocks settings sels pr), None
+                processBlocks output settings sels pr
+                (blockLength, origLines |> Nonempty.splitAt blockLength |> snd), None
 
-    let consumedLineCount, nextBlocks =
-      match maybePartialBlock with
-      | Some partialBlock -> (blockLength - size partialBlock, partialBlock :: otherBlocks)
-      | None -> (blockLength, otherBlocks)
-    let newLines, maybeNextOrigLines =
-      Nonempty.splitAt consumedLineCount origLines
-        |> lmap (fun oL -> Option.defaultValue oL maybeNewLines)
-    let nextOutput =
-        Nonempty.rev newLines |> (fun (Nonempty(head, tail)) -> Nonempty(head, tail @ output))
-
+    let nextBlocks = maybe otherBlocks (fun b -> b :: otherBlocks) maybeRemainingPartialBlock
     match Nonempty.fromList nextBlocks with
     | Some neNextBlocks ->
-        let remainingRange = LineRange.toInfinity (start + consumedLineCount)
-        let nextSels = sels |> List.skipWhile (not << intersects remainingRange)
-        loop (Nonempty.toList nextOutput)
-          nextSels remainingRange.startLine neNextBlocks (Option.get maybeNextOrigLines)
-    | None ->
-        Nonempty.rev nextOutput
+        let remaining = LineRange.toInfinity (start + consumedLineCount)
+        let nextSels = sels |> List.skipWhile (not << intersects remaining)
+        if nextSels.IsEmpty then ()
+        else loop nextSels remaining.startLine neNextBlocks (Option.get nextOrigLines)
+    | None -> ()
 
-  loop [] selections parseResult.startLine parseResult.blocks parseResult.originalLines
-
+  loop selections parseResult.startLine parseResult.blocks parseResult.originalLines
 
 
-let private trimEdit (originalLines: Lines) (edit : Edit) : Edit =
+// let private trimEdit (originalLines: Lines) (edit : Edit) : Edit =
 
-    let editNotZeroLength x = edit.endLine - edit.startLine > x && edit.lines.Length > x
-    let originalLinesArray = originalLines |> Nonempty.toList |> List.toArray
+//     let editNotZeroLength x =
+//         edit.endLine - edit.startLine > x && edit.lines.Length > x
 
-    let mutable s = 0
-    while editNotZeroLength s && originalLinesArray.[edit.startLine + s] = edit.lines.[s]
-        do s <- s + 1
+//     let originalLinesArray = originalLines |> Nonempty.toList |> List.toArray
 
-    let mutable e = 0
-    while editNotZeroLength (s + e)
-        && originalLinesArray.[edit.endLine - e] = edit.lines.[edit.lines.Length - e - 1]
-        do e <- e + 1
+//     let mutable s = 0
+//     while editNotZeroLength s
+//         && originalLinesArray.[edit.startLine + s] = edit.lines.[s]
+//         do s <- s + 1
 
-    { edit with
-        startLine = edit.startLine + s
-        endLine = edit.endLine - e
-        lines = edit.lines |> Array.skip s |> Array.truncate (edit.lines.Length - s - e)
-    }
+//     let mutable e = 0
+//     while editNotZeroLength (s + e)
+//         && originalLinesArray.[edit.endLine - e] = edit.lines.[edit.lines.Length - e - 1]
+//         do e <- e + 1
+
+//     { edit with
+//         startLine = edit.startLine + s
+//         endLine = edit.endLine - e
+//         lines = edit.lines |> Array.skip s |> Array.truncate (edit.lines.Length - s - e)
+//     }
+
 
 let wrapSelected : Lines -> Selection seq -> Settings -> Blocks -> Edit =
   fun originalLines selections settings blocks ->
 
   let selectionRanges = selections |> Seq.map LineRange.fromSelection |> normalizeRanges
   let parseResult = {startLine = 0; originalLines = originalLines; blocks = blocks}
+  let outputBuffer = OutputBuffer(settings)
 
-  let newLines =
-    processBlocks settings selectionRanges parseResult |> Nonempty.toList |> List.toArray
-  trimEdit originalLines <|
-    {startLine = 0; endLine = size originalLines - 1; lines = newLines; selections = Array.ofSeq selections}
+  processBlocks outputBuffer settings selectionRanges parseResult
+  {(outputBuffer.toEdit ()) with selections = Array.ofSeq selections}
+
+    // trimEdit originalLines <|
+    //     { startLine = 0
+    //       endLine = size originalLines - 1
+    //       lines = newLines
+    //       selections = selections
+    //     }

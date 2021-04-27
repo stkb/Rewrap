@@ -7,6 +7,7 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
   Strings](https://github.com/graphql/graphql-spec/pull/327)
   in GraphQL files. (#261)
 - Add XAML type (#263).
+- Fix whitespace disappearing around curly quotes (#119).
 
 
 ## 1.14.0
