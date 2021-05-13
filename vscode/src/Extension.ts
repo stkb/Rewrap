@@ -13,6 +13,7 @@ async function activate(context) {
     // Register the commands
     context.subscriptions.push
         ( commands.registerTextEditorCommand('rewrap.rewrapComment', rewrapCommentCommand)
+        , commands.registerTextEditorCommand('rewrap.unwrapComment', unwrapCommentCommand)
         , commands.registerTextEditorCommand('rewrap.rewrapCommentAt', rewrapCommentAtCommand)
         , commands.registerTextEditorCommand('rewrap.toggleAutoWrap', autoWrap.editorToggle)
         )
@@ -21,6 +22,12 @@ async function activate(context) {
     function rewrapCommentCommand(editor)
     {
         doWrap(editor).then(() => saveDocState(getDocState(editor)))
+    }
+
+    /** Unwrap command */
+    function unwrapCommentCommand(editor)
+    {
+        doWrap(editor, 0).then(() => saveDocState(getDocState(editor)))
     }
 
     let customWrappingColumn = 0;

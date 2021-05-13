@@ -16,6 +16,14 @@ To add a keybinding for the **Wrap Comment / Text at column...** command, use it
 }
 ```
 
+### Unwrap command ###
+To add a keybinding for the **Unwrap Comment / Text** command, use its `rewrap.unwrapComment` id:
+```json5
+{
+  "key": "alt+shift+q", "command": "rewrap.unwrapComment"
+}
+```
+
 ### Auto-wrap command ###
 To add a keybinding for the auto-wrap toggle, use the command ID `rewrap.toggleAutoWrap`.
 
