@@ -17,6 +17,10 @@ let contains : Regex -> string -> bool = fun regex line -> regex.IsMatch(line)
 let startsWith : string -> string -> bool =
   fun marker line -> Regex(@"^\s*" + marker).IsMatch(line)
 
+/// Returns true if the line ends with the given string, after optional whitespace
+let endsWith : string -> string -> bool =
+  fun marker line -> Regex( marker + "$").IsMatch(line)
+
 /// Tries to match a regex against a line. If a match is found, returns all
 /// characters up to and including the end of the match.
 let tryMatch : Regex -> string -> string Option =

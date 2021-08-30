@@ -235,7 +235,7 @@ let mutable languages = [
     lang "R" "" ".r"
         ( sourceCode [ line "#'?" ] )
     lang "reStructuredText" "" ".rst|.rest"
-        plainText
+        ReStructuredText.reStructuredText
     lang "Ruby" "" ".rb"
         ( sourceCode [ line "#"; block ( "=begin", "=end" ) ] )
     lang "Rust" "" ".rs"

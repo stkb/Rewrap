@@ -17,6 +17,7 @@
     <Compile Include="Block.fs" />
     <Compile Include="Parsing.Core.fs" />
     <Compile Include="Parsing.Markdown.fs" />
+    <Compile Include="Parsing.ReStructuredText.fs" />
     <Compile Include="Parsing.Comments.fs" />
     <Compile Include="Parsing.Sgml.fs" />
     <Compile Include="Parsing.DocComments.fs" />
