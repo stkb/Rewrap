@@ -247,7 +247,7 @@ let private blockQuoteRegex =
     mdMarker ">"
 
 let private fencedCodeBlockRegex =
-    mdMarker "(`{3,}|~{3,})"
+    mdMarker "(`{3,}|~{3,}|-{3})"
 
 let private lineStartsWith =
         Line.contains << mdMarker
@@ -272,13 +272,13 @@ let private findListItemEnd indent: MarkdownState -> List<string> -> List<string
             // Need to fix fencedCodeBlock start/end markers
             match state with
                 | FencedCodeBlock ->
-                    if lineStartsWith "(```|~~~)" line then
+                    if lineStartsWith "(```|~~~|---)" line then
                         NonParagraph
                     else
                         FencedCodeBlock
 
                 | Paragraph ->
-                    if lineStartsWith "(```|~~~)" line then
+                    if lineStartsWith "(```|~~~|---)" line then
                         FencedCodeBlock
                     else if not (Line.containsText line) || lineStartsWith "#{1,6} " line then
                         NonParagraph
@@ -286,7 +286,7 @@ let private findListItemEnd indent: MarkdownState -> List<string> -> List<string
                         Paragraph
 
                 | NonParagraph ->
-                    if lineStartsWith "(```|~~~)" line then
+                    if lineStartsWith "(```|~~~|---)" line then
                         FencedCodeBlock
                     else if not (Line.containsText line) || lineStartsWith "#{1,6} " line then
                         NonParagraph
