@@ -262,6 +262,12 @@ type Results = {passes:int; failures:int; errors:int}
 
 [<EntryPoint>]
 let main argv =
+  let norm (s: String) = s.ToLower().Replace('\\', '/')
+  let argv = Array.map norm argv
+  let inArgv (f: string) = argv |> Array.exists (fun a -> f.EndsWith (a))
+  let filesToTest =
+    Native.files |> Seq.map norm |> if Array.isEmpty argv then id else Seq.filter inArgv
+
   let processTest (acc: Results) = function
     | Ok (test, maybeReformatTest) ->
         let run (acc: Results) (t: Test) =
@@ -278,6 +284,6 @@ let main argv =
         { acc with errors = acc.errors + 1 }
 
   let init = {passes = 0; failures = 0; errors = 0}
-  let results = Native.files |> Seq.collect readSamplesInFile |> Seq.fold processTest init
+  let results = filesToTest |> Seq.collect readSamplesInFile |> Seq.fold processTest init
   eprintfn "Passed: %i; Failed: %i; Errored: %i" results.passes results.failures results.errors
   results.failures + results.errors
