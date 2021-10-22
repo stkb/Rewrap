@@ -7,14 +7,14 @@ files, all content is considered equal when it comes to selections; selecting a
 whole document will wrap comments and other content alike.
 
     <!-- comment comment -->              <!-- comment
-    text text text text           ->      comment -->
-                ¦                         text text
-                ¦                         text text
+    text text text text           ->      comment --> ¦
+                ¦                         text text   ¦
+                ¦                         text text   ¦
 
 Mixed content on a line is wrapped as one.
 
-    <a>one two</a>      ->      <a>one
-             ¦                  two</a>
+    <a>one two</a>      ->      <a>one   ¦
+             ¦                  two</a>  ¦
 
 Any line that starts with a tag starts a new paragraph.
 
@@ -30,10 +30,10 @@ Any line that ends with a tag ends the paragraph.
 
 This means things like this are preserved.
 
-    <ul>                 ¦              <ul>
-      <li> 1 </li>       ¦      ->        <li> 1 </li>
-      <li> 2 </li>       ¦                <li> 2 </li>
-    </ul>                ¦              </ul>
+    <ul>                 ¦              <ul>                 ¦
+      <li> 1 </li>       ¦      ->        <li> 1 </li>       ¦
+      <li> 2 </li>       ¦                <li> 2 </li>       ¦
+    </ul>                ¦              </ul>                ¦
 
 
 ## Embedded JS and CSS
@@ -60,4 +60,3 @@ contents of those tags are wrapped using the rules for javascript or css.
       // one two three                // one two   ¦
       // four      ¦                  three // four¦
     </notscript>   ¦                </notscript>   ¦
-

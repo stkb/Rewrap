@@ -9,7 +9,7 @@ Multiple selections on the same line count as just one selection.
 
 The same as multiple empty selections in the same paragraph.
 
-    Li«»ne1                ¦      ->      Line1 Line2 Line3 Line4
+    Li«»ne1                ¦      ->      Line1 Line2 Line3 Line4¦
     Line2                  ¦
     Li«»ne3                ¦
     Line4                  ¦
@@ -17,7 +17,7 @@ The same as multiple empty selections in the same paragraph.
 If a paragraph has an empty selection and a non-empty selection, the empty
 selection takes precedence and the whole paragraph is wrapped
 
-    «Line1»                ¦      ->      Line1 Line2 Line3 Line4
+    «Line1»                ¦      ->      Line1 Line2 Line3 Line4¦
     Line2                  ¦
     Li«»ne3                ¦
     Line4                  ¦

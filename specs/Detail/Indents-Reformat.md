@@ -45,14 +45,14 @@ lined-up with this content.
 
 > language: "markdown", reformat: true
 
-    ·*··Item       ¦      ->      *·Item
-    ······* Subitem¦              ··* Subitem
+    ·*··Item       ¦      ->      *·Item         ¦
+    ······* Subitem¦              ··* Subitem    ¦
 
 However this can cause undesired alignment in the case of numbered items (this
 could maybe be fixed in the future).
 
-    9) Item 9   ¦      ->      9)·Item 9
-    10) Item 10 ¦              10) Item 10
+    9) Item 9   ¦      ->      9)·Item 9   ¦
+    10) Item 10 ¦              10) Item 10 ¦
 
 Also one thing to bear in mind, is that some things are always corrected even when
 reformat is off. One example is list items where the second line is indented

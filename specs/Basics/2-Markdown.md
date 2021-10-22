@@ -75,9 +75,9 @@ Bullet lists. They can immediately follow a paragraph.
 
 Numbered lists
 
-    1) Item 1                 ¦      ->      1) Item 1
-    2. Item 2                 ¦              2. Item 2
-    999999999) Item 999999999 ¦              999999999) Item 999999999
+    1) Item 1                 ¦      ->      1) Item 1                 ¦
+    2. Item 2                 ¦              2. Item 2                 ¦
+    999999999) Item 999999999 ¦              999999999) Item 999999999 ¦
 
 Block quotes
 

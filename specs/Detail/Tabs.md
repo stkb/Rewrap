@@ -18,8 +18,8 @@ character will separate paragraphs by indent.
 
 All tabs in the comment prefix are preserved.
 
-    ---→//-→text text text       ->      ---→//-→text text
-    ---→//-→text        ¦                ---→//-→text text
+    ---→//-→text text text       ->      ---→//-→text text   ¦
+    ---→//-→text        ¦                ---→//-→text text   ¦
 
 
 ### Odd cases ###

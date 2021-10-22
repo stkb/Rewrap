@@ -61,16 +61,6 @@ let readTestLines fileName (settings: TestSettings) lines : Result<Test * Option
       else loop (i+1) (width + Core.strWidth 1 (s.Substring (i,1)))
     let p = loop 0 0 in s.Substring (0, p), s.Substring p
 
-  /// For a list of 'a option, check if all `Some` values are the same and outputs
-  /// that value is so, else `None`.
-  let allSame (list: 'a option seq) : 'a option =
-    let step acc mA =
-      match acc, mA with
-        | None, Some a -> Some (Some a)
-        | Some (Some b), Some a -> if a = b then acc else Some None
-        | _ -> acc
-    list |> Seq.fold step None |> Option.flatten
-
   /// Gets the width of the substring before the given marker
   let strWidthBefore (marker: string) (s: string) : int =
     let p = s.IndexOf(marker)
@@ -89,7 +79,7 @@ let readTestLines fileName (settings: TestSettings) lines : Result<Test * Option
   /// Gets the wrapping column (denoted by `¦` from the given lines)
   let getWrappingColumn lines =
     let ps = lines |> Seq.map (strWidthBefore "¦") |> Seq.filter (fun x -> x > 0) |> Seq.toArray
-    if not (ps.Length = 0) && Seq.forall (fun p -> p = ps.[0]) ps then Some ps.[0] else None
+    if ps.Length > 0 && Seq.forall (fun p -> p = ps.[0]) ps then Some ps.[0] else None
 
   /// Removes all common whitespace indent from each of a set of lines
   let removeIndent (lines: Lines) =
@@ -141,10 +131,12 @@ let readTestLines fileName (settings: TestSettings) lines : Result<Test * Option
   | None -> error NoOutput
   | Some outputLines ->
   let expectedLines, maybeReformatLines = splitLines "-or-" outputLines
-  let maybeWrappingColumns =
-    [Some inputLines; Some expectedLines; maybeReformatLines]
-      |> Seq.map (Option.bind getWrappingColumn)
-  match allSame maybeWrappingColumns with
+  let maybeWrappingColumn =
+    Option.toList maybeReformatLines @ [inputLines; expectedLines]
+      |> Seq.map getWrappingColumn
+      |> Seq.reduce (fun x y -> if x = y then x else None)
+
+  match maybeWrappingColumn with
   | None -> error InvalidWrappingColumn
   | Some wrappingColumn ->
   match getSelections inputLines with

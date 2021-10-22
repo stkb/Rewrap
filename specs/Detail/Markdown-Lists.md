@@ -44,6 +44,6 @@ List items may be separated by blank lines
     a                      a
 
 
-    * a   ¦      ->      * a
-      >b  ¦                > b
-     >c   ¦              > c
+    * a   ¦      ->      * a   ¦
+      >b  ¦                > b ¦
+     >c   ¦              > c   ¦
