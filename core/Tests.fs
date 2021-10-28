@@ -263,7 +263,8 @@ let main argv =
   let processTest (acc: Results) = function
     | Ok (test, maybeReformatTest) ->
         let run (acc: Results) (t: Test) =
-          if runTest t then { acc with passes = acc.passes + 1 }
+          if t.settings.reformat then acc // Skip reformat tests
+          elif runTest t then { acc with passes = acc.passes + 1 }
           else { acc with failures = acc.failures + 1 }
 
         Option.fold run (run acc test) maybeReformatTest
