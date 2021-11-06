@@ -19,7 +19,7 @@ type Lines = string array
 
 /// Data for a test that will be run
 type Test =
-  { fileName: string; settings: Settings; language: string
+  { fileName: string; settings: Settings; language: string; only: bool
     input: Lines; expected: Lines; selections: Selection array }
 
 type TestErrorType = NoOutput | InvalidWrappingColumn | InvalidSelection
@@ -126,6 +126,12 @@ let readTestLines fileName (settings: TestSettings) lines : Result<Test * Option
     enum.MoveNext() |> ignore
     loop [] None 0 enum.Current
 
+  // Search for "<only>" at the end of a line to filter this test
+  let lines, only =
+    let keyword = "<only>"
+    let findOnly b (l: string) =
+      if l.EndsWith(keyword) then l.Replace(keyword, ""), true else l, b
+    lines |> Array.mapFold findOnly false
   let inputLines, maybeOutputLines = splitLines "->" lines
   match maybeOutputLines with
   | None -> error NoOutput
@@ -143,7 +149,7 @@ let readTestLines fileName (settings: TestSettings) lines : Result<Test * Option
   | Error err -> error err
   | Ok sels ->
       let mkTest forceReformat expectedLines =
-        { fileName = fileName; language = settings.language
+        { fileName = fileName; language = settings.language; only = only
           settings =
             { column = wrappingColumn; tabWidth = settings.tabWidth
               doubleSentenceSpacing = settings.doubleSentenceSpacing
@@ -277,6 +283,9 @@ let main argv =
         { acc with errors = acc.errors + 1 }
 
   let init = {passes = 0; failures = 0; errors = 0}
-  let results = filesToTest |> Seq.collect readSamplesInFile |> Seq.fold processTest init
+  let allTests = filesToTest |> Seq.collect readSamplesInFile |> Seq.toList
+  let filtered = allTests |> List.filter (function | Ok (t, _) when t.only = true -> true | _ -> false)
+  let testsToRun = if filtered.Length > 0 then filtered else allTests
+  let results = testsToRun |> Seq.fold processTest init
   eprintfn "Passed: %i; Failed: %i; Errored: %i" results.passes results.failures results.errors
   results.failures + results.errors
