@@ -1,4 +1,3 @@
-using EnvDTE;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -7,7 +6,6 @@ using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Editor.OptionsExtensionMethods;
 using Rewrap;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using VS.Options;
 
@@ -22,6 +20,8 @@ namespace VS
         /// Does a standard wrap for the given text view.
         public static void StandardWrap(IWpfTextView textView)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             var textBuffer = textView.TextBuffer;
             var snapshot = textBuffer.CurrentSnapshot;
             var file = new File(GetLanguage(textBuffer), GetFilePath(textBuffer), () => Core.noCustomMarkers);
@@ -40,6 +40,8 @@ namespace VS
         /// If conditions are met, does an auto-wrap for the given text view.
         public static void AutoWrap(IWpfTextView textView, int pos, string newText)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             var textBuffer = textView.TextBuffer;
             var snapshot = textBuffer.CurrentSnapshot;
             var file = new File(GetLanguage(textBuffer), GetFilePath(textBuffer), () => Core.noCustomMarkers);
@@ -55,6 +57,8 @@ namespace VS
         private static Settings GetSettings
             (IWpfTextView textView, Func<int[], int> getColumn)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             var textBuffer = textView.TextBuffer;
             var file = new File(GetLanguage(textBuffer), GetFilePath(textBuffer), () => Core.noCustomMarkers);
             var options = OptionsPage.GetOptions(file);
@@ -189,6 +193,8 @@ namespace VS
         {
             get
             {
+                ThreadHelper.ThrowIfNotOnUIThread();
+
                 if(_OptionsPage == null)
                 {
                     var shell = (IVsShell)ServiceProvider.GlobalProvider.GetService( typeof( IVsShell ) )
@@ -215,6 +221,8 @@ namespace VS
         /// array if none are set.
         static int[] GetRulers()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             var dte = (EnvDTE.DTE)Package.GetGlobalService( typeof( EnvDTE.DTE ) );
             string path =
                 @"HKEY_CURRENT_USER\Software\Microsoft\VisualStudio\" + dte.Version + @"\Text Editor";

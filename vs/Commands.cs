@@ -1,11 +1,9 @@
 using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Settings;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.Shell.Settings;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.TextManager.Interop;
@@ -13,7 +11,6 @@ using Microsoft.VisualStudio.Utilities;
 using System;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Design;
-using System.Linq;
 
 namespace VS
 {
@@ -62,6 +59,7 @@ namespace VS
             /// The rewrap command, else passes the query to the next handler.
             public int QueryStatus(ref Guid CmdSetID, uint cCmds, OLECMD[] prgCmds, IntPtr pCmdText)
             {
+                ThreadHelper.ThrowIfNotOnUIThread();
                 if (CmdSetID == RewrapPackage.CmdSetGuid && prgCmds[0].cmdID == RewrapCommand.ID)
                 {
                     prgCmds[0].cmdf =
@@ -74,6 +72,7 @@ namespace VS
             /// Executes the command, if it's the rewrap command.
             public int Exec(ref Guid CmdSetID, uint nCmdID, uint nCmdexecopt, IntPtr pvaIn, IntPtr pvaOut)
             {
+                ThreadHelper.ThrowIfNotOnUIThread();
                 if (CmdSetID == RewrapPackage.CmdSetGuid && nCmdID == RewrapCommand.ID)
                 {
                     Editor.StandardWrap( this.textView );
@@ -96,17 +95,20 @@ namespace VS
 
         public static async System.Threading.Tasks.Task InitializeAsync(AsyncPackage package)
         {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
             if (package == null) throw new ArgumentNullException("package");
 
             var commandService =
                 await package.GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService
-                    ?? throw new Exception("Couldn't get OleMenuCommandService");
+                    ?? throw new Exception("Rewrap: Couldn't get OleMenuCommandService");
             commandService.AddCommand(MenuCommand);
 
             StatusBar = await package.GetServiceAsync(typeof(SVsStatusbar)) as IVsStatusbar;
 
             // Restore if enabled in settings
-            var mgr = await package.GetServiceAsync(typeof(SVsSettingsManager)) as IVsSettingsManager;
+            var mgr = await package.GetServiceAsync(typeof(SVsSettingsManager)) as IVsSettingsManager
+                ?? throw new Exception("Rewrap: Couldn't get IVsSettingsManager");
             mgr.GetWritableSettingsStore((uint)SettingsScope.UserSettings, out SettingsStore);
             if (SettingsStore.GetBool("Rewrap\\*", "autoWrap", out var value) == VSConstants.S_OK && value == 1)
                 ToggleEnabled(null, null);
@@ -124,6 +126,8 @@ namespace VS
 
         static void ToggleEnabled(object _, EventArgs e)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             MenuCommand.Checked = !MenuCommand.Checked;
             SettingsStore.SetBool("Rewrap\\*", "autoWrap", Enabled ? 1 : 0);
 
@@ -148,6 +152,8 @@ namespace VS
 
             void TextBuffer_Changed(object sender, TextContentChangedEventArgs e)
             {
+                ThreadHelper.ThrowIfNotOnUIThread();
+
                 if (!AutoWrapCommand.Enabled) return;
 
                 // Change count can also be 0
@@ -173,6 +179,8 @@ namespace VS
 
         public void TextViewCreated(IWpfTextView textView)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             // Some IWpfTextViews that get created aren't code windows (eg
             // tooltips in the "Find all references" pane). In these cases the
             // retrieved IVsTextView will be null, and we ignore it.
