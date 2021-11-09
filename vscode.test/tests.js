@@ -1,6 +1,6 @@
 const assert = require('assert')
 const {window, workspace} = require('vscode')
-const {getCoreSettings} = require('../vscode/bin/Extension.js')
+const {getCoreSettings} = require('../vscode/dist/Extension.js')
 
 const testSettings = async (language, expected) => {
     const doc = await workspace.openTextDocument({language, content: ""})
