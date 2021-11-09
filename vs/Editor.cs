@@ -223,19 +223,26 @@ namespace VS
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            var dte = (EnvDTE.DTE)Package.GetGlobalService( typeof( EnvDTE.DTE ) );
-            string path =
-                @"HKEY_CURRENT_USER\Software\Microsoft\VisualStudio\" + dte.Version + @"\Text Editor";
+            var shell = (IVsShell)ServiceProvider.GlobalProvider.GetService(typeof(IVsShell))
+                ?? throw new Exception("Rewrap: Couldn't get IVsShell instance");
+            shell.GetProperty((int)__VSSPROPID5.VSSPROPID_ReleaseVersion, out object value);
+            if(value is string rawVersion)
+            {
+                var version = String.Join(".", rawVersion.Split('.').Take(2));
+                var path =
+                    @"HKEY_CURRENT_USER\Software\Microsoft\VisualStudio\" + version + @"\Text Editor";
+                var guidesStr =
+                    (string)Microsoft.Win32.Registry.GetValue( path, "Guides", ")" );
+                var rulers =
+                    guidesStr
+                        .Split(')')[1]
+                        .Split( new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries )
+                        .Select( s => Int32.Parse( s.Trim() ) ).ToArray();
 
-            var guidesStr =
-                (string)Microsoft.Win32.Registry.GetValue( path, "Guides", ")" );
-            var rulers =
-                guidesStr
-                    .Split(')')[1]
-                    .Split( new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries )
-                    .Select( s => Int32.Parse( s.Trim() ) ).ToArray();
+                return rulers;
+            }
+            else return new int[0];
 
-            return rulers;
         }
     }
 }
