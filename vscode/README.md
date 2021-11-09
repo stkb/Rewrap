@@ -1,12 +1,14 @@
-**Latest version: 1.14.0**. New in this version ([full
+**Latest version: 1.15.0**. New in this version ([full
 changelog](https://github.com/stkb/vscode-rewrap/releases)):
 
-- Auto-wrap can now be enabled per-language ([see docs](http://stkb.github.io/Rewrap/#/auto-wrap)).
-- Add Clojure, Common Lisp, Emacs Lisp, Scheme, J and PostgreSQL.
-- Markdown: preserve line-breaks after a `<br>` tag.
-- Declare as a UI extension so it doesn't have to be installed in the remote
-  workspace;  fixes locally-installed language extensions not being found
-  when used with remote workspaces.
+This is a small release to push out unreleased changes and support Visual Studio
+2022. Larger changes are coming soon.
+- Supports Visual Studio 2022
+- Add ERB (HTML) `.html.erb`
+- Add support for [Block
+  Strings](https://github.com/graphql/graphql-spec/pull/327) in GraphQL files
+- Add XAML type
+- Fix whitespace disappearing around curly quotes
 
 
 # Rewrap

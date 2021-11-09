@@ -1,11 +1,13 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
-## Unreleased
-
+## 1.15.0
+This is a small release to push out unreleased changes and support Visual Studio
+2022. Larger changes are coming soon.
+- Supports Visual Studio 2022
 - Add ERB (HTML) `.html.erb` (#265).
 - Add support for [Block
-  Strings](https://github.com/graphql/graphql-spec/pull/327)
-  in GraphQL files. (#261)
+  Strings](https://github.com/graphql/graphql-spec/pull/327) in GraphQL files.
+  (#261)
 - Add XAML type (#263).
 - Fix whitespace disappearing around curly quotes (#119).
 
