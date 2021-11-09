@@ -117,7 +117,7 @@
     "json5": "^2.2.0"
   },
   "devDependencies": {
-    "vsce": "^1.87.0"
+    "vsce": "^2.2.0"
   },
   "source": "src/Extension.ts"
 }
