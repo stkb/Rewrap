@@ -26,4 +26,4 @@ jobs:
     - name: Build & Run Tests
       uses: GabrielBB/xvfb-action@v1
       with:
-        run: ./do build test --production
+        run: node do build test --production
