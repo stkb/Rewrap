@@ -1,5 +1,11 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
+
+### 1.15.1
+- VS Code: Fix broken release (VSIX file)
+- Visual Studio: Fix crash in VS 17.1 Preview
+
+
 ## 1.15.0
 This is a small release to push out unreleased changes and support Visual Studio
 2022. Larger changes are coming soon.

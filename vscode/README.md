@@ -1,4 +1,4 @@
-**Latest version: 1.15.0**. New in this version ([full
+**Latest version: 1.15.1**. New in this version ([full
 changelog](https://github.com/stkb/vscode-rewrap/releases)):
 
 This is a small release to push out unreleased changes and support Visual Studio
