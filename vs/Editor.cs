@@ -228,11 +228,21 @@ namespace VS
             shell.GetProperty((int)__VSSPROPID5.VSSPROPID_ReleaseVersion, out object value);
             if(value is string rawVersion)
             {
-                var version = String.Join(".", rawVersion.Split('.').Take(2));
-                var path =
-                    @"HKEY_CURRENT_USER\Software\Microsoft\VisualStudio\" + version + @"\Text Editor";
-                var guidesStr =
-                    (string)Microsoft.Win32.Registry.GetValue( path, "Guides", ")" );
+                // Before v17, VS would always give eg "16.0" as the version number even
+                // if it was actually 16.1, 16.2 etc. Now v17.1 returns "17.1". However
+                // the registry path to the guides is still at ...\17.0\.... So we always
+                // try <major>.0 first, and then <major>.<minor> in case things change in
+                // the future.
+                var parts = rawVersion.Split('.');
+                string major = parts[0], minor = parts[1];
+                string tryVersion (string v) {
+                    var path = $@"HKEY_CURRENT_USER\Software\Microsoft\VisualStudio\{v}\Text Editor";
+                    // GetValue only returns the given default value if the reg value
+                    // doesn't exist. If the whole key doesn't exist, it returns null.
+                    return (string)Microsoft.Win32.Registry.GetValue(path, "Guides", null);
+                }
+
+                var guidesStr = tryVersion($"{major}.0") ?? tryVersion($"{major}.{minor}") ?? ")";
                 var rulers =
                     guidesStr
                         .Split(')')[1]
