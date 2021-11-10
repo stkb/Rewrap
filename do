@@ -181,6 +181,10 @@ function rmDir(...paths) {
 /** Runs a shell command (sync) */
 function run (msg, cmd, {cwd, showOutput} = {}) {
   console.log(msg)
+  if (verbose) {
+    console.log(cmd)
+    if (cwd) console.log("cwd: " + cwd)
+  }
   try {
     const output = CP.execSync(cmd, {encoding: 'utf8', cwd})
     if (showOutput || verbose) console.log(output)
