@@ -11,10 +11,8 @@ using VS.Options;
 
 namespace VS
 {
-    /// <summary>
-    /// Gets the needed information from the text editor to perform the re-wrap,
-    /// and applies the returned edit.
-    /// </summary>
+    /// Gets the needed information from the text editor to perform the re-wrap, and
+    /// applies the returned edit.
     static class Editor
     {
         /// Does a standard wrap for the given text view.
@@ -54,6 +52,7 @@ namespace VS
             ApplyEdit(textView, snapshot, edit);
         }
 
+        /// Gets settings for the given text view
         private static Settings GetSettings
             (IWpfTextView textView, Func<int[], int> getColumn)
         {
@@ -78,9 +77,7 @@ namespace VS
                 );
         }
 
-        /// <summary>
         /// Applies the given Edit to the given text view snapshot.
-        /// </summary>
         static bool ApplyEdit(IWpfTextView textView, ITextSnapshot snapshot, Edit edit)
         {
             if (edit.lines.Length == 0) return false;
@@ -110,9 +107,7 @@ namespace VS
             return true;
         }
 
-        /// <summary>
         /// Gets the document type (language) for the given text buffer.
-        /// </summary>
         static string GetLanguage(ITextBuffer textBuffer)
         {
             string language =
@@ -129,9 +124,7 @@ namespace VS
             return language;
         }
 
-        /// <summary>
         /// Gets the file path of the document in the given text buffer.
-        /// </summary>
         static string GetFilePath(ITextBuffer textBuffer)
         {
             if ( textBuffer.Properties
@@ -177,8 +170,8 @@ namespace VS
         }
 
 
-        /// Given a snapshot, returns a function that gets a text line for the
-        /// given line index.
+        /// Given a snapshot, returns a function that gets a text line for the given line
+        /// index.
         private static Func<int,string> DocLine(ITextSnapshot snapshot)
         {
             var lineCount = snapshot.LineCount;
@@ -186,9 +179,7 @@ namespace VS
                     snapshot.GetLineFromLineNumber(i).GetText() : null;
         }
 
-        /// <summary>
         /// Gets the OptionsPage from the package.
-        /// </summary>
         static OptionsPage OptionsPage
         {
             get
@@ -217,8 +208,8 @@ namespace VS
 
         static OptionsPage _OptionsPage;
 
-        /// Gets editor rulers (guides) from the registry. Returns an empty
-        /// array if none are set.
+        /// Gets editor rulers (guides) from the registry. Returns an empty array if none
+        /// are set.
         static int[] GetRulers()
         {
             ThreadHelper.ThrowIfNotOnUIThread();

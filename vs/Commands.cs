@@ -34,19 +34,20 @@ namespace VS
             }
         }
 
+        /// Called when a new text view is created
         public static void AttachToTextView(IWpfTextView textView, IVsTextView vsTextView)
         {
             new CommandFilter( textView, vsTextView );
         }
 
-        /// A command filter receives status and exec queries from VS for all
-        /// commands executed by the user within the context of a text view. We
-        /// handle this command this way so that we have a handle to the
-        /// affected text view (and text therein) when it is executed.
+        /// A command filter receives status and exec queries from VS for all commands
+        /// executed by the user within the context of a text view. We handle this command
+        /// this way so that we have a handle to the affected text view (and text therein)
+        /// when it is executed.
         ///
-        /// An alternative would be handling commmand execution the normal way
-        /// (via MenuCommand or OleMenuCommand) and the retrieving the active
-        /// text view ourselves from DTE.
+        /// An alternative would be handling commmand execution the normal way (via
+        /// MenuCommand or OleMenuCommand) and the retrieving the active text view
+        /// ourselves from DTE.
         class CommandFilter : IOleCommandTarget
         {
             public CommandFilter(IWpfTextView textView, IVsTextView vsTextView)
@@ -55,8 +56,8 @@ namespace VS
                 vsTextView.AddCommandFilter( this, out this.next );
             }
 
-            /// Queries the status of the command(s). Returns success if it's
-            /// The rewrap command, else passes the query to the next handler.
+            /// Queries the status of the command(s). Returns success if it's The rewrap
+            /// command, else passes the query to the next handler.
             public int QueryStatus(ref Guid CmdSetID, uint cCmds, OLECMD[] prgCmds, IntPtr pCmdText)
             {
                 ThreadHelper.ThrowIfNotOnUIThread();
@@ -114,10 +115,10 @@ namespace VS
                 ToggleEnabled(null, null);
         }
 
-        // MenuCommand vs OleMenuCommand: OleMenuCommand, which has a query
-        // method, could be used to query an enabled state held elsewhere. But
-        // MenuCommand is enough for us here. It has its own checked state,
-        // which we use as the source of the enable state.
+        // MenuCommand vs OleMenuCommand: OleMenuCommand, which has a query method, could
+        // be used to query an enabled state held elsewhere. But MenuCommand is enough for
+        // us here. It has its own checked state, which we use as the source of the enable
+        // state.
         static readonly MenuCommand MenuCommand =
             new MenuCommand(ToggleEnabled, new CommandID(RewrapPackage.CmdSetGuid, ID));
 
@@ -131,9 +132,9 @@ namespace VS
             MenuCommand.Checked = !MenuCommand.Checked;
             SettingsStore.SetBool("Rewrap\\*", "autoWrap", Enabled ? 1 : 0);
 
-            // Show a brief message in status bar when toggling on/off. Would
-            // like something permanent that shows the status but it's not
-            // possible without dirty hacks https://stackoverflow.com/q/30096546
+            // Show a brief message in status bar when toggling on/off. Would like
+            // something permanent that shows the status but it's not possible without
+            // dirty hacks https://stackoverflow.com/q/30096546
             if (StatusBar != null)
             {
                 var msg = Enabled ? "Auto-wrap: On" : "Auto-wrap: Off";
@@ -181,9 +182,9 @@ namespace VS
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            // Some IWpfTextViews that get created aren't code windows (eg
-            // tooltips in the "Find all references" pane). In these cases the
-            // retrieved IVsTextView will be null, and we ignore it.
+            // Some IWpfTextViews that get created aren't code windows (eg tooltips in the
+            // "Find all references" pane). In these cases the retrieved IVsTextView will
+            // be null, and we ignore it.
             var vsTextView = editorFactory.GetViewAdapter( textView );
             if (vsTextView != null)
             {
