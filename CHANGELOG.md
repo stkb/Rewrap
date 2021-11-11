@@ -1,6 +1,10 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
 
+## Unreleased
+- Fix regression: Wrapping column < 1 should be treated as no wrapping
+
+
 ### 1.15.1
 - VS Code: Fix broken release (VSIX file)
 - Visual Studio: Fix crash in VS 17.1 Preview

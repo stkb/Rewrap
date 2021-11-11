@@ -132,7 +132,8 @@ type OutputBuffer(settings : Settings) =
   member _.wrap (prefixes: string Nonempty, contents: string Nonempty) =
     let addLine line = outputLines <- line :: outputLines
     let str = concatLines settings.doubleSentenceSpacing contents
-    breakUpString addLine settings.tabWidth settings.column str prefixes
+    let column = if settings.column > 0 then settings.column else Int32.MaxValue
+    breakUpString addLine settings.tabWidth column str prefixes
     linesConsumed <- linesConsumed + size contents
 
   member _.toEdit () =

@@ -49,6 +49,7 @@ let maybe def f = Option.map f >> Option.defaultValue def
 
 let testOrTests n = if n = 1 then "test" else "tests"
 
+
 /// Makes a test object from test lines
 let readTestLines fileName (settings: TestSettings) lines : Result<Test * Option<Test>,TestError> =
   let error errType = Error (fileName, lines, errType)
@@ -78,7 +79,7 @@ let readTestLines fileName (settings: TestSettings) lines : Result<Test * Option
 
   /// Gets the wrapping column (denoted by `¦` from the given lines)
   let getWrappingColumn lines =
-    let ps = lines |> Seq.map (strWidthBefore "¦") |> Seq.filter (fun x -> x > 0) |> Seq.toArray
+    let ps = lines |> Seq.map (strWidthBefore "¦") |> Seq.filter (fun x -> x >= 0) |> Seq.toArray
     if ps.Length > 0 && Seq.forall (fun p -> p = ps.[0]) ps then Some ps.[0] else None
 
   /// Removes all common whitespace indent from each of a set of lines
