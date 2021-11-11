@@ -1,7 +1,10 @@
-**Latest version: 1.15.1**. New in this version ([full
+**Latest version: 1.15.2**. New in this version ([full
 changelog](https://github.com/stkb/vscode-rewrap/releases)):
 
-This is a small release to push out unreleased changes and support Visual Studio
+1.15.2:
+- Fix regression: Wrapping column < 1 should be treated as no wrapping
+
+1.15.0: This is a small release to push out unreleased changes and support Visual Studio
 2022. Larger changes are coming soon.
 - Supports Visual Studio 2022
 - Add ERB (HTML) `.html.erb`
