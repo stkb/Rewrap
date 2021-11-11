@@ -1,20 +1,22 @@
-const Path = require ("path")
-const FS = require ("fs")
-const Xml2JS = require ("xml2js")
-const { Octokit } = require ("@octokit/rest")
-const Rewrap = require('root-require')('./vscode/compiled/core/Main')
-const { Position, Selection } = require('root-require')('./vscode/compiled/core/Types')
+import FS from 'fs'
+import Xml2JS from 'xml2js'
+import { Octokit } from '@octokit/rest'
+import * as Rewrap from '../core/dist/index.js'
 
 
 //================ General stuff ================
 
 /** Builds a path from root dir */
-const fromRoot = (...args) => Path.resolve (__dirname, "..", ...args)
+const fromRoot = (x) => new URL (x, (new URL("..", import.meta.url)))
 
 
 //================ Getting version numbers ================
 
-const getVersion = () => require('root-require')('package.json').version
+const getVersion = async () => {
+  const cnt = await FS.promises.readFile (fromRoot ("vscode/package.json"), 'utf8')
+  return JSON.parse(cnt).version
+}
+
 const getVsVersion = () =>
   FS.promises.readFile (fromRoot ("vs/source.extension.vsixmanifest"), 'utf8')
     . then (Xml2JS.parseStringPromise)
@@ -32,9 +34,9 @@ const getChangesText = () => {
   // 'Unwrap' for github markdown
   const docType = {path: "", language: "markdown", getMarkers: () => null}
   const settings = {column: 0}
-  const selections = [new Selection(new Position(0, 0), new Position(999,999))]
+  const selection = {anchor: {line: 0, character: 0}, active: {line:lines.length, character: 0}}
   const docLine = i => lines[i]
-  const edit = Rewrap.rewrap(docType, settings, selections, docLine)
+  const edit = Rewrap.rewrap(docType, settings, [selection], docLine)
   lines.splice(edit.startLine, edit.endLine - edit.startLine + 1, ...edit.lines)
   return lines.join("\n")
 }
@@ -74,8 +76,9 @@ async function uploadGithubBetaRelease (version, vscVsix, vsVsix) {
   let old_release
   try { old_release = await github.getReleaseByTag({tag: "beta", ...ownerRepo}) }
   catch { }
-  if (old_release)
+  if (old_release) {
     await github.deleteRelease({release_id: old_release.data.id, ...ownerRepo})
+  }
 
   // Create new release
   const release_opts = {name: "v" + version, tag_name: "beta", prerelease: true, 
@@ -98,11 +101,11 @@ async function uploadGithubBetaRelease (version, vscVsix, vsVsix) {
 //================ Main ================
 
 (async function() {
-  const version = getVersion (), vsVersion = await getVsVersion ()
+  const version = await getVersion (), vsVersion = await getVsVersion ()
 
   uploadGithubBetaRelease
     ( version
-    , {name: `Rewrap-VSCode-${version}.vsix`, path: fromRoot (`vscode/rewrap-${version}.vsix`)}
+    , {name: `Rewrap-VSCode-${version}.vsix`, path: fromRoot (`vscode/Rewrap-VSCode.vsix`)}
     , {name: `Rewrap-VS-${version}_${vsVersion}`, path: fromRoot ("vs/bin/Release/Rewrap-VS.vsix")}
     )
 })()

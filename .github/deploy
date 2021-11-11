@@ -2,4 +2,4 @@
 git tag beta --force
 git push
 git push --tags --force
-node .github/deploy.js
+node .github/deploy.mjs
