@@ -1,6 +1,10 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
 
+## Unreleased
+- VSCode: support untrusted workspaces (#292).
+
+
 ### 1.15.2
 - Fix regression: Wrapping column < 1 should be treated as no wrapping
 
