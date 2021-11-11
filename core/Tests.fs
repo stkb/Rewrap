@@ -74,7 +74,7 @@ let readTestLines fileName (settings: TestSettings) lines : Result<Test * Option
     |]
     let cleanLine (l: string) =
       cleanUps |> Seq.fold (fun s (reg, rep) -> reg.Replace(s, rep)) l
-    Seq.map cleanLine >> Seq.takeWhile (not << String.IsNullOrEmpty) >> Array.ofSeq
+    Array.map cleanLine >> Array.rev >> Array.skipWhile String.IsNullOrEmpty >> Array.rev
 
   /// Gets the wrapping column (denoted by `¦` from the given lines)
   let getWrappingColumn lines =
