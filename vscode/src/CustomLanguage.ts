@@ -68,7 +68,7 @@ export default function(exts?, getFileText?) {
         if (typeof cache[lang] === 'string') {
             const config = getConfig(getFileText, cache[lang])
             cache[lang] = (config.line || config.block) ?
-                {line: config.line, block: config.block} : noCustomMarkers
+                {line: config.line, block: config.block || ["", ""]} : noCustomMarkers
         }
         else if (!cache[lang]) cache[lang] = noCustomMarkers
         return cache[lang]
