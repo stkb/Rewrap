@@ -1,128 +1,218 @@
-#!/usr/bin/env node
+#!/usr/bin/env sh
+":" //; exec node --input-type=module - "$@" < "$0"
 
-const CP = require('child_process')
-const FS = require('fs')
+import CP from 'child_process'
+import FS from 'fs'
+import RLS from 'readline-sync'
+import logUpdate from 'log-update'
 
-const operations = ['clean', 'build', 'watch', 'test', 'package']
+const operations = {
+  'clean': "  removes previous build artifacts",
+  'build': "  development build",
+  'test': "   runs tests (builds first)",
+  'prod': "   production build (also runs tests)",
+  'watch': "  runs build & test whenever source files are changed",
+  'package': "(implies prod) creates a VSIX package",
+  'publish': "(implies clean, package) creates a package and publishes it",
+  'version': "Gets current extension version updates to given version"
+}
 const components = ['core', 'vscode']
 
 // File paths
-const corePkg = require ('./core/package.json')
+const corePkg = readJsonFile ('./core/package.json')
 const coreProd = 'core/' + corePkg.module
-const coreTestPkg = require ('./core/test/package.json')
+const coreTestPkg = readJsonFile ('./core/test/package.json')
 const coreTestDev = 'core/test/' + coreTestPkg.main
 const coreTestProd = 'core/test/' + coreTestPkg.prod
-const vscodePkg = require ('./vscode/package.json')
+const vscodePkg = readJsonFile ('./vscode/package.json')
 const vscodeMain = 'vscode/' + vscodePkg.main
 const vscodeSrc = 'vscode/src'
 
-// Process input args
+
+//========== PROCESS INPUT ARGS ==========//
+
+
 let args = process.argv.slice(2);
 const supplied = (x) => args.includes(x)
 const suppliedAny = (...xs) => xs.some(supplied)
 const suppliedAll = (...xs) => xs.every(supplied)
-const {production, verbose} = processArgs ()
+
+if (!suppliedAny (...Object.keys(operations)) && !suppliedAny (...components)) {
+  showHelpAndExit ()
+}
+
+const [targetCore, targetVSCode]
+  = suppliedAll (...components) ? [true, true]
+  : supplied ('core') ? [true, false]
+  : supplied ('vscode') ? [false, true]
+  : [true, true]
+const watch = suppliedAny ('watch')
+const verbose = suppliedAny ('--verbose', '-v')
+let cleanRun, testsRun
 
 
-/** Entry point */
-function main () {
-  // Make sure base (tool) dependencies are installed
-  run ("", "dotnet tool restore")
-  if (notExists ('node_modules'))
-    run ("Installing NPM modules", "npm install")
+//========== TASKS ==========//
 
-  // Clean
-  if (supplied ('clean')) {
-    if (supplied ('core')) {
-      rmDir ('.obj/.net/core/bin', 'core/dist')
-      ;[coreTestProd, coreTestProd + '.map'].forEach(x => FS.rmSync (x, {force:true}))
-    }
-    if (supplied ('vscode')) rmDir ('vscode/dist', 'vscode/node_modules')
+
+// Prereqs. Make sure base (tool) dependencies are installed
+if (verbose) {
+  run ('', "dotnet --version")
+  run ('', "node --version")
+  run ('', "npm --version")
+}
+run ("", "dotnet tool restore")
+if (notExists ('node_modules')) run ("Installing NPM modules", "npm install")
+
+// Run given task
+if (supplied ('clean')) clean ()
+
+if (supplied ('version')) getSetVersion ()
+else if (supplied ('publish')) publish ()
+else if (supplied ('package')) package_ ()
+else if (supplied ('prod')) productionBuild ()
+else if (supplied ('test')) runTests ()
+else if (supplied ('build')) devBuild ()
+else if (!supplied ('clean')) devBuild ()
+
+
+function getSetVersion ()
+{
+  const pVSC = 'vscode/package.json', reVSC = /"version"\: "(.*?)"/i
+  let cnt = FS.readFileSync (pVSC, 'utf8'), newVer = args.find(s => s.startsWith("1."))
+  if (!newVer) exit (0, cnt.match(reVSC)[1])
+
+  let parts = newVer.split(/[-.]/)
+  if (parts[3] == 'alpha' || parts[3] == 'beta') {
+    parts[3] = parseInt(parts[4]) + (parts[3] == 'alpha' ? 100 : 200)
   }
+  else if (parts[3] == null) {
+    parts[3] = 300
 
-  // Build Core
-  if (supplied ('build')) buildCore ()
+    for (let p of ['README.md', 'vscode/README.md'])
+      replaceInFile(p, /version: (.+?)\*/, newVer)
 
-  // Test Core
-  if (supplied ('test')) {
-    if (production && outdated (coreTestProd, coreTestDev))
-      run ("Parcel bundling Core.Test", parcel `build core/test`)
-    run ('Running Core tests', `node core/test${production ? '/prod': ''}`, {showOutput: true})
+    let pre = parts[2] == "0" ? "## " : "### "
+    replaceInFile('CHANGELOG.md', /(## Unreleased)/, pre + newVer)
   }
+  else exit (1, "Invalid version")
 
-  // Build VS Code
-  if (suppliedAll ('build', 'vscode')) buildVSCode ()
+  replaceInFile (pVSC, reVSC, newVer)
 
-  // Test VS Code
-  if (suppliedAll ('test', 'vscode') && process.env.TERM_PROGRAM != 'vscode')
-    run ("Running VS Code tests", 'node vscode.test/run')
+  const vsVer = parts.slice(0, 4).join('.')
+  replaceInFile ('vs/source.extension.vsixmanifest', /" Version="(.*?)"/, vsVer)
 
-  // Package up VSIX
-  if (supplied ('package'))
-    run ('Creating VSIX', npx `vsce package -o Rewrap-VSCode.vsix`, {cwd:'./vscode'})
+  run ("", 'npm install', {cwd:'./vscode'})
+  console.log ("Version changed to " + newVer)
 
-  // Watch
-  if (supplied ('watch')) {
-    buildCore ({watch: true})
-    if (supplied ('vscode')) {
-      runAsync ("TypeScript watching...", npx `tsc -w -p vscode --noEmit`)
-      runAsync ("Parcel watching...", parcel `watch vscode`)
-    }
+  function replaceInFile (path, re, rep) {
+    const cnt = FS.readFileSync (path, 'utf8'), match = cnt.match(re)
+    FS.writeFileSync (path, cnt.replace(match[0], match[0].replace(match[1], rep)))
   }
 }
 
 
-/** Builds the Core JS files */
-function buildCore ({watch} = {}) {
+function publish () {
+  package_ ()
+  const msg = "VSIX created in .obj/. Publish to VS Code & OpenVSX?"
+  if (!RLS.keyInYN(msg)) return
+
+  run ("Publishing to VS Code", 'vsce publish -i .obj/Rewrap-VSCode.vsix', {showOutput: true})
+  run ("Publishing to OpenVSX", 'ovsx publish .obj/Rewrap-VSCode.vsix', {showOutput: true})
+  log ("Published!")
+}
+
+function package_ () {
+  clean ()
+  productionBuild ()
+  run ("Creating VSIX", 'vsce package -o ../.obj/Rewrap-VSCode.vsix 2>&1', {cwd:'./vscode'})
+}
+
+function clean () {
+  if (cleanRun) { return } else { cleanRun = true }
+
+  if (targetCore) {
+    removeDirs ('.obj/.net/core/bin', 'core/dist')
+    removeFiles (coreTestProd, coreTestProd + '.map')
+  }
+  if (targetVSCode) removeDirs ('vscode/dist', 'vscode/node_modules')
+  log ("Cleaned.")
+}
+
+function productionBuild () {
+  runTests ({production: true})
+}
+
+function runTests ({production} = {}) {
+  if (testsRun) { return } else { testsRun = true }
+
+  buildCore ({production})
+  if (targetCore) {
+    if (production && outdated (coreTestProd, coreTestDev))
+      run ("Bundling Core tests with Parcel", parcel `build core/test`)
+    const msg = 'Core build complete. Running tests:'
+    run (msg, `node core/test${production ? '/prod': ''}`, {showOutput: true})
+  }
+
+  if (targetVSCode) {
+    buildVSCode ({production})
+    if (process.env.TERM_PROGRAM == 'vscode') log ("Can't run VS Code tests inside VS Code")
+    else run ("Running VS Code tests", 'node vscode.test/run')
+  }
+}
+
+function devBuild () {
+  buildCore ()
+  if (targetVSCode) buildVSCode()
+  if (!watch) log ("Dev build complete.")
+}
+
+
+//========== STEPS ==========//
+
+
+function buildCore ({production} = {}) {
   const paj = x => `.obj/.net/${x}/project.assets.json`
   if (notExists (paj ('core'), paj ('test')))
-    run ("Restoring Core dependencies", "dotnet restore core/Core.Test.fsproj")
+    run ("Restoring dependencies", "dotnet restore core/Core.Test.fsproj")
   
   const fableArgs = 'core/Core.Test.fsproj -o core/dist/dev --noRestore'
-
-  if (outdated (coreTestDev, 'core')) run ("Fable building Core", `dotnet fable ${fableArgs}`)
 
   if (watch) {
     const cmd = `dotnet fable watch ${fableArgs} --runWatch "node core/test"`
     runAsync ("Fable watching...", cmd)
   }
-  else if (production && outdated (coreProd, 'core'))
-    run ("Parcel bundling Core", parcel `build core`)
+  else {
+    if (outdated (coreTestDev, 'core')) run ("Building with Fable", `dotnet fable ${fableArgs}`)
+    if (production && outdated (coreProd, 'core')) run ("Parcel bundling Core", parcel `build core`)
+  }
 }
 
-
-/** Builds the VS Code extension */
-function buildVSCode() {
+function buildVSCode({production} = {}) {
   if (notExists ('vscode/node_modules'))
-    run ("Installing VS Code Extension NPM modules", 'npm install', {cwd:'./vscode'})
+    run ("Installing NPM modules", 'npm install', {cwd:'./vscode'})
 
   const srcMap = vscodeMain + '.map'
   // Crude way to check if last build was production mode
   const lastBuildProduction = ! FS.existsSync (srcMap)
   if (production == lastBuildProduction && ! outdated (vscodeMain, vscodeSrc, 'core')) return
 
-  run ("Typechecking TypeScript", npx `tsc -p vscode --noEmit`)
-  if (production) {
-    run ("Linting TypeScript", npx `eslint vscode --ext .ts`)
-    run ("Parcel bundling", parcel `build vscode --no-source-maps`)
-    FS.rmSync (srcMap, {force:true})
+  if (watch) {
+    runAsync ("TypeScript watching...", npx `tsc -w -p vscode --noEmit`)
+    runAsync ("Parcel watching...", parcel `watch vscode`)
   }
-  else run ("Parcel bundling VS Code Extension", parcel `build vscode --no-optimize`)
+  else {
+    run ("Typechecking TypeScript", npx `tsc -p vscode --noEmit`)
+    if (production) {
+      run ("Linting TypeScript", npx `eslint vscode --ext .ts`)
+      run ("Bundling with Parcel", parcel `build vscode --no-source-maps`)
+      FS.rmSync (srcMap, {force:true})
+    }
+    else run ("Parcel bundling VS Code Extension", parcel `build vscode --no-optimize`)
+  }
 }
 
 
-/** If given file/folder(s) don't exist */
-const notExists = (...ps) => ps.some(p => !FS.existsSync(p))
-
-
-/** Runs a command under npx */
-const npx = (arr1, ...arr2) => {
-  for (var cmd = 'npx --silent ', i = 0; i < arr1.length || i < arr2.length; i++) {
-    if (arr1[i]) cmd += arr1[i]
-    if (arr2[i]) cmd += arr2[i]
-  }
-  return cmd
-}
+//========== HELPER FUNCTIONS ==========//
 
 
 /** Checks if the target is outdated compared with the source(s) */
@@ -144,97 +234,93 @@ function outdated (target, ...sources) {
   return lastModified (target) <= sourcesLatestTimestamp
 }
 
-
-/** Runs Parcel */
-const parcel = ([args]) => npx `parcel ${args} --cache-dir .obj/parcel`
-
-/** Processes the args given to this script. Returns production and verbose values */
-function processArgs () {
-  if (suppliedAny ('-pv', '-vp')) args.push('-p', '-v')
-  const production =
-    suppliedAny ('--production', '-p') || process.env.NODE_ENV == 'production'
-  const verbose = suppliedAny ('--verbose', '-v')
-
-  // If not supplied any (valid) options, show help
-  if (!(production || suppliedAny (...operations) || suppliedAny (...components)))
-    showHelpAndExit ()
-
-  // If no other operations given then 'build' is default
-
-  if (! suppliedAny (...operations)) args.push('build')
-  // If no components given then do for all
-  if (! suppliedAny (...components)) args.push(...components)
-  if (supplied ('test')) args.push('build')
-  if (supplied ('package')) args.push('build', 'core', 'vscode')
-
-  return {production, verbose}
-}
-
+/** If given file/folder(s) don't exist */
+function notExists (...ps) { return ps.some(p => !FS.existsSync(p)) }
 
 /** Removes given folder(s) */
-function rmDir(...paths) {
+function removeDirs(...paths) {
   for(let p of paths)
-    if (FS.existsSync (p)) run ('Cleaning ' + p, npx `rimraf ${p}`)
+    if (FS.existsSync (p)) run (`Removing dir ${p}`, npx `rimraf ${p}`)
+}
+
+/** Removes given file(s) */
+function removeFiles (...paths) {
+  paths.filter (p => FS.existsSync (p))
+    .map (p => { log (`Removing file ${p}`); FS.rmSync (p, {force:true}) })
+}
+
+function readJsonFile (p) {
+  return JSON.parse(FS.readFileSync(p, 'utf8'))
 }
 
 
 /** Runs a shell command (sync) */
 function run (msg, cmd, {cwd, showOutput} = {}) {
-  console.log(msg)
-  if (verbose) {
-    console.log(cmd)
-    if (cwd) console.log("cwd: " + cwd)
-  }
+  if (msg) log (msg)
+  if (verbose) { log (cmd); if (cwd) log("cwd: " + cwd) }
+
   try {
     const output = CP.execSync(cmd, {encoding: 'utf8', cwd})
-    if (showOutput || verbose) console.log(output)
+    if (showOutput || verbose) console.log (output.trimEnd())
   }
   catch (err) {
-    console.error(`Error running: ${cmd}`)
-    console.error(err.stderr)
+    console.error (`Error running: ${cmd}`)
+    console.error (err.stderr)
     // dotnet cli writes errors to stdout
-    console.error(err.stdout)
-
+    console.error (err.stdout)
     process.exit (1)
   }
 }
 
-
 /** Runs a shell command (async) */
 function runAsync (msg, cmd, {cwd, showOutput} = {}) {
-  console.log(msg)
+  if (msg) console.log (msg)
   const child = CP.exec(cmd, {encoding: 'utf8', cwd}, onExit)
   if (showOutput || verbose) child.stdout.pipe(process.stdout, {end:false})
   child.stderr.pipe(process.stderr, {end:false})
 
-  function onExit (error) {
-    if (error) {
-      console.error(error)
-      process.exit (1)
-    }
+  function onExit (error) { if (error) exit (1, error) }
+}
+
+
+function log (msg) {
+  verbose ? console.log (msg) : logUpdate(msg)
+}
+
+function exit (code, msg) {
+  if (msg) { code == 0 ? console.log(msg) : console.error (msg) }
+  process.exit (code)
+}
+
+/** Builds parcel command */
+function parcel ([args]) { return npx `parcel ${args} --cache-dir .obj/parcel` }
+
+/** Builds npx command */
+function npx (arr1, ...arr2) {
+  for (var cmd = 'npx --silent ', i = 0; i < arr1.length || i < arr2.length; i++) {
+    if (arr1[i]) cmd += arr1[i]
+    if (arr2[i]) cmd += arr2[i]
   }
+  return cmd
 }
 
 
 /** Shows help text and exits. For when invalid args are given */
 function showHelpAndExit () {
+  const opStrs = Object.entries(operations).map(([k,v]) => `${k}   ${v}`).join("\n    ")
   const msg = [
     "Usage: ./do (<operation> | <component> | <option>)...",
-    `- Operations: ${operations.join(", ")}`,
+    "- Operations:\n    " + opStrs,
     `- Components: ${components.join(", ")}`,
-    `- Options: --production (-p), --verbose (-v)`,
+    `- Options: --verbose (-v)`,
     "",
-    "If no operations are given, does a 'build'. If no components are given, does all components.",
-    "Adding the --production flag does the operation in production mode.",
+    "If no operations are given, does a 'build'. If no components are given,",
+    "does all components. Always does builds as necessary.",
     "",
     "Examples:",
     "    ./do build core",
-    "    ./do package --production",
+    "    ./do package",
   ]
   console.log('\n' + msg.join('\n') + '\n')
   process.exit(1)
 }
-
-
-// Run main function
-main ()
