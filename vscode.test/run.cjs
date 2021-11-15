@@ -4,7 +4,7 @@ const {runTests} = require('vscode-test')
 async function main() {
     try {
         const extensionDevelopmentPath = resolve(__dirname, '../vscode')
-        const extensionTestsPath = resolve(__dirname, 'tests')
+        const extensionTestsPath = resolve(__dirname, 'tests.cjs')
         const workspace = resolve(__dirname, 'fixture')
         const launchArgs = [workspace, '--disable-extensions']
 
