@@ -156,7 +156,7 @@ function runTests ({production} = {}) {
   if (targetVSCode) {
     buildVSCode ({production})
     if (process.env.TERM_PROGRAM == 'vscode') log ("Can't run VS Code tests inside VS Code")
-    else run ("Running VS Code tests", 'node vscode.test/run')
+    else run ("Running VS Code tests", 'node vscode.test/run.cjs')
   }
 }
 

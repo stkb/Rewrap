@@ -27,7 +27,7 @@
             "args": [
                 "--disable-extensions",
                 "--extensionDevelopmentPath=${workspaceFolder}/vscode",
-                "--extensionTestsPath=${workspaceFolder}/vscode.test/tests",
+                "--extensionTestsPath=${workspaceFolder}/vscode.test/tests.cjs",
                 "${workspaceFolder}/vscode.test/fixture"
             ],
             "sourceMaps": true,
