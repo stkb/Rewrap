@@ -3,7 +3,6 @@
 
 import CP from 'child_process'
 import FS from 'fs'
-import RLS from 'readline-sync'
 import logUpdate from 'log-update'
 
 const operations = {
@@ -27,6 +26,7 @@ const coreTestProd = 'core/test/' + coreTestPkg.prod
 const vscodePkg = readJsonFile ('./vscode/package.json')
 const vscodeMain = 'vscode/' + vscodePkg.main
 const vscodeSrc = 'vscode/src'
+const vscodeVsix = '.obj/Rewrap-VSCode.vsix'
 
 
 //========== PROCESS INPUT ARGS ==========//
@@ -112,19 +112,23 @@ function getSetVersion ()
 
 
 function publish () {
-  package_ ()
-  const msg = "VSIX created in .obj/. Publish to VS Code & OpenVSX?"
-  if (!RLS.keyInYN(msg)) return
+  let stats
+  try { stats = FS.statSync(vscodeVsix) } catch { 
+    exit (1, `No VSIX file at ${vscodeVsix}. Run './do package' and test the VSIX file first.`)
+  }
+  if(stats.mtimeMs < (new Date()).valueOf() - 600000)
+    exit (1, `${vscodeVsix} file is older than 10 mins. Recreate it with: ./do package`)
 
-  run ("Publishing to VS Code", 'vsce publish -i .obj/Rewrap-VSCode.vsix', {showOutput: true})
-  run ("Publishing to OpenVSX", 'ovsx publish .obj/Rewrap-VSCode.vsix', {showOutput: true})
-  log ("Published!")
+    run ("Publishing to OpenVSX", `ovsx publish ${vscodeVsix} -p ${process.env.OVSX_PAT}`, {showOutput: true})
+    run ("Publishing to VS Code", `vsce publish -i ${vscodeVsix}`, {showOutput: true})
+    log ("Published!")
 }
 
 function package_ () {
   clean ()
   productionBuild ()
-  run ("Creating VSIX", 'vsce package -o ../.obj/Rewrap-VSCode.vsix 2>&1', {cwd:'./vscode'})
+  run ("Creating VSIX", `vsce package -o ../${vscodeVsix} 2>&1`, {cwd:'./vscode'})
+  log (`${vscodeVsix} created.`)
 }
 
 function clean () {
