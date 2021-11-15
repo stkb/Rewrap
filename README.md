@@ -1,8 +1,8 @@
-**Latest version: 1.15.2**. New in this version ([full
+**Latest version: 1.15.3**. New in this version ([full
 changelog](https://github.com/stkb/vscode-rewrap/releases)):
-
-1.15.2:
-- Fix regression: Wrapping column < 1 should be treated as no wrapping
+- VSCode: support untrusted workspaces (#292).
+- VSCode: Fix crash when a language extension provides a line- but no block comment
+  marker.
 
 1.15.0: This is a small release to push out unreleased changes and support Visual Studio
 2022. Larger changes are coming soon.

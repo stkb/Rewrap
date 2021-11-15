@@ -1,7 +1,7 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
 
-## Unreleased
+### 1.15.3
 - VSCode: support untrusted workspaces (#292).
 - VSCode: Fix crash when a language extension provides a line- but no block comment marker.
 
