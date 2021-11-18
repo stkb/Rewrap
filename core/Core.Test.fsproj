@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\core\Core.fsproj" />
-    <PackageReference Update="FSharp.Core" Version="4.7.2" />
+    <PackageReference Update="FSharp.Core" Version="6.0.1" />
   </ItemGroup>
 
 </Project>
