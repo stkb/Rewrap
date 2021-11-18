@@ -129,5 +129,7 @@ indent, it and the list item are terminated.
 
 ## Other tests ##
 
+Double list-item:
+
     - - a  ¦      ->      - - a b¦
     b      ¦                     ¦

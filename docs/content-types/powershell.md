@@ -1,8 +1,8 @@
 # PowerShell Comment-Based Help #
 
-PowerShell supports comment-based help documentation.
-
 > language: "powershell"
+
+PowerShell supports comment-based help documentation.
 
 Basic example
 
@@ -28,6 +28,47 @@ Basic example
        the result            ¦                         outputs the result as ¦
        as a string.          ¦                         a string.             ¦
     #>                       ¦                      #>                       ¦
+
+All lines beginning with keywords (. and then one or more capital letters) are not
+wrapped.
+
+    <#          ¦       ->      <#          ¦
+     one two three               one two    ¦
+     four       ¦                three four ¦
+     .A         ¦                .A         ¦
+     one two three               one two    ¦
+     four       ¦                three four ¦
+    #>          ¦               #>          ¦
+
+CBH can also be in `#` line comments
+
+    # one two three      ->      # one two    ¦
+    # four       ¦               # three four ¦
+    # .A         ¦               # .A         ¦
+    # one two three              # one two    ¦
+    # four       ¦               # three four ¦
+
+Some keywords (eg .PARAMETER) take arguments. These must be kept on the same
+line.
+
+    <#            ¦                   ->       <#            ¦
+    .PARAMETER LongParameterName               .PARAMETER LongParameterName
+        aaaaa bbbbb                                aaaaa     ¦
+        ccc       ¦                                bbbbb ccc ¦
+    #>            ¦                            #>            ¦
+
+Each section has its own independent indent. The indent is determined by the
+first line of text in the section.
+
+    # .SYNOPSIS    ¦      ->      # .SYNOPSIS    ¦
+    #      aaa bbb ccc            #      aaa bbb ¦
+    #     ddd      ¦              #      ccc ddd ¦
+
+    <#             ¦      ->      <#             ¦
+      .SYNOPSIS    ¦                .SYNOPSIS    ¦
+           aaa bbb ccc                   aaa bbb ¦
+          ddd      ¦                     ccc ddd ¦
+    #>             ¦              #>             ¦
 
 
 ## Example sections ##

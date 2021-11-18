@@ -33,18 +33,30 @@ Also some commands (eg *item*), will always keep a line break before them.
     \item Item three               three          ¦
     \end{enumerate}¦               \end{enumerate}¦
 
+`\[` and `$$` should, like most other commands, preserve a line break before.
+
+    a b c   ¦      ->      a b c d ¦
+    d e     ¦              e       ¦
+    \[ \]   ¦              \[ \]   ¦
+
+    a b c   ¦      ->      a b c d ¦
+    d e     ¦              e       ¦
+    $$ $$   ¦              $$ $$   ¦
+
 
 A line break will also be kept after a line break command (*\\\\*, *\newline*
 etc.). Eg:
 
-    a b c d e f     ¦      ->      a b c d e f g h ¦
+    a b c d e f     ¦              a b c d e f g h ¦
     g h i j \\      ¦              i j \\          ¦
     a b c d e f     ¦              a b c d e f g h ¦
     g h i \\newline ¦              i \\newline     ¦
     a               ¦              a b             ¦
-    b \\linebreak[4]¦              \\linebreak[4]  ¦
-    a               ¦              a               ¦
-
+    b \\linebreak[4]¦      ->      \\linebreak[4]  ¦
+    aaaaaaa         ¦              aaaaaaa bbbbbbb ¦
+    bbbbbbb \\*     ¦              \\*             ¦
+    aaaaaaa         ¦              aaaaaaa bbbbbbb ¦
+    bbbbbbb \\[2in] ¦              \\[2in]         ¦
 
 ## Preserved sections ##
 
@@ -63,6 +75,44 @@ wrapping. Text before/after it is wrapped normally.
 This also applies to *alltt*, and source code environments *listing* and
 *lstlisting*, as well as all * variants. Note: to get this behavior, the
 `\begin{...}` command must be alone on a line and not inline within a paragraph.
+
+    a b c d e f g h   ¦      ->      a b c d e f g h i ¦
+    i j               ¦              j                 ¦
+    \begin{align*}    ¦              \begin{align*}    ¦
+        a             ¦                  a             ¦
+        b             ¦                  b             ¦
+    \end{align*}      ¦              \end{align*}      ¦
+    a b c d e f g h   ¦              a b c d e f g h i ¦
+    i j               ¦              j                 ¦
+
+The shortcuts `\( \[ $ $$` also create a preserved section.
+
+    a b c d e f g h   ¦      ->      a b c d e f g h i ¦
+    i j               ¦              j                 ¦
+    \(                ¦              \(                ¦
+        a             ¦                  a             ¦
+        b             ¦                  b             ¦
+    \)                ¦              \)                ¦
+    a b c d e f g h   ¦      ->      a b c d e f g h i ¦
+    i j               ¦              j                 ¦
+    \[                ¦              \[                ¦
+        a             ¦                  a             ¦
+        b             ¦                  b             ¦
+    \]                ¦              \]                ¦
+    a b c d e f g h   ¦              a b c d e f g h i ¦
+    i j               ¦              j                 ¦
+    $                 ¦              $                 ¦
+        a             ¦                  a             ¦
+        b             ¦                  b             ¦
+    $                 ¦              $                 ¦
+    a b c d e f g h   ¦              a b c d e f g h i ¦
+    i j               ¦              j                 ¦
+    $$                ¦              $$                ¦
+        a             ¦                  a             ¦
+        b             ¦                  b             ¦
+    $$                ¦              $$                ¦
+    a b c d e f g h   ¦              a b c d e f g h i ¦
+    i j               ¦              j                 ¦
 
 
 ### Math sections ###
@@ -95,5 +145,18 @@ Line comments begin with a `%`
     % one two       ¦      ->      % one two three ¦
     % three four    ¦              % four          ¦
 
-End-of-line comments are not supported yet. (They are just wrapped with the text
-before them).
+In general, like for all languages, end-of-line comments are not properly
+supported. But a line-break after comment that comes after text on the same line
+will be preserved.
+
+    a b c d e f g h   ¦      ->      a b c d e f g h i ¦
+    i j % z y x       ¦              j % z y x         ¦
+    k l m             ¦              k l m             ¦
+
+Long comments cannot yet be wrapped, however. If too long, they will be put on
+the next line.
+
+    a b c d e f g h   ¦          ->      a b c d e f g h i ¦
+    i j % z y x w v u t s r              j                 ¦
+    k l m                                % z y x w v u t s r
+                      ¦                  k l m             ¦

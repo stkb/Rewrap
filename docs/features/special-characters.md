@@ -1,7 +1,24 @@
-# East Asian Characters #
+# Special characters
+
+Wrapping should work with any characters.
+
+> language: "markdown"
+
+    я я я      ->      я я ¦
+    я   ¦              я я ¦
+
+> language: "csharp"
+
+    // я я я      ->      // я я ¦
+    // я   ¦              // я я ¦
+
+
+## East Asian characters
 
 East Asian (CJK) languages are also supported. Most CJK glyphs take up two
 columns, and wrapping can come after most characters.
+
+> language: markdown
 
 Chinese
 
@@ -18,10 +35,13 @@ In Korean, lines are split on spaces
     힘차게        ¦      ->      힘차게 이상   ¦
     이상 사랑의   ¦              사랑의        ¦
 
-Some characters may not appear at the start or end of a line (this applies to
-all text in all languages)
+Some characters may not appear at the start of a line (this applies to all text in all
+languages):
 
-Cannot start a line: })]?,;¢°′″‰℃、。｡､￠，．：；？！％・･ゝゞヽヾーァィゥェォッャュョヮヵヶぁぃぅぇぉっゃゅょゎゕゖㇰㇱㇲㇳㇴㇵㇶㇷㇸㇹㇺㇻㇼㇽㇾㇿ々〻ｧｨｩｪｫｬｭｮｯｰ”〉》」』】〕）］｝｣
+```
+})]?,;¢°′″‰℃、。｡､￠，．：；？！％・･ゝゞヽヾーァィゥェォッャュョヮヵヶぁぃぅぇぉっゃゅょゎゕゖ
+ㇰㇱㇲㇳㇴㇵㇶㇷㇸㇹㇺㇻㇼㇽㇾㇿ々〻ｧｨｩｪｫｬｭｮｯｰ”〉》」』】〕）］｝｣
+```
 
     ああああぁあ      ->      あああ   ¦
              ¦                あぁあ   ¦
@@ -31,7 +51,7 @@ Unless there was a space before
     ああああ ぁあ      ->      ああああ ¦
              ¦                 ぁあ     ¦
 
-Cannot end a line: ([{‘“〈《「『【〔（［｛｢£¥＄￡￥＋
+And some may not end a line: `([{‘“〈《「『【〔（［｛｢£¥＄￡￥＋`
 
     诶诶诶《诶诶诶      ->      诶诶诶   ¦
              ¦                  《诶诶诶 ¦

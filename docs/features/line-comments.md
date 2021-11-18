@@ -1,3 +1,5 @@
+# Line comments
+
 A comment block is taken from consecutive lines that have the line comment
 marker (in the case of C: `//`) at the start of the line, with only whitespace
 before it. Comments at the end of lines with other text in front of them are
