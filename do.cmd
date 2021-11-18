@@ -1,1 +1,1 @@
-@node do %*
+@node --input-type=module - %* < ./do

@@ -8,7 +8,7 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "label": "Build extension"
+            "label": "Build extension",
         },
         {
             "type": "shell",
