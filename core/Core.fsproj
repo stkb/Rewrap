@@ -21,6 +21,7 @@
     <Compile Include="Parsing_Internal.fs" />
     <Compile Include="Parsing_SourceCode.fs" />
     <Compile Include="Parsers_Markdown.fs" />
+    <Compile Include="Parsers_RST.fs" />
     <Compile Include="Parsing.Core.fs" />
     <Compile Include="Parsing.Markdown.fs" />
     <Compile Include="Parsing.Comments.fs" />

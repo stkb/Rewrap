@@ -195,10 +195,9 @@ let mutable languages = [
     // will be added to those without, possibly adding those lines to documentation where
     // it wasn't intended.
     lang "PureScript" "" ".purs" <| sc [line "--\s*\|"; line "--"; block ("{-\s*\|?", "-}")]
-    lang "Python" "" ".py" <| sc [line "#"; block (@"(.*?)""""""", "\"\"\""); block (@"(.*?)'''", "'''")]
+    lang "Python" "" ".py" <| sc [line "#"; block' ("","") (@"(.*?)""""""", "\"\"\"") rst; block' ("","") (@"(.*?)'''", "'''") rst]
     lang "R" "" ".r" <| sc [line "#'?"]
-    lang "reStructuredText" "" ".rst|.rest"
-        plainText
+    lang "reStructuredText" "" ".rst|.rest" <| docOf rst
     lang "Ruby" "" ".rb" <| sc [line "#"; block ("=begin", "=end")]
     lang "Rust" "" ".rs" <| sc [line @"//[/!]?"]
     lang "SCSS" "" ".scss"

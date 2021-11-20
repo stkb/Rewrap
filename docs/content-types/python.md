@@ -1,3 +1,5 @@
+# Python
+
 > language: "python"
 
 Whole paragraphs of text can be written between triple " or '
@@ -93,3 +95,22 @@ Strings on one line are wrapped too,
 
 Though these should maybe be left alone in a large (eg whole-document)
 selection, and only wrapped if explicitly asked
+
+
+## reStructuredText
+
+The content of Python docstrings is reStructuredText.
+
+    """                 ¦                     """                 ¦
+    :Author: Me         ¦                     :Author: Me         ¦
+    :version: 1         ¦                     :version: 1         ¦
+                        ¦                                         ¦
+    term                ¦                     term                ¦
+        definition      ¦              ->         definition text ¦
+        text text       ¦                         text            ¦
+                        ¦                                         ¦
+    ::                  ¦                     ::                  ¦
+                        ¦                                         ¦
+      literal           ¦                       literal           ¦
+      block             ¦                       block             ¦
+    """                 ¦                     """                 ¦

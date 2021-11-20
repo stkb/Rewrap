@@ -9,3 +9,5 @@ let ignoreAll : ContentParser =
   fun _ctx -> parseLine
 
 let markdown ctx = Parsers_Markdown.markdown ctx
+
+let rst ctx = Parsers_RST.rst ctx
