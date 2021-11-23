@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.Shell;
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Threading;
 
@@ -28,10 +27,10 @@ namespace VS
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
     [ProvideMenuResource("Menus.ctmenu", 1)]
-    [Guid(RewrapPackage.GuidString)]
+    [Guid(GuidString)]
     [ProvideOptionPage(typeof(Options.OptionsPage), "Rewrap", "Rewrap", 0, 0, true, new string[] { "column", "wrapping" })]
     [ProvideAutoLoad(Microsoft.VisualStudio.Shell.Interop.UIContextGuids80.NoSolution, PackageAutoLoadFlags.BackgroundLoad)]
-    public sealed class RewrapPackage : Microsoft.VisualStudio.Shell.AsyncPackage
+    public sealed class RewrapPackage : AsyncPackage
     {
         /// Guid for the package
         public const string GuidString = "97d91fdc-1781-499d-97f6-31501ae81702";
