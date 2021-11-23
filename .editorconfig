@@ -1,0 +1,13 @@
+[*]
+end_of_line=lf
+guidelines = 90 1px solid 77777799
+
+[*.{cs,fs}]
+indent_style = space
+insert_final_newline=true
+
+[*.cs]
+tab_width=4
+
+[*.fs]
+tab_width=2
