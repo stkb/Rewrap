@@ -62,11 +62,12 @@ namespace VS
             var file = new File(GetLanguage(textBuffer), GetFilePath(textBuffer), () => Core.noCustomMarkers);
             var options = OptionsPage.GetOptions(file);
 
-            int[] rulers;
-            if (options.WrappingColumn.HasValue)
-                rulers = new[] { options.WrappingColumn.Value };
-            else if ((rulers = GetRulers()).Length == 0)
-                rulers = new[] { 80 };
+            int[] ifNotEmpty (int[] x) { return x.Length > 0 ? x : null; }
+            var rulers =
+                (options.WrappingColumn.HasValue ? new[] { options.WrappingColumn.Value } : null)
+                ?? ifNotEmpty (GetRulersFromEditor(textView))
+                ?? ifNotEmpty (GetRulersFromRegistry())
+                ?? new[] { 80 };
 
             return new Settings
                 ( getColumn(rulers)
@@ -208,9 +209,28 @@ namespace VS
 
         static OptionsPage _OptionsPage;
 
+        /// Gets rulers added as adornments in the editor by the Editor
+        /// Guidelines extension. These are added by that extension if they are
+        /// set in .editorconfig, and in that case are not added to the registry
+        static int[] GetRulersFromEditor(IWpfTextView textView)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            try
+            {
+                return textView.GetAdornmentLayer("ColumnGuide").Elements
+                    .Select(x => {
+                        var data = (x.Adornment as System.Windows.Shapes.Line).DataContext;
+                        return (int)data.GetType().GetProperty("Column").GetValue(data);
+                    })
+                    .ToArray();
+            }
+            catch { return Array.Empty<int>(); }
+        }
+
         /// Gets editor rulers (guides) from the registry. Returns an empty array if none
         /// are set.
-        static int[] GetRulers()
+        static int[] GetRulersFromRegistry()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -242,7 +262,7 @@ namespace VS
 
                 return rulers;
             }
-            else return new int[0];
+            else return Array.Empty<int>();
 
         }
     }
