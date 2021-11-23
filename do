@@ -106,6 +106,7 @@ function getSetVersion ()
 
   function replaceInFile (path, re, rep) {
     const cnt = FS.readFileSync (path, 'utf8'), match = cnt.match(re)
+    if (!match) return;
     FS.writeFileSync (path, cnt.replace(match[0], match[0].replace(match[1], rep)))
   }
 }
@@ -113,7 +114,7 @@ function getSetVersion ()
 
 function publish () {
   let stats
-  try { stats = FS.statSync(vscodeVsix) } catch { 
+  try { stats = FS.statSync(vscodeVsix) } catch {
     exit (1, `No VSIX file at ${vscodeVsix}. Run './do package' and test the VSIX file first.`)
   }
   if(stats.mtimeMs < (new Date()).valueOf() - 600000)
@@ -178,7 +179,7 @@ function buildCore ({production} = {}) {
   const paj = x => `.obj/.net/${x}/project.assets.json`
   if (notExists (paj ('core'), paj ('test')))
     run ("Restoring dependencies", "dotnet restore core/Core.Test.fsproj")
-  
+
   const fableArgs = 'core/Core.Test.fsproj -o core/dist/dev --noRestore'
 
   if (watch) {
