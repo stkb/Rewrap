@@ -1,6 +1,10 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
 
+### 1.15.4
+- Support svelte files (HTML) (#243, #299).
+
+
 ### 1.15.3
 - VSCode: support untrusted workspaces (#292).
 - VSCode: Fix crash when a language extension provides a line- but no block comment marker.
