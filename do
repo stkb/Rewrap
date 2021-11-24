@@ -187,7 +187,14 @@ function buildCore ({production} = {}) {
     runAsync ("Fable watching...", cmd)
   }
   else {
-    if (outdated (coreTestDev, 'core')) run ("Building with Fable", `dotnet fable ${fableArgs}`)
+    if (outdated (coreTestDev, 'core')) {
+      const output = run ("Building with Fable", `dotnet fable ${fableArgs}`)
+      const warnings = output.split(/\r?\n/).filter(s => s.includes("warning"))
+      if (warnings.length) {
+        warnings.forEach(w => console.error (w))
+        exit (1)
+      }
+    }
     if (production && outdated (coreProd, 'core')) run ("Parcel bundling Core", parcel `build core`)
   }
 }
@@ -265,8 +272,9 @@ function run (msg, cmd, {cwd, showOutput} = {}) {
   if (verbose) { log (cmd); if (cwd) log("cwd: " + cwd) }
 
   try {
-    const output = CP.execSync(cmd, {encoding: 'utf8', cwd})
-    if (showOutput || verbose) console.log (output.trimEnd())
+    const output = CP.execSync(cmd, {encoding: 'utf8', cwd}).trimEnd()
+    if (showOutput || verbose) console.log (output)
+    return output
   }
   catch (err) {
     console.error (`Error running: ${cmd}`)
