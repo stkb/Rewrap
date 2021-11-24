@@ -216,8 +216,17 @@ let applyEdit (edit: Edit) (oldLines: Lines) : Lines =
 
 /// Prints details of a test failure with input, expected and actual columns
 let printFailure (test: Test) (actual: Lines) =
-  eprintfn "Failed: %A" test.fileName
-  eprintfn "%s %A" test.language test.settings
+  let settings = [
+    test.language
+    if test.settings.tabWidth <> 4 then "tabWidth: " + test.settings.tabWidth.ToString() else ""
+    if test.settings.doubleSentenceSpacing then "doubleSentenceSpacing: true " else ""
+    if test.settings.reformat then "reformat: true " else ""
+    if not test.settings.wholeComment then "wholeComment: false" else ""
+  ]
+
+  eprintfn "\nFailed: %s %s\n"
+    (test.fileName.Substring(test.fileName.IndexOf("/docs/") + 6))
+    (String.Join (' ', List.filter ((<>) "") settings))
   let width = test.settings.column
   let colWidth = width + 10
   let print (cols: string[]) =
@@ -277,7 +286,7 @@ let main argv =
         Option.fold run (run acc test) maybeReformatTest
 
     | Error (fileName, lines, err) ->
-        eprintfn "Error: %A" err
+        eprintfn "\nError: %A" err
         eprintfn "%s" fileName
         eprintfn "==%s==" "Input"
         Seq.iter (eprintfn "%s") lines
