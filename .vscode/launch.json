@@ -12,10 +12,10 @@
             "preLaunchTask": "Build extension"
         },
         {
-            "name": "Spec Tests",
+            "name": "Core Tests",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceFolder}/core/bin/Debug/js/Tests.js",
+            "program": "${workspaceFolder}/core/test",
             "args": [],
             "preLaunchTask": "Build extension"
         },
