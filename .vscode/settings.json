@@ -7,5 +7,26 @@
         "**/obj/": true,
         "packages/": true,
         "fable": true
+    },
+    "editor.rulers": [
+        {
+            "column": 90,
+            "color": "#7779"
+        }
+    ],
+    "[markdown]": {
+        "editor.rulers": [
+            {
+                "column": 90,
+                "color": "#7779"
+            },        {
+                "column": 39,
+                "color": "#7773"
+            },
+            {
+                "column": 46,
+                "color": "#7773"
+            }
+        ]
     }
 }

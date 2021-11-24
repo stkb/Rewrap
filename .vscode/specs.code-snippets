@@ -1,0 +1,21 @@
+{
+	"Test (use overtype)": {
+		"prefix": "test",
+		"description": "Spec test template",
+		"scope": "markdown",
+		"body": [
+			"    $0                                          ",
+			"                                              ",
+			"                                              ",
+			"                                              ",
+			"                                              ",
+			"                                              ",
+		]
+	},
+	"Wrap marker": {
+		"prefix": "wm",
+		"description": "Wrap marker",
+		"scope": "markdown",
+		"body": "¦",
+	}
+}
