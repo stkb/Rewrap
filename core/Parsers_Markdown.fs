@@ -148,6 +148,22 @@ let private blockquote : TryNewParser =
   fun line -> findMarker line |> map (container id findMarker ctx)
 
 
+/// Footnote container (not in commonmark)
+let private footnote : TryNewParser =
+  fun ctx ->
+  let testLineIndent (line: Line) : Option<Line> =
+    let minIndent = 4
+    if not (isBlankLine line) && indentLength line < minIndent then None
+    else Some (Line.adjustSplit minIndent line)
+
+  fun line -> option {
+    let! m = tryMatch (mdMarker "(\[\^\S+?\]:)( +)") line
+    let prefixFn = blankOut' line.split m.[0].Length 0 "    "
+    let line = Line.adjustSplit m.[0].Length line
+    return container prefixFn (testLineIndent) ctx line
+  }
+
+
 /// List item container
 let private listItem : TryNewParser =
   fun ctx ->
@@ -172,7 +188,7 @@ let private listItem : TryNewParser =
 
 /// List of blocks that can interrupt a paragraph
 let private paraTerminators : List<TryNewParser> =
-  [blockquote; atxHeading; listItem; fencedCode; htmlType1To6; nonText]
+  [blockquote; atxHeading; footnote; listItem; fencedCode; htmlType1To6; nonText]
 
 
 /// list of all blocks except default paragraph
