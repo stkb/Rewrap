@@ -1,4 +1,4 @@
-module internal Line
+module Line
 
 // This file is a mixture of convenience functions for strings (older code) and
 // the new Line type.
@@ -88,26 +88,36 @@ let strWidth' : int -> int -> string -> int =
 let strWidth : int -> string -> int = strWidth' 0
 
 
-/// An object that represents a line, divided into prefix and content. This is
-/// context-sensitive; eg first comment markers may be parsed and put into the
-/// prefix, and then later markdown blockquote markers may by added to the
-/// prefix, and the rest of the content parsed.
-type Line(prefix: string, content: string) =
-  member _.prefix = prefix
-  member _.content = content
+/// New Line type. An object that represents a line, divided into prefix and
+/// content. This is context-sensitive; eg first comment markers may be parsed
+/// and put into the prefix, and then later markdown blockquote markers may by
+/// added to the prefix, and the rest of the content parsed.
+type Line (p: string, c: string) =
 
+  member _.prefix = p
+  member _.content = c
+
+  // Constructors
+  new(line: Line) = Line(line.prefix, line.content)
+  /// If splitAt is greater than the string's length then it's taken as equal
   new(str: string, splitAt: int) =
+    let splitAt = min splitAt str.Length
     Line(str.Substring(0, splitAt), str.Substring(splitAt))
   private new(line: Line, splitAt: int) =
     Line(line.prefix + line.content, splitAt)
 
-  static member adjustSplit : int -> Line -> Line =
-    fun d line ->
+  /// The number of chars before the split
+  member _.split = p.Length
+
+
+
+  /// Increases the split position by the given number of chars
+  static member adjustSplit : int -> Line -> Line = fun d line ->
     if line.content = "" then line else Line(line, line.prefix.Length + d)
 
-  // Returns a new line with the leftLength adjusted so that whitespace is
-  // trimmed up to the given indent, where possible. Indent is absolute for
-  // the line, not relative to the current left
+  /// Returns a new line with the prefix length adjusted so that whitespace is
+  /// trimmed up to the given indent, where possible. Indent is absolute for
+  /// the line, not relative to the current prefix position
   static member trimUpTo : int -> Line -> Line =
     fun indent line ->
     let trimmed = line.content.TrimStart()
@@ -119,6 +129,15 @@ type Line(prefix: string, content: string) =
   static member mapLeft : (string -> string) -> Line -> Line =
     fun fn line -> Line(fn line.prefix, line.content)
 
+  static member bimap : (string -> string) -> (string -> string) -> Line -> Line =
+    fun f g line -> Line(f line.prefix, g line.content)
+
   override this.ToString() = this.prefix + this.content
 
   static member toString : Line -> string = fun line -> line.ToString()
+
+  // These for compatibility with old new code
+
+  /// Applies a function to the content part of the line and returns the
+  /// result of that function
+  static member onContent fn (line: Line) = fn (line.content)

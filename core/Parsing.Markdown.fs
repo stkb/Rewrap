@@ -3,10 +3,12 @@ module internal rec Parsing.Markdown
 open System.Text.RegularExpressions
 open Prelude
 open Rewrap
-open Block
+open Parsing_
 open Parsing.Core
 
+type private Lines = Nonempty<string>
 
+/// Old markdown parser. Still needed for within comments, until that code is updated
 let rec markdown (settings: Settings): TotalParser<string> =
 
     let shrinkIndentTo n (lines: Lines) : Lines =

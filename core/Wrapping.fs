@@ -1,4 +1,4 @@
-module internal Wrapping
+module Wrapping
 
 open Prelude
 open Rewrap
@@ -43,11 +43,13 @@ let addSpaceBetweenChars c1 c2 = if isCJ c1 || isCJ c2 then false else true
 /// Concatenates lines into a single string, adding the right amount of
 /// whitespace inbetween where necessary
 let concatLines doubleSentenceSpacing lines =
+  let stops = [| 0x2Eus; 0x3Fus; 0x21us |]
   let addLine (acc: string) (line: string) =
-    let stops = [| 0x2Eus; 0x3Fus; 0x21us |]
+    // Shouldn't be getting empty strings in this function but just in case...
+    if line = String.Empty || acc = String.Empty then acc else
     let acc = acc.TrimEnd()
     let accEnd = uint16 acc.[acc.Length-1]
-    let space = 
+    let space =
       if doubleSentenceSpacing && Array.contains accEnd stops then "  " else " "
     if addSpaceBetweenChars accEnd (uint16 line.[0]) then acc + space + line else acc + line
   List.reduce addLine (Nonempty.toList lines)
@@ -118,14 +120,24 @@ type OutputBuffer(settings : Settings) =
     if this.IsEmpty then startLine <- startLine + size lines
     else this.noWrap lines
 
+  member _.noWrap (lines: Line Nonempty) =
+    let consumed, newOutputLines =
+      lines |> Seq.fold (fun (c, ls) l -> (c + 1, (l.prefix + l.content) :: ls)) (0, outputLines)
+    linesConsumed <- linesConsumed + consumed
+    outputLines <- newOutputLines
+
   member _.noWrap (lines: string Nonempty) =
     let consumed, newOutputLines =
       lines |> Seq.fold (fun (c, ls) l -> (c + 1, l :: ls)) (0, outputLines)
     linesConsumed <- linesConsumed + consumed
     outputLines <- newOutputLines
 
-  member this.wrap (lines: Line Nonempty) =
+  member this.wrap (mbPrefixFn: (string -> string) option, lines: Line Nonempty) =
     let prefixes = lines |> map (fun l -> l.prefix)
+    let prefixes =
+      match mbPrefixFn, prefixes with
+      | Some fn, Nonempty (h, []) -> h .@ [fn h]
+      | _ -> prefixes
     let contents = lines |> map (fun l -> l.content)
     this.wrap (prefixes, contents)
 

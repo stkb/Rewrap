@@ -5,11 +5,15 @@ module internal Parsing.DocComments
 open Prelude
 open Rewrap
 open Block
+open Parsers
+open Parsing_
 open Parsing.Core
-open Markdown
 open Sgml
 open System.Text.RegularExpressions
 
+type private Lines = Nonempty<string>
+
+let private markdown = Parsing.Markdown.markdown
 
 /// Splits lines into sections which start with lines matching the given regex.
 /// For each of those sections, the matchParser is applied to turn the lines
@@ -47,7 +51,7 @@ let javadoc =
     let replaceSpace (m: Match) = m.Value.Replace(' ', '\000')
     map (fun s -> inlineTagRegex.Replace(s, replaceSpace)) >> markdown settings
 
-  let matchParser (m: Match) = 
+  let matchParser (m: Match) =
     if Line.isBlank (m.Groups.Item(2).Value) then
       if m.Groups.Item(1).Value.ToLower() = "example" then
         (fun _ -> ignoreBlock >> singleton)
@@ -109,7 +113,7 @@ let godoc settings =
         |> repeatToEnd
 
 let xmldoc =
-    let blank _ = Nonempty.singleton << ignoreBlock
+    let blank = docOf ignoreAll
     let blockTags =
         [| "code"; "description"; "example"; "exception"; "include"
            "inheritdoc"; "list"; "listheader"; "item"; "para"; "param"

@@ -2,7 +2,8 @@ module Rewrap.Core
 
 open System
 open Prelude
-open Wrapping
+open Line
+open Parsing_
 open Parsing.Language
 open Parsing.Documents
 open Columns
@@ -23,15 +24,15 @@ let languages : string[] =
 
 /// The main rewrap function, to be called by clients
 let rewrap file settings selections (getLine: Func<int, string>) =
-    let parser = Parsing.Documents.select file
-    let linesList =
-        Seq.unfold
-            (fun i -> Option.ofObj (getLine.Invoke(i)) |> Option.map (fun l -> (l,i+1)))
-            0
-            |> Nonempty.fromSeqUnsafe
-    linesList
-        |> parser settings
-        |> Selections.wrapSelected linesList selections settings
+    let processor = Parsing.Documents.select file
+    let mkLine i =
+      getLine.Invoke(i) |> Option.ofObj |> Option.map (fun l -> (l,i+1))
+    let strLines = Seq.unfold mkLine 0 |> Nonempty.fromSeqUnsafe // Can we get rid of this?
+    let lines = strLines |> Seq.map (fun s -> Line("", s))
+    let ctx = Context(settings)
+    processor ctx lines
+    Selections.wrapSelected strLines selections ctx
+
 
 let strWidth tabSize str = Line.strWidth tabSize str
 

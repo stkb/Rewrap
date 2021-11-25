@@ -4,10 +4,12 @@ open Prelude
 open Nonempty
 open Rewrap
 open Block
+open Parsing_
 open Parsing.Core
 open System.Text.RegularExpressions
 
 
+let private markdown = Parsing.Markdown.markdown
 
 let private newlineRegex: Regex =
     Regex
@@ -74,7 +76,7 @@ let private commandRegex: Regex =
         )
 
 
-let private findPreserveSection beginMarker : Lines -> Blocks * Option<Lines> =
+let private findPreserveSection beginMarker : Nonempty<string> -> Blocks * Option<Nonempty<string>> =
 
     let endMarker =
         if beginMarker = "$" || beginMarker = "$$" then beginMarker
@@ -109,7 +111,7 @@ let latex (settings: Settings) : TotalParser<string> =
 
     /// Checks the first line of a block of lines to see what sort of command it
     /// starts with, and outputs the corresponding block.
-    let rec command (Nonempty(headLine, tailLines) as lines) : Option<Blocks * Option<Lines>> =
+    let rec command (Nonempty(headLine, tailLines) as lines) : Option<Blocks * Option<Nonempty<string>>> =
         let trimmedLine = headLine |> String.trim
         let cmdMatch = commandRegex.Match(trimmedLine)
         let cmdName, cmdArg, isWholeLine =
@@ -145,7 +147,7 @@ let latex (settings: Settings) : TotalParser<string> =
             None
 
     /// Plain paragraph parser for paragraphs that don't start with commands
-    and plainText: Lines -> Blocks =
+    and plainText: Nonempty<string> -> Blocks =
         let freezeAnyEOLComment (str: string) =
             let m = Regex(@"[^\\]%").Match(str)
             if not m.Success then str else
@@ -160,7 +162,7 @@ let latex (settings: Settings) : TotalParser<string> =
     and otherParsers =
         tryMany [
             blankLines
-            Comments.lineComment Markdown.markdown "%" settings
+            Comments.lineComment markdown "%" settings
             command
         ]
 

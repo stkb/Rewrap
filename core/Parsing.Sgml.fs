@@ -1,11 +1,14 @@
 module internal Parsing.Sgml
 
 open Prelude
+open Line
+open Parsing_
 open Block
 open Rewrap
 open Parsing.Core
 open System.Text.RegularExpressions
 
+let private markdown = Parsing.Markdown.markdown
 
 let inline private regex str =
     Regex(str, RegexOptions.IgnoreCase)
@@ -17,13 +20,18 @@ let private cssMarkers =
     (regex "<style", regex "</style>")
 
 let sgml
-    (scriptParser: Settings -> TotalParser<string>)
-    (cssParser: Settings -> TotalParser<string>)
+    (scriptParser: DocumentProcessor)
+    (cssParser: DocumentProcessor)
     (blockTags: seq<string>)
     (settings: Settings)
     : TotalParser<string> =
 
-    let embeddedScript (markers: Regex * Regex) contentParser =
+    let embeddedScript (markers: Regex * Regex) (contentParser: DocumentProcessor) =
+        let runContent lines : Blocks =
+          let ctx = Context(settings)
+          contentParser ctx (Seq.map (fun (l: string) -> Line("", l)) lines)
+          ctx.getBlocks ()
+
         let afterFirstLine _ lines =
             let (Nonempty(lastLine, initLinesRev)) = Nonempty.rev lines
             if (snd markers).IsMatch(lastLine) then
@@ -31,10 +39,10 @@ let sgml
                     | Some middleLines ->
                         Nonempty.snoc
                             (ignoreBlock (Nonempty.singleton (Nonempty.last lines)))
-                            (contentParser settings middleLines)
+                            (runContent middleLines)
                     | None ->
                         Nonempty.singleton <| ignoreBlock (Nonempty.singleton (Nonempty.last lines))
-            else contentParser settings lines
+            else runContent lines
 
         optionParser
             (takeLinesBetweenMarkers markers)
@@ -44,9 +52,9 @@ let sgml
         tryMany
             [ blankLines
               Comments.blockComment
-                Markdown.markdown ( "", "" ) ( "<!--", "-->" ) settings
-              embeddedScript scriptMarkers scriptParser
-              embeddedScript cssMarkers cssParser
+                markdown ( "", "" ) ( "<!--", "-->" ) settings
+              embeddedScript scriptMarkers (scriptParser)
+              embeddedScript cssMarkers (cssParser)
             ]
 
     // Checks if a regex contains a block tag name as its first captured group

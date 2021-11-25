@@ -6,6 +6,9 @@ open Prelude
 open Rewrap
 open Line
 open Parsing.Core
+open Parsing_
+
+type private Lines = Nonempty<string>
 
 let extractWrappable
   (marker: string)
@@ -93,7 +96,7 @@ let private splitAtWidth : int -> int -> int -> Line -> Line =
 
 /// Processes lines where the comment that has at least 1 text line, using the
 /// given content parser.
-let private processContent settings contentParser prefix =
+let private processCommentContent settings contentParser prefix =
   let decorationLine (Nonempty((typ, line), rest)) =
     match typ with
       | Decoration ->
@@ -104,6 +107,7 @@ let private processContent settings contentParser prefix =
     Block.splitUp (always prefix) (contentParser settings)
       (lines |> map (fun l -> l.prefix), lines |> map (fun l -> l.content))
   takeUntil decorationLine (map snd >> normalLines) |> repeatToEnd
+
 
 /// Regex that captures whitespace at the beginning of a string
 let private wsRegex = Regex(@"^\s*")
@@ -124,7 +128,7 @@ type CommentFormat =
 /// Takes comment lines from either a line or block comment and parses into
 /// blocks.
 let private inspectAndProcessContent :
-  CommentFormat -> (Settings -> TotalParser<string>) -> Settings -> Blocks =
+   CommentFormat -> (Settings -> TotalParser<string>) -> Settings -> Blocks =
   fun fmt contentParser settings ->
 
   let tabWidth = settings.tabWidth
@@ -189,14 +193,14 @@ let private inspectAndProcessContent :
           singleton typ_line, defaultPrefix
 
   let bodyPrefix = maybeBodyPrefix |? defaultPrefix
-  singleton <| Comment (processContent settings contentParser bodyPrefix lines)
+  singleton <| Comment (processCommentContent settings contentParser bodyPrefix lines)
 
 
 /// Creates a line comment parser, given a content parser and marker.
 let lineComment : (Settings -> TotalParser<string>) -> string -> Settings -> OptionParser<string,string> =
   fun contentParser marker settings ->
 
-  let prefixRegex = Regex(@"^(\s*)" + marker)
+  let prefixRegex = Regex(@"^(\s*)" + marker, RegexOptions.ECMAScript)
   let strWidth = strWidth' 0 settings.tabWidth
 
   /// Tries to match the given line with our comment marker. If it matches,

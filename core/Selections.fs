@@ -1,11 +1,12 @@
 module internal Selections
+#nowarn "25"
 
 open Prelude
 open Rewrap
 open Block
 open Wrapping
 open System
-
+open Parsing_
 
 // Private type used to represent line ranges, both of selections and blocks.
 [<Struct>]
@@ -18,7 +19,7 @@ type private LineRange private (s: int, e: int) =
   static member fromStartEnd startLine endLine = LineRange(startLine, endLine)
 
   static member fromStartLength startLine length = LineRange(startLine, startLine + length - 1)
-  
+
   static member toInfinity startLine = LineRange(startLine, Int32.MaxValue - 1)
 
   static member fromSelection s =
@@ -84,30 +85,45 @@ let private normalizeRanges : LineRange seq -> LineRange list =
   Seq.fold step (None, []) >> (uncurry List.maybeCons) >> List.rev
 
 
-type ParseResult = {startLine : int; originalLines : Lines; blocks : Blocks}
+type ParseResult = {startLine : int; originalLines : Nonempty<string>; blocks : Blocks}
+
 
 /// Process blocks into lines, given the given selections. This might be called
 /// on the subblocks of a comment.
-let rec private processBlocks : OutputBuffer -> Settings -> LineRange list -> ParseResult -> unit =
-  fun output settings selections parseResult ->
+let rec private processBlocks : Context -> LineRange list -> ParseResult -> unit =
+  fun context selections parseResult ->
 
-  // Splits a block into 2 parts at n lines
+  let output, settings = context.output, context.settings
+
+  let (|IsContainer|_|) = function
+    | Comment subBlocks -> Some subBlocks
+    | NBlock (nb, lines) when nb.isContainer ->
+        let ctx = Context(settings) in nb.output ctx lines; Some (ctx.getBlocks ())
+    | _ -> None
+
+  // Splits a block into 2 parts at n lines. Don't have to worry about prefix function
+  // since that only applies to blocks of 1 line, which can't be split.
   let splitBlock n block : (Block * Option<Block>) =
     match block with
+    | IsContainer _ -> raise (Exception("Trying to split a container"))
+    | NBlock (nb, lines) ->
+        let inline mkNewBlock ls = NBlock (nb, ls)
+        Nonempty.splitAt n lines |> bimap mkNewBlock (map mkNewBlock)
     | Wrap ((pHead, pTail), lines) ->
         Nonempty.splitAt n lines |> bimap
-          (fun ls -> Wrap ((pHead, pTail), ls))
-          (map (fun ls -> Wrap ((pTail, pTail), ls)))
+            (fun ls -> Wrap ((pHead, pTail), ls))
+            (map (fun ls -> Wrap ((pTail, pTail), ls)))
     | NoWrap lines -> Nonempty.splitAt n lines |> bimap NoWrap (map NoWrap)
-    | Comment _ -> raise (System.Exception("Not going to split a comment"))
+
 
   // Processes a block as if it were completely selected
   let rec processWholeBlock length origLines block : int * string Nonempty option =
     match block with
+    | IsContainer blocks -> blocks |> Seq.iter (processWholeBlock 1 origLines >> ignore)
+    | NBlock (nb, lines) -> nb.output context lines
     | Wrap ((f, s), lines) -> output.wrap (f .@ [s], lines)
     | NoWrap lines -> output.noWrap lines
-    | Comment subBlocks ->
-        subBlocks |> Seq.iter (processWholeBlock 1 origLines >> ignore)
+
     length, origLines |> Nonempty.splitAt length |> snd
 
   let skipLines count lines : int * string Nonempty Option =
@@ -123,21 +139,35 @@ let rec private processBlocks : OutputBuffer -> Settings -> LineRange list -> Pa
       | None -> skipLines blockLength origLines, None
       | Some sel ->
           match block with
-          | Wrap _ | NoWrap _ ->
-            if hasEmptySelection then processWholeBlock blockLength origLines block, None
-            elif sel.startLine <= start then // First lines of block selected
-              let splitAt = min (sel.endLine - start + 1) blockLength
-              splitBlock splitAt block |> lmap (processWholeBlock splitAt origLines)
-            else // First lines of block not selected
-              let splitAt = sel.startLine - start
-              splitBlock splitAt block |> lmap (fun _ -> skipLines splitAt origLines)
-          | Comment subBlocks ->
+          | IsContainer blocks ->
               if hasEmptySelection && settings.wholeComment then
                 processWholeBlock blockLength origLines block, None
               else
-                let pr = {startLine = start; originalLines = origLines; blocks = subBlocks}
-                processBlocks output settings sels pr
+                let parseRes =
+                  {startLine = start; originalLines = origLines; blocks = blocks}
+                processBlocks context sels parseRes
                 (blockLength, origLines |> Nonempty.splitAt blockLength |> snd), None
+          | NBlock _ ->
+              if hasEmptySelection then processWholeBlock blockLength origLines block, None
+              else
+                let firstPartOrWholeSelected = sel.startLine <= start
+                if firstPartOrWholeSelected then
+                  let splitAt = min (sel.endLine - start + 1) blockLength
+                  splitBlock splitAt block |> lmap (processWholeBlock splitAt origLines)
+                else
+                  let splitAt = sel.startLine - start
+                  splitBlock splitAt block |> lmap (fun _ -> skipLines splitAt origLines)
+          | Wrap _ | NoWrap _ ->
+              if hasEmptySelection then processWholeBlock blockLength origLines block, None
+              else
+                let firstPartOrWholeSelected = sel.startLine <= start
+                if firstPartOrWholeSelected then
+                  let splitAt = min (sel.endLine - start + 1) blockLength
+                  splitBlock splitAt block |> lmap (processWholeBlock splitAt origLines)
+                else
+                  let splitAt = sel.startLine - start
+                  splitBlock splitAt block |> lmap (fun _ -> skipLines splitAt origLines)
+
 
     let nextBlocks = maybe otherBlocks (fun b -> b :: otherBlocks) maybeRemainingPartialBlock
     match Nonempty.fromList nextBlocks with
@@ -151,43 +181,13 @@ let rec private processBlocks : OutputBuffer -> Settings -> LineRange list -> Pa
   loop selections parseResult.startLine parseResult.blocks parseResult.originalLines
 
 
-// let private trimEdit (originalLines: Lines) (edit : Edit) : Edit =
 
-//     let editNotZeroLength x =
-//         edit.endLine - edit.startLine > x && edit.lines.Length > x
+let wrapSelected : Nonempty<string> -> Selection seq -> Context -> Edit =
+  fun originalLines selections context ->
 
-//     let originalLinesArray = originalLines |> Nonempty.toList |> List.toArray
-
-//     let mutable s = 0
-//     while editNotZeroLength s
-//         && originalLinesArray.[edit.startLine + s] = edit.lines.[s]
-//         do s <- s + 1
-
-//     let mutable e = 0
-//     while editNotZeroLength (s + e)
-//         && originalLinesArray.[edit.endLine - e] = edit.lines.[edit.lines.Length - e - 1]
-//         do e <- e + 1
-
-//     { edit with
-//         startLine = edit.startLine + s
-//         endLine = edit.endLine - e
-//         lines = edit.lines |> Array.skip s |> Array.truncate (edit.lines.Length - s - e)
-//     }
-
-
-let wrapSelected : Lines -> Selection seq -> Settings -> Blocks -> Edit =
-  fun originalLines selections settings blocks ->
-
-  let selectionRanges = selections |> Seq.map LineRange.fromSelection |> normalizeRanges
-  let parseResult = {startLine = 0; originalLines = originalLines; blocks = blocks}
-  let outputBuffer = OutputBuffer(settings)
-
-  processBlocks outputBuffer settings selectionRanges parseResult
-  {(outputBuffer.toEdit ()) with selections = Array.ofSeq selections}
-
-    // trimEdit originalLines <|
-    //     { startLine = 0
-    //       endLine = size originalLines - 1
-    //       lines = newLines
-    //       selections = selections
-    //     }
+  let selectionRanges =
+    selections |> Seq.map LineRange.fromSelection |> List.ofSeq |> normalizeRanges
+  let parseResult =
+    {startLine = 0; originalLines = originalLines; blocks = context.getBlocks()}
+  processBlocks context selectionRanges parseResult
+  {(context.output.toEdit ()) with selections = Seq.toArray selections}

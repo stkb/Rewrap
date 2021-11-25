@@ -1,11 +1,10 @@
 ﻿module internal Parsing.Language
 
-open Rewrap
-open Parsing.Core
 open System
+open Parsing_
 
 type Language =
-    private Language of string * array<string> * array<string> * (Settings -> TotalParser<string>)
+    private Language of string * array<string> * array<string> * DocumentProcessor
 
 module Language =
 
@@ -15,7 +14,7 @@ module Language =
     //     they only differ from display name by casing)
     //  3. string of file extensions (including `.`). Used to give support to
     //     files that are not known by the client.
-    //  4. parser
+    //  4. document processor
     //
     // Aliases and extensions are separated by `|`
     let create (name: string) (aliases: string) (exts: string) parser : Language =

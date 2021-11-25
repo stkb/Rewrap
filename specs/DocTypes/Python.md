@@ -87,9 +87,9 @@ Imperfectly, because it's not a full language parser.
 
 Strings on one line are wrapped too,
 
-    var = """a b c"""      ->      var = """a
-    x x x x x x                    b c"""    ¦
-              ¦                    x x x x x x
+    var = """a b c"""      ->      var = """a b
+    x x x x x x                          c"""  ¦
+                ¦                  x x x x x x
 
 Though these should maybe be left alone in a large (eg whole-document)
 selection, and only wrapped if explicitly asked

@@ -1,5 +1,13 @@
 module Prelude
 
+let inline always (b: ^b) (a: ^a) : ^b = b
+let inline flip (f: 'a -> 'b -> 'c) (b: 'b) (a: 'a) = f a b
+
+/// `<|` in F# is left-associative!?. So we create a right-associative version. The '^'
+/// prefix does however put this operator's precedence above <</>>, so we still have to
+/// use parentheses if using it in combination with those.
+let inline (^|) f a = f a
+
 // ================ Pseudo-typeclasses ================ //
 #nowarn "64"
 
@@ -16,6 +24,10 @@ let inline map (f: ^a -> ^b) (x: ^x) =
 let inline (<<|>) f x = map f x
 let inline (<|>>) x f = map f x // This operator sometimes causes issues in Fable?
 
+/// Ignores the value in the functor and uses the specified value instead. The
+/// same as `map (always x)`
+let inline voidRight b x = map (always b) x
+
 /// Bifunctor
 type Bifunctor = Bifunctor with
   static member inline bimap (Bifunctor, f: 'a -> 'b, g: 'c -> 'd, (x: 'a, y: 'c)) = (f x, g y)
@@ -26,6 +38,35 @@ let inline lmap (f: ^a -> ^b) (x: ^x) =
   ((^x or ^Bifunctor): (static member bimap: ^Bifunctor * (^a -> ^b) * (^c -> ^d) * ^x -> ^r) (Bifunctor, f, id, x))
 let inline rmap (g: ^c -> ^d) (x: ^x) =
   ((^x or ^Bifunctor): (static member bimap: ^Bifunctor * (^a -> ^b) * (^c -> ^d) * ^x -> ^r) (Bifunctor, id, g, x))
+
+/// Alt. Can be used to chain Options or functions that return Options
+type Alt = Alt with
+  static member inline alt (Alt, x: Option<'a>, y: Option<'a>) = Option.orElse y x
+  static member inline alt (Alt, x: array<'a>, y: array<'a>) = Array.append x y
+  static member inline alt (Alt, f1: 'a -> bool, f2: 'a -> bool) =
+    fun x -> f1 x || f2 x
+  static member inline alt (Alt, f1: 'a -> Option<'b>, f2: 'a -> Option<'b>) =
+    fun a -> match f1 a with None -> f2 a | r -> r
+  static member inline alt (Alt, f1: 'a -> 'b -> Option<'r>, f2: 'a -> 'b -> Option<'r>) =
+    fun a b -> match f1 a b with None -> f2 a b | r -> r
+
+let inline alt (x: ^a) (y: ^a) =
+  ((^a or ^Alt): (static member alt: ^Alt * ^a * ^a -> ^a ) (Alt, x, y))
+let inline (<|>) x y = alt x y
+
+/// For providing a default value, currently only for Options but could be used for any
+/// monoid. Can be used after an Alt chain.
+type HasDefault = HasDefault with
+  static member inline withDefault (HasDefault, d: 'r, x: Option<'r>) = Option.defaultValue d x
+  static member inline withDefault (HasDefault, fd: 'a -> 'r, f: 'a -> Option<'r>) =
+    fun a -> match f a with None -> fd a | Some r -> r
+  static member inline withDefault (HasDefault, fd: 'a -> 'b -> 'r, f: 'a -> 'b -> Option<'r>) =
+    fun a b -> match f a b with None -> fd a b | Some r -> r
+
+
+let inline orElse (d: ^d) (x: ^x) =
+  ((^x or ^HasDefault): (static member withDefault: ^HasDefault * ^d * ^x -> ^d) (HasDefault, d, x))
+let inline (|?) x d = orElse d x
 
 
 /// Everything with a size/length
@@ -80,14 +121,14 @@ type These<'a, 'b> = This of 'a | That of 'b | These of 'a * 'b
 
 // ================ Other common functions ================ //
 
-let inline always (b: 'a) (a: 'a) : 'a = b
-let inline flip (f: 'a -> 'b -> 'c) (b: 'b) (a: 'a) = f a b
 let inline uncurry (f: ^a -> ^b -> ^c) (a: ^a, b: ^b) = f a b
 
 // Option/Maybe
 let inline fromMaybe (b: 'a) (x: Option<'a>) : 'a = Option.defaultValue b x
-let inline (|?) (x: Option<'a>) (b: 'a) : 'a = Option.defaultValue b x
+let inline fromMaybe' (tb: unit -> 'a) (x: Option<'a>) : 'a = Option.defaultWith tb x
+let inline (||?) (x: Option<'a>) (tb: unit -> 'a) : 'a = fromMaybe' tb x
 let inline maybe (b: 'b) (f: 'a -> 'b) (x: Option<'a>) : 'b = fromMaybe b (map f x)
+let inline maybe' (tb: unit -> 'b) (f: 'a -> 'b) (x: Option<'a>) : 'b = fromMaybe' tb (map f x)
 type OptionBuilder() =
   member _.Bind(x, f) = match x with None -> None | Some a -> f a
   member _.Return(x) = Some x
@@ -167,22 +208,10 @@ let inline tuple a b = a, b
 
 // ================ Common internal types ================ //
 
-type Lines = Nonempty<string>
-
 /// A tuple of two strings. The first represents the prefix used for the first
 /// line of a block of lines; the second the prefix for the rest. Some blocks,
 /// eg a list item or a block comment, will have a different prefix for the
 /// first line than for the rest. Others have the same for both.
 type Prefixes = string * string
 
-type Wrappable =  Prefixes * Lines
-
-type Block = Comment of Blocks | Wrap of Wrappable | NoWrap of Lines
-  with
-  static member size (HasSize, b: Block) =
-    match b with
-      | Comment subBlocks -> subBlocks |> Seq.sumBy (fun b -> Block.size(HasSize, b))
-      | NoWrap lines -> Nonempty.size (HasSize, lines)
-      | Wrap (_, lines) -> Nonempty.size (HasSize, lines)
-
-and Blocks = Nonempty<Block>
+type Wrappable =  Prefixes * Nonempty<string>

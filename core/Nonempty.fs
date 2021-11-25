@@ -1,4 +1,4 @@
-module internal Nonempty
+module Nonempty
 
 open Prelude
 

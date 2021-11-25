@@ -2,6 +2,7 @@ module internal Parsing.Core
 
 open System.Text.RegularExpressions
 open Prelude
+open Parsing_
 open Block
 
 
@@ -117,7 +118,7 @@ let afterRegex : Regex -> SplitFunction<string,string,string> =
 
 
 /// Creates a SplitFunction that splits on indent differences > 2
-let onIndent tabWidth (Nonempty(firstLine, otherLines)): Lines * Option<Lines> =
+let onIndent tabWidth (Nonempty(firstLine, otherLines)): Nonempty<string> * Option<Nonempty<string>> =
 
     let indentSize =
         Line.leadingWhitespace >> Line.tabsToSpaces tabWidth >> String.length
@@ -163,7 +164,7 @@ let ignoreFirstLine otherParser settings (Nonempty(headLine, tailLines)) : Block
 /// separated by difference in indent. There is only one indent for the whole
 /// paragraph, determined from the first line.
 let indentSeparatedParagraphBlock
-    (textType: Wrappable -> Block) (lines: Lines) : Block =
+    (textType: Wrappable -> Block) (lines: Nonempty<string>) : Block =
 
     let prefix =
         Line.leadingWhitespace (Nonempty.head lines)
@@ -177,7 +178,7 @@ let indentSeparatedParagraphBlock
 let takeLinesBetweenMarkers
     (startRegex: Regex, endRegex: Regex)
     (Nonempty(headLine, _) as lines)
-    : Option<Lines * Option<Lines>> =
+    : Option<Nonempty<string> * Option<Nonempty<string>>> =
 
     let takeUntilEndMarker (prefix: string) =
         lines
