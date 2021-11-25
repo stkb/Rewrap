@@ -206,7 +206,7 @@ function buildVSCode({production} = {}) {
   const srcMap = vscodeMain + '.map'
   // Crude way to check if last build was production mode
   const lastBuildProduction = ! FS.existsSync (srcMap)
-  if (production == lastBuildProduction && ! outdated (vscodeMain, vscodeSrc, 'core')) return
+  if (!!production == lastBuildProduction && ! outdated (vscodeMain, vscodeSrc, 'core')) return
 
   if (watch) {
     runAsync ("TypeScript watching...", npx `tsc -w -p vscode --noEmit`)
