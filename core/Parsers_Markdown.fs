@@ -164,6 +164,41 @@ let private footnote : TryNewParser =
   }
 
 
+/// Link reference definition. "Wraps" a single paragraph
+let linkRefDef : TryNewParser =
+  fun ctx ->
+  let rxLabel = mdMarker @"\[\s*\S.*?\]:\s*"
+
+  let rec wrapFLR : FirstLineRes -> FirstLineRes = function
+  | Pending r -> Pending (wrapResultParser nlpWrapper r)
+  | Finished r -> Finished (wrapResultParser (fun _ -> Some flpWrapper) r)
+
+  and flpWrapper line : FirstLineRes =
+    match tryMatch rxLabel line with
+    | Some m -> onMatch line m
+    | None ->
+        match tryParsers paraTerminators ctx line with
+        | Some flr -> flr
+        | None -> defaultPara ctx line |> wrapFLR
+
+  and nlpWrapper paraParser line : NextLineRes =
+    match tryMatch rxLabel line with
+    | Some m -> FinishedOnPrev <| Some (onMatch line m )
+    | None ->
+        match tryParsers paraTerminators ctx line with
+        | None ->
+            match paraParser line with
+            | ThisLine flr -> ThisLine (wrapFLR flr)
+            | FinishedOnPrev r -> FinishedOnPrev r
+        | someParser -> FinishedOnPrev someParser
+
+  and onMatch line (m: string[]) : FirstLineRes =
+    let prefixFn = blankOut' line.split (indentLength line) 0 "    "
+    defaultPara ctx (trimWhitespace line) |> wrapFLR |> wrapPrefixFn prefixFn
+
+  fun line -> tryMatch rxLabel line <|>> onMatch line
+
+
 /// List item container
 let private listItem : TryNewParser =
   fun ctx ->
@@ -193,7 +228,7 @@ let private paraTerminators : List<TryNewParser> =
 
 /// list of all blocks except default paragraph
 let private contentBlocks : List<TryNewParser> =
-  paraTerminators @ [indentedCode]
+  paraTerminators @ [linkRefDef; indentedCode]
 
 
 /// Finds a new block, checking all options and falling back on default paragraph in
