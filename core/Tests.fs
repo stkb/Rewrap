@@ -133,7 +133,7 @@ let readTestLines fileName (settings: TestSettings) lines : Result<Test * Option
     let findOnly b (l: string) =
       if l.EndsWith(keyword) then l.Replace(keyword, ""), true else l, b
     lines |> Array.mapFold findOnly false
-  let inputLines, maybeOutputLines = splitLines "->" lines
+  let inputLines, maybeOutputLines = splitLines " -> " lines
   match maybeOutputLines with
   | None -> error NoOutput
   | Some outputLines ->
