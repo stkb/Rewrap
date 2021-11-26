@@ -223,7 +223,7 @@ let private listItem : TryNewParser =
 
 /// List of blocks that can interrupt a paragraph
 let private paraTerminators : List<TryNewParser> =
-  [blockquote; atxHeading; footnote; listItem; fencedCode; htmlType1To6; nonText]
+  [blankLine; blockquote; atxHeading; footnote; listItem; fencedCode; htmlType1To6; nonText]
 
 
 /// list of all blocks except default paragraph
