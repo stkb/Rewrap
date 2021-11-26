@@ -52,6 +52,10 @@
         "title": "Rewrap Comment / Text"
       },
       {
+        "command": "rewrap.unwrapComment",
+        "title": "Unwrap Comment / Text"
+      },
+      {
         "command": "rewrap.rewrapCommentAt",
         "title": "Rewrap/Unwrap Text At Column..."
       },
