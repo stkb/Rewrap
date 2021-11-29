@@ -30,7 +30,7 @@ const getChangesText = () => {
   let lines = wholeFile.split("\n")
   lines = lines.slice(lines.findIndex(s => s.startsWith("##")) + 1)
   lines = lines.slice(0, lines.findIndex(s => s.startsWith("##")))
-  
+
   // 'Unwrap' for github markdown
   const docType = {path: "", language: "markdown", getMarkers: () => null}
   const settings = {column: 0}
@@ -81,7 +81,7 @@ async function uploadGithubBetaRelease (version, vscVsix, vsVsix) {
   }
 
   // Create new release
-  const release_opts = {name: "v" + version, tag_name: "beta", prerelease: true, 
+  const release_opts = {name: "v" + version, tag_name: "beta", prerelease: true,
                         body: getBetaReleaseText (), ...ownerRepo}
   const release_id = (await github.createRelease(release_opts)).data.id
 
@@ -105,7 +105,7 @@ async function uploadGithubBetaRelease (version, vscVsix, vsVsix) {
 
   uploadGithubBetaRelease
     ( version
-    , {name: `Rewrap-VSCode-${version}.vsix`, path: fromRoot (`vscode/Rewrap-VSCode.vsix`)}
+    , {name: `Rewrap-VSCode-${version}.vsix`, path: fromRoot (`.obj/Rewrap-VSCode.vsix`)}
     , {name: `Rewrap-VS-${version}_${vsVersion}`, path: fromRoot ("vs/bin/Release/Rewrap-VS.vsix")}
     )
 })()
