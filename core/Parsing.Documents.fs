@@ -91,7 +91,7 @@ let mutable languages = [
         )
     lang "Common Lisp" "commonlisp|lisp" ".lisp" <| sc [line ";+"; block (@"#\|", @"\|#")]
     lang "Configuration" "properties" ".conf|.gitconfig" <| configFile
-    lang "Crystal" "" ".cr" <| configFile 
+    lang "Crystal" "" ".cr" <| configFile
     lang "CSS" "postcss" ".css|.pcss|.postcss"
         css
     // Special rules for DDoc need adding
