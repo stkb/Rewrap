@@ -60,10 +60,6 @@ version (**VSCode** or **VS**).
 You can stick with the beta version until the final version is released to \
 the marketplace. When this happens, you'll be automatically upgraded to the \
 released version, and you'll be back to stable versions.
-
-(The version number for the VS version is different because Visual Studio \
-extensions don't support pre-release version numbers. But they are the same \
-version.)
 `
 
 
