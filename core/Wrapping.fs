@@ -87,13 +87,13 @@ let breakUpString addLine tabWidth maxWidth (str: string) =
     if pStr >= str.Length then outputLine prefixes lineStart 0 |> ignore
     else
     let charCode = uint16 str.[pStr]
-    // Skip whitespace at start of line content
-    if pStr = lineStart && isWhitespace charCode then 
-      loop prefixes (lineStart+1) curWidth (pStr+1)
-    else
     let newWidth = curWidth + Line.charWidth tabWidth curWidth charCode
-    if newWidth <= maxWidth then loop prefixes lineStart newWidth (pStr+1) else
-    // Try to find a break position before current position. If we don't find one keep going
+    // If current char is whitespace we don't need to wrap yet. Wait until we come across
+    // a non-whitespace char
+    if newWidth <= maxWidth || isWhitespace charCode then loop prefixes lineStart newWidth (pStr+1)
+    else
+    // We're past the wrapping column. Try to find a break position before current
+    // position. If we don't find one keep going.
     let breakPos = findBreakPos lineStart pStr
     if breakPos <= lineStart then loop prefixes lineStart newWidth (pStr+1) else
     // We found a break pos. Output the line & start the next one
