@@ -214,6 +214,8 @@ let applyEdit (edit: Edit) (oldLines: Lines) : Lines =
     oldLines.[(edit.endLine+1)..]
   ]
 
+let prettyFileName (fileName: string) = fileName.Substring(fileName.IndexOf("/docs/") + 6)
+
 /// Prints details of a test failure with input, expected and actual columns
 let printFailure (test: Test) (actual: Lines) =
   let settings = [
@@ -224,8 +226,7 @@ let printFailure (test: Test) (actual: Lines) =
     if not test.settings.wholeComment then "wholeComment: false" else ""
   ]
 
-  eprintfn "\nFailed: %s %s\n"
-    (test.fileName.Substring(test.fileName.IndexOf("/docs/") + 6))
+  eprintfn "\nFailed: %s %s\n" (prettyFileName test.fileName)
     (String.Join (' ', List.filter ((<>) "") settings))
   let width = test.settings.column
   let colWidth = width + 10
@@ -286,8 +287,7 @@ let main argv =
         Option.fold run (run acc test) maybeReformatTest
 
     | Error (fileName, lines, err) ->
-        eprintfn "\nError: %A" err
-        eprintfn "%s" fileName
+        eprintfn "\nError: %A, %s" err (prettyFileName fileName)
         eprintfn "==%s==" "Input"
         Seq.iter (eprintfn "%s") lines
         { acc with errors = acc.errors + 1 }
