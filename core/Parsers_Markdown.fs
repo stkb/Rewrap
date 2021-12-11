@@ -71,7 +71,7 @@ let private htmlType1To6 : TryNewParser =
     let m = rxStart.Match(line.content)
     if not m.Success then None else Some <| matchEnd rxEnd m.Length line
 
-  let types =
+  let types : List<TryNewParser> =
     [ "<(script|pre|style)( |>|$)", "</(script|pre|style)>"
       "<!--", "-->"
       "<\\?", "\\?>"
@@ -88,7 +88,7 @@ let private htmlType1To6 : TryNewParser =
         + "(\\s|/?>|$)", "^\\s*$" // terminates on a blank line (works)
     ] |> map mkParser
 
-  tryParsers types ctx
+  (tryMany types) ctx
 
 
 /// Code block marked by an at-least-4-space indent
@@ -177,7 +177,7 @@ let linkRefDef : TryNewParser =
     match tryMatch rxLabel line with
     | Some m -> onMatch line m
     | None ->
-        match tryParsers paraTerminators ctx line with
+        match tryParaInterrupters ctx line with
         | Some flr -> flr
         | None -> defaultPara ctx line |> wrapFLR
 
@@ -185,7 +185,7 @@ let linkRefDef : TryNewParser =
     match tryMatch rxLabel line with
     | Some m -> FinishedOnPrev <| Some (onMatch line m )
     | None ->
-        match tryParsers paraTerminators ctx line with
+        match tryParaInterrupters ctx line with
         | None ->
             match paraParser line with
             | ThisLine flr -> ThisLine (wrapFLR flr)
@@ -222,13 +222,13 @@ let private listItem : TryNewParser =
 
 
 /// List of blocks that can interrupt a paragraph
-let private paraTerminators : List<TryNewParser> =
-  [blankLine; blockquote; atxHeading; footnote; listItem; fencedCode; htmlType1To6; nonText]
+let private tryParaInterrupters : TryNewParser =
+  tryMany [|blankLine; blockquote; atxHeading; footnote; listItem; fencedCode; htmlType1To6; nonText|]
 
 
 /// list of all blocks except default paragraph
-let private contentBlocks : List<TryNewParser> =
-  paraTerminators @ [linkRefDef; indentedCode]
+let private tryContentBlocks : TryNewParser =
+  tryParaInterrupters <|> linkRefDef <|> indentedCode
 
 
 /// Finds a new block, checking all options and falling back on default paragraph in
@@ -240,9 +240,9 @@ let private getNewBlock : Context -> Line -> FirstLineRes =
     | Pending r -> Pending (LineRes(r.line, wrapBlock, true, parseOtherLine))
     | Finished r -> Finished (LineRes(r.line, wrapBlock, true, Some parseLineAfterLineBreak))
   and parseLineAfterLineBreak (line: Line) : FirstLineRes =
-    tryParsersElse paragraphFallback contentBlocks ctx line
+    (tryContentBlocks |? paragraphFallback) ctx line
   and parseOtherLine (line: Line) : NextLineRes =
-    match tryParsers paraTerminators ctx line with
+    match tryParaInterrupters ctx line with
     | None -> ThisLine (paragraphFallback ctx line)
     | other -> FinishedOnPrev other
   parseLineAfterLineBreak

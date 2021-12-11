@@ -53,6 +53,7 @@ type Alt = Alt with
 let inline alt (x: ^a) (y: ^a) =
   ((^a or ^Alt): (static member alt: ^Alt * ^a * ^a -> ^a ) (Alt, x, y))
 let inline (<|>) x y = alt x y
+let inline tryMany list = Seq.reduce alt list
 
 /// For providing a default value, currently only for Options but could be used for any
 /// monoid. Can be used after an Alt chain.

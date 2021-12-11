@@ -114,18 +114,6 @@ let nonText : TryNewParser = fun _ctx ->
   fun line -> if isMatch rx line then None else Some (finished_ line noWrapBlock)
 
 
-// Takes a list of parsers and tries them on the given line
-let rec tryParsers : List<TryNewParser> -> TryNewParser =
-  fun list ctx line ->
-  match list with
-    | fn :: rest -> fn ctx line |> Option.orElseWith (fun () -> tryParsers rest ctx line)
-    | [] -> None
-
-
-let tryParsersElse : ContentParser -> List<TryNewParser> -> ContentParser =
-  fun fallback list ctx line -> tryParsers list ctx line ||? fun () -> fallback ctx line
-
-
 //---------- Other ---------------------------------------------------------------------//
 
 

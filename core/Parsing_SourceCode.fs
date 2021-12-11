@@ -264,6 +264,5 @@ let blockComment :
 
 let sourceCode : List<TryNewParser> -> DocumentProcessor =
   fun commentParsers ->
-  let contentParser ctx line =
-    tryParsers commentParsers ctx line |? finished_ line noWrapBlock
+  let contentParser = (tryMany commentParsers |? fun _ line -> finished_ line noWrapBlock)
   docOf contentParser
