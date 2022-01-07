@@ -135,6 +135,23 @@ Can come directly after a paragraph.
     ·~~~       ¦                             ¦
 
 
+## Tables
+
+([details](tables.md))
+
+Tables are not in commonmark, and the minimum that represents a table varies greatly
+between markdown flavors. Therefore Rewrap has quite a permissive specification: a table
+consists of at least two lines containing a `|`, where at least one is a "separator" line
+(`--- | --- | ...`).
+
+    still     | just           ¦      ->      still     | just paragraph ¦
+    paragraph | text           ¦              | text                     ¦
+
+    ---- | ---                 ¦      ->      ---- | ---                 ¦
+    this | is                  ¦              this | is                  ¦
+    a    | table               ¦              a    | table               ¦
+
+
 ## Other
 
 - [HTML](html.md)

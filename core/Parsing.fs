@@ -105,7 +105,7 @@ type NoWrapBlock () =
   override x.output ctx lines : unit = ctx.output.noWrap lines
 
 /// Creates a NoNewWrap block
-let noWrapBlock = NoWrapBlock ()
+let noWrapBlock = NoWrapBlock () :> NewBlock
 
 
 

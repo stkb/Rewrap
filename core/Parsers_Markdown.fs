@@ -106,6 +106,24 @@ let private indentedCode : TryNewParser =
   if isBlankLine line then None
   else match parseLine line with | ThisLine r -> Some r | FinishedOnPrev _ -> None
 
+let private table : TryNewParser =
+  fun _ctx ->
+  let rxCellsRow = mdMarker @"\S.*?[^\\]\|\s*\S"
+  let rxSeparatorRow = mdMarker @"[|:-][ |:-]+$"
+  let isSeparatorRow =
+    Line.onContent ^| fun c -> rxSeparatorRow.IsMatch c && c.Contains "|" && c.Contains "-"
+  let rec parseNext has2Lines hasSeparator (line: Line) =
+    if not (isMatch rxCellsRow line) then
+      if has2Lines && hasSeparator then FinishedOnPrev None
+      else                FinishedOnPrev None
+    else
+    let hasSeparator = hasSeparator || isSeparatorRow line
+    let block = if hasSeparator then noWrapBlock else wrapBlock
+    let next = parseNext true hasSeparator
+    ThisLine ^| Pending ^| LineRes (line, block, not hasSeparator, next)
+  tryMatch' rxCellsRow >> map ^| fun (_, line) ->
+    Pending ^| LineRes (line, wrapBlock, true, parseNext false (isSeparatorRow line))
+
 
 let private thematicBreak : TryNewParser = fun _ctx ->
   let rx = mdMarker @"(?:\*\s*\*\s*(?:\*\s*)+|-\s*-\s*(?:-\s*)+|_\s*_\s*(?:_\s*)+)$"
@@ -240,7 +258,7 @@ let private tryParaInterrupters : TryNewParser =
 /// list of all blocks except setext underline and default paragraph
 let private tryContentBlocks : TryNewParser =
     tryMany [| blankLine; atxHeading; thematicBreak; blockquote; footnote; listItem;
-               fencedCode; htmlType1To6; linkRefDef; indentedCode |]
+               fencedCode; htmlType1To6; linkRefDef; indentedCode; table |]
 
 
 /// Finds a new block, checking all options and falling back on default paragraph in
