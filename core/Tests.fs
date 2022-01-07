@@ -40,7 +40,7 @@ module Native =
   let files =
     let rec readSpecs dir =
       if not (Directory.Exists (dir + "/docs")) then readSpecs (dir + "/..")
-      else Directory.GetFiles(dir + "/docs", "*.md", SearchOption.AllDirectories)
+      else Directory.GetFiles(dir + "/docs/specs", "*.md", SearchOption.AllDirectories)
     readSpecs (Directory.GetCurrentDirectory())
   let readFile p = File.ReadAllLines(p)
 #endif

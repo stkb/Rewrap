@@ -1,0 +1,101 @@
+:root {
+  --md-primary-fg-color: #2b69ab;
+  --md-primary-fg-color--light: #2b69ab;
+  --md-primary-fg-color--light: #2b69ab;
+}
+
+.md-typeset { font-size: 0.75rem }
+
+.md-sidebar { width: 22% }
+.md-nav__title { display: none }
+
+.md-main__inner { margin: 0 }
+
+.md-typeset h1, .md-typeset h2 { font-weight: 500 }
+
+.md-typeset table:not([class]) td { padding: 0.7em 1em }
+.md-typeset table:not([class]) th { padding: 0.5em 1em }
+
+.md-typeset .admonition.json { padding: 0 }
+.md-typeset .admonition.json .highlight { margin-bottom: 0 !important }
+.md-typeset .admonition.json pre { margin: 0 }
+
+.md-typeset :is(ul, ol) li { margin-bottom: 0 }
+
+/* .notification-table {
+  border: .05rem solid var(--md-typeset-table-color);
+  border-radius: .1rem;
+  font-size: .64rem;
+  max-width: 100%;
+  overflow: auto;
+} */
+.notification-table + * thead {
+  display: none;
+}
+.notification-table + * img {
+  height: 20px;
+  padding-right: 0.2em;
+  vertical-align: bottom;
+}
+
+/* For setting/command names */
+.md-typeset sn {
+  background-color: var(--md-code-bg-color);
+  /* font-weight: 300; */
+  padding: 0 0.2em;
+  white-space: nowrap;
+}
+
+/* Style for setting IDs */
+.md-typeset si {
+  background-color: var(--md-code-bg-color);
+  border-radius: .1rem;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  /* color: #2854a1; */
+  font-family: var(--md-code-font-family);
+  font-size: 85%;
+  padding: 0 0.3em;
+  white-space: nowrap;
+}
+
+.md-typeset si:before {
+  content: '"';
+}
+
+.md-typeset si:after {
+  content: '"';
+}
+
+/*
+@media screen and (min-width: 50em) {
+  .md-sidebar {
+    top: 48px;
+    height: 0;
+  }
+  .no-js .md-sidebar {
+    height: auto;
+  }
+  .md-sidebar--primary {
+    position: sticky;
+  }
+
+  [dir="ltr"] .md-sidebar--primary {
+    left: auto;
+  }
+  [dir="rtl"] .md-sidebar--primary {
+    right: auto;
+  }
+  [dir="ltr"] .md-sidebar--primary:not([hidden]) ~ .md-content > .md-content__inner{
+    margin-left: 1.2rem;
+  }
+  [dir="rtl"] .md-sidebar--primary:not([hidden]) ~ .md-content > .md-content__inner{
+    margin-right: 1.2rem;
+  }
+  [dir="ltr"] .md-sidebar--secondary:not([hidden]) ~ .md-content > .md-content__inner{
+    margin-right: 1.2rem;
+  }
+  [dir="rtl"] .md-sidebar--secondary:not([hidden]) ~ .md-content > .md-content__inner{
+    margin-left: 1.2rem;
+  }
+} */

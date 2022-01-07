@@ -6,7 +6,7 @@ export const readFile = path => FS.readFileSync(path, {encoding: 'utf8'}).split(
 export const files = readSpecs(".")
 
 function readSpecs(dir) {
-  if(FS.existsSync(dir + "/docs")) return readDir(dir + "/docs")
+  if(FS.existsSync(dir + "/docs")) return readDir(dir + "/docs/specs")
   else return readSpecs(dir + "/..")
 }
 

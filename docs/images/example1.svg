@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+    viewBox="0 0 92 20.5" font-size="1.6">
+  <style>
+    text { font-family: monospace; fill: #ddd; white-space: pre }
+    text.code { fill: white }
+  </style>
+
+  <symbol id="editor" height="100%">
+    <rect width="100%" height="100%" fill="#2b69ab" rx="0.5"/>
+    <line x1="38" y1="0" x2="38" y2="100%" stroke="#aaa" stroke-width="0.1"/>
+  </symbol>
+
+  <g class="input" transform="translate(0)">
+    <use xlink:href="#editor" width="47"/>
+    <g transform="translate(1,1)">
+      <text y="1.5"  textLength="45"><![CDATA[/// Takes up to n characters from the string.]]></text>
+      <text y="3.0"  textLength="45"><![CDATA[/// * If n > str.length,                     ]]></text>
+      <text y="4.5"  textLength="45"><![CDATA[///   the whole string is returned.          ]]></text>
+      <text y="6.0"  textLength="45"><![CDATA[/// * If n < 0, characters are taken from    ]]></text>
+      <text y="7.5"  textLength="45"><![CDATA[///   the end of the string.                 ]]></text>
+      <text y="9.0"  textLength="45"><![CDATA[///                                          ]]></text>
+      <text y="10.5" textLength="45"><![CDATA[/// Examples:                                ]]></text>
+      <text y="12.0" textLength="45"><![CDATA[///                                          ]]></text>
+      <text y="13.5" textLength="45"><![CDATA[///     takeChars(2, "Simple") // "Si"       ]]></text>
+      <text y="15.0" textLength="45"><![CDATA[///     takeChars(-3, "Fidget") // "get"     ]]></text>
+      <text y="16.5" textLength="37" class="code">String takeChars(int n, String str) {</text>
+    </g>
+  </g>
+
+  <g class="output" transform="translate(50)">
+    <use xlink:href="#editor" width="42"/>
+    <g transform="translate(1,1)">
+      <text y="1.5"  textLength="40"><![CDATA[/// Takes up to n characters from the   ]]></text>
+      <text y="3.0"  textLength="40"><![CDATA[/// string.                             ]]></text>
+      <text y="4.5"  textLength="40"><![CDATA[/// * If n > str.length, the whole      ]]></text>
+      <text y="6.0"  textLength="40"><![CDATA[///   string is returned.               ]]></text>
+      <text y="7.5"  textLength="40"><![CDATA[/// * If n < 0, characters are taken    ]]></text>
+      <text y="9.0"  textLength="40"><![CDATA[///   from the end of the string.       ]]></text>
+      <text y="10.5" textLength="40"><![CDATA[///                                     ]]></text>
+      <text y="12.0" textLength="40"><![CDATA[/// Examples:                           ]]></text>
+      <text y="13.5" textLength="40"><![CDATA[///                                     ]]></text>
+      <text y="15.0" textLength="40"><![CDATA[///     takeChars(2, "Simple") // "Si"  ]]></text>
+      <text y="16.5" textLength="40"><![CDATA[///     takeChars(-3, "Fidget") // "get"]]></text>
+      <text y="18.0" textLength="37" class="code">String takeChars(int n, String str) {</text>
+    </g>
+  </g>
+
+  <text x="44.5" y="12.5" style="fill: #eee; stroke: #2b69ab; stroke-width: 0.1px" font-size="5.5">➠</text>
+</svg>

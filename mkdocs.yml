@@ -1,0 +1,80 @@
+site_name: Rewrap
+site_url: https://stkb.github.io/Rewrap/
+repo_url: https://github.com/stkb/Rewrap
+theme:
+  name: null
+  custom_dir: ../mkdocs-material/material
+  language: en
+  font:
+    text: Nunito
+    code: JetBrains Mono
+  features:
+    - toc.integrate
+    - content.tabs.link
+  favicon: images/logo.svg
+  logo: images/logo.svg
+  icon: null
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
+extra_css:
+  - extra.css
+markdown_extensions:
+  - admonition
+  - pymdownx.extra
+  - pymdownx.highlight:
+      use_pygments: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+nav:
+- 'Getting Started': index.md
+- configuration.md
+- extra-features.md
+- 'Specs':
+  - specs/readme.md
+  - 'Features':
+    - specs/features/line-comments.md
+    - specs/features/block-comments.md
+    - specs/features/decoration-lines.md
+    - specs/features/selections.md
+    - specs/features/embedded-sections.md
+    - specs/features/double-sentence-spacing.md
+    - specs/features/tabs.md
+    - specs/features/spaces.md
+    - specs/features/special-characters.md
+    - specs/features/misc.md
+  - 'Content Types':
+    - specs/content-types/dotnet-xmldoc.md
+    - specs/content-types/d.md
+    - specs/content-types/dart.md
+    - specs/content-types/doxygen.md
+    - specs/content-types/elixir.md
+    - specs/content-types/go.md
+    - specs/content-types/graphql.md
+    - specs/content-types/html.md
+    - specs/content-types/javadoc.md
+    - specs/content-types/julia.md
+    - specs/content-types/latex.md
+    - specs/content-types/lean.md
+    - specs/content-types/lua.md
+    - specs/content-types/markdown/_markdown.md
+    - specs/content-types/matlab.md
+    - specs/content-types/octave.md
+    - specs/content-types/plaintext.md
+    - specs/content-types/powershell.md
+    - specs/content-types/prolog.md
+    - specs/content-types/proto.md
+    - specs/content-types/python.md
+    - specs/content-types/r.md
+    - specs/content-types/restructuredtext/_restructuredtext.md
+    - specs/content-types/tcl.md
+    - specs/content-types/yaml.md
