@@ -42,6 +42,11 @@ let private atxHeading : TryNewParser =
   if isMatch (mdMarker "#{1,6} ") line then Some (finished_ line noWrapBlock) else None
 
 
+let private setextUnderline : TryNewParser = fun _ctx ->
+  let rx = mdMarker @"(?:=+|-+)\s*$"
+  tryMatch' rx >> map ^| fun (_, line) -> (finished_ line noWrapBlock)
+
+
 /// Code block that begins and ends with ``` or ~~~
 let private fencedCode : TryNewParser =
   fun _ctx ->
@@ -100,6 +105,11 @@ let private indentedCode : TryNewParser =
   fun line ->
   if isBlankLine line then None
   else match parseLine line with | ThisLine r -> Some r | FinishedOnPrev _ -> None
+
+
+let private thematicBreak : TryNewParser = fun _ctx ->
+  let rx = mdMarker @"(?:\*\s*\*\s*(?:\*\s*)+|-\s*-\s*(?:-\s*)+|_\s*_\s*(?:_\s*)+)$"
+  tryMatch' rx >> map ^| fun (_, line) -> finished_ line noWrapBlock
 
 
 //---------- Container blocks ----------------------------------------------------------//
@@ -223,12 +233,14 @@ let private listItem : TryNewParser =
 
 /// List of blocks that can interrupt a paragraph
 let private tryParaInterrupters : TryNewParser =
-  tryMany [|blankLine; blockquote; atxHeading; footnote; listItem; fencedCode; htmlType1To6; nonText|]
+  tryMany [| blankLine; atxHeading; setextUnderline; thematicBreak;
+             blockquote; footnote; listItem; fencedCode; htmlType1To6 |]
 
 
-/// list of all blocks except default paragraph
+/// list of all blocks except setext underline and default paragraph
 let private tryContentBlocks : TryNewParser =
-  tryParaInterrupters <|> linkRefDef <|> indentedCode
+    tryMany [| blankLine; atxHeading; thematicBreak; blockquote; footnote; listItem;
+               fencedCode; htmlType1To6; linkRefDef; indentedCode |]
 
 
 /// Finds a new block, checking all options and falling back on default paragraph in

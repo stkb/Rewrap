@@ -45,21 +45,29 @@ Line breaks are also preserved after a line that ends in `<br>` or `<br/>`
     Text           ¦              Text           ¦
 
 
-## Markdown features ##
+## Thematic breaks
 
-Any line without text (used for decoration) is left alone.
+ ([details](thematic-breaks.md))
 
-    ###############      ->      ###############
-    ***************              ***************
-    ===============              ===============
-    Text text¦text               Text text¦
-    ---------------              text     ¦
-             ¦                   ---------------
+A thematic break (`<hr/>` in HTML) is made from at least 3 of the characters `***`, `---`
+or `___`.
 
-ATX headings. The text must be on a single line, so these are left alone too.
+    ***               ¦                       ***               ¦
+    ---               ¦               ->      ---               ¦
+    ___               ¦                       ___               ¦
 
-    ### Heading style 1 ¦          ->      ### Heading style 1 ¦
-    ### With trailing #'s ###              ### With trailing #'s ###
+
+## ATX headings
+
+The text must be on a single line, so these are not wrapped.
+
+    # Heading style 1      ¦          ->      # Heading style 1      ¦
+    ### With trailing #'s ###                 ### With trailing #'s ###
+
+
+## Setext headings
+
+([details](headings.md#setext-headings))
 
 However setext headings (with underlines) can be wrapped. But the underline
 remains unchanged (this is maybe something that could be added in the future).
