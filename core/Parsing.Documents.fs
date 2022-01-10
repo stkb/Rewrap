@@ -154,7 +154,7 @@ let mutable languages = [
         java
     lang "JavaScript" "javascriptreact|js" ".js|.jsx"
         java
-    lang "Julia" "" ".jl" <| sc [line "#"; block (@".*?""""""", "\"\"\"")]
+    lang "Julia" "" ".jl" <| sc [block ("#=", "=#"); line "#"; block (@".*?""""""", "\"\"\"")]
     lang "JSON" "json5|jsonc" ".json|.json5|.jsonc"
         java
     lang "LaTeX" "tex" ".bbx|.cbx|.cls|.sty|.tex"

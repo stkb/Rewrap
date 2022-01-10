@@ -20,3 +20,14 @@ This can also be preceeded by the `@doc` macro
     a b c d e f g            a b c d e f
     h i        ¦             g h i      ¦
     """        ¦             """        ¦
+
+
+It also has `#` line comments and `#= =#` block comments.
+
+    # a b c                           ->      # a b ¦
+    # d   ¦                                   # c d ¦
+
+    #=  ¦                                     #=  ¦
+    a b c                             ->      a b ¦
+    d   ¦                                     c d ¦
+    =#  ¦                                     =#  ¦
