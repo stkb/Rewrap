@@ -1,7 +1,7 @@
 :root {
   --md-primary-fg-color: #2b69ab;
   --md-primary-fg-color--light: #2b69ab;
-  --md-primary-fg-color--light: #2b69ab;
+  --md-primary-fg-color--dark: #2b69ab;
 }
 
 .md-typeset { font-size: 0.75rem }
