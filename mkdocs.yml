@@ -2,6 +2,7 @@ site_name: Rewrap
 site_url: https://stkb.github.io/Rewrap/
 repo_url: https://github.com/stkb/Rewrap
 site_dir: .obj/docsite
+strict: true
 theme:
   name: null
   custom_dir: ../mkdocs-material/material
@@ -28,6 +29,9 @@ theme:
         name: Switch to light mode
 extra_css:
   - extra.css
+plugins:
+  - search:
+      separator: '[\s\-\.]+'
 markdown_extensions:
   - admonition
   - pymdownx.extra
