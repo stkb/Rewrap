@@ -6,14 +6,15 @@ import FS from 'fs'
 import logUpdate from 'log-update'
 
 const operations = {
-  'clean': "  removes previous build artifacts",
-  'build': "  development build",
-  'test': "   runs tests (builds first)",
-  'prod': "   production build (also runs tests)",
-  'watch': "  runs build & test whenever source files are changed",
-  'package': "(implies prod) creates a VSIX package",
-  'publish': "(implies clean, package) creates a package and publishes it",
-  'version': "Gets current extension version updates to given version"
+  'clean': "      removes previous build artifacts",
+  'build': "      development build",
+  'test': "       runs tests (builds first)",
+  'prod': "       production build (also runs tests)",
+  'watch': "      runs build & test whenever source files are changed",
+  'package': "    (implies prod) creates a VSIX package",
+  'publish': "    (implies clean, package) creates a package and publishes it",
+  'publishdocs': "publishes docs to the docs site",
+  'version': "Gets current extension version updates to given version",
 }
 const components = ['core', 'vscode']
 
@@ -67,6 +68,7 @@ if (notExists ('node_modules')) run ("Installing NPM modules", "npm install")
 if (supplied ('clean')) clean ()
 
 if (supplied ('version')) getSetVersion ()
+if (supplied ('publishdocs')) publishDocs ()
 else if (supplied ('publish')) publish ()
 else if (supplied ('package')) package_ ()
 else if (supplied ('prod')) productionBuild ()
@@ -109,6 +111,14 @@ function getSetVersion ()
     if (!match) return;
     FS.writeFileSync (path, cnt.replace(match[0], match[0].replace(match[1], rep)))
   }
+}
+
+
+function publishDocs () {
+  let cnt = FS.readFileSync ('docs/index.md', 'utf8')
+  cnt = cnt.substring(0, cnt.indexOf("<!-- END README -->"))
+  FS.writeFileSync ('README.md',cnt)
+  FS.writeFileSync ('vscode/README.md', cnt.replaceAll('.svg', '.png'))
 }
 
 

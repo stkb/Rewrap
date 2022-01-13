@@ -10,5 +10,6 @@
 /core/dist/
 /core/test/prod.js*
 /vscode/dist/
+/vscode/README.md
 bin/
 obj/
