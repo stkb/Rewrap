@@ -1,6 +1,7 @@
 site_name: Rewrap
 site_url: https://stkb.github.io/Rewrap/
 repo_url: https://github.com/stkb/Rewrap
+site_dir: .obj/docsite
 theme:
   name: null
   custom_dir: ../mkdocs-material/material
