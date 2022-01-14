@@ -14,7 +14,7 @@ const operations = {
   'package': "    (implies prod) creates a VSIX package",
   'publish': "    (implies clean, package) creates a package and publishes it",
   'publishdocs': "publishes docs to the docs site",
-  'version': "Gets current extension version updates to given version",
+  'version': "    Gets current extension version updates to given version",
 }
 const components = ['core', 'vscode']
 
@@ -68,7 +68,7 @@ if (notExists ('node_modules')) run ("Installing NPM modules", "npm install")
 if (supplied ('clean')) clean ()
 
 if (supplied ('version')) getSetVersion ()
-if (supplied ('publishdocs')) publishDocs ()
+else if (supplied ('publishdocs')) publishDocs ()
 else if (supplied ('publish')) publish ()
 else if (supplied ('package')) package_ ()
 else if (supplied ('prod')) productionBuild ()
@@ -90,11 +90,11 @@ function getSetVersion ()
   else if (parts[3] == null) {
     parts[3] = 300
 
-    for (let p of ['README.md', 'vscode/README.md'])
+    for (let p of ['docs/index.md'])
       replaceInFile(p, /version: (.+?)\*/, newVer)
 
     let pre = parts[2] == "0" ? "## " : "### "
-    replaceInFile('CHANGELOG.md', /(## Unreleased)/, pre + newVer)
+    replaceInFile('CHANGELOG.md', /(## Unstable)/, pre + newVer)
   }
   else exit (1, "Invalid version")
 
