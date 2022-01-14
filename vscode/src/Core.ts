@@ -5,7 +5,7 @@ import * as Main from '../../core/dist/dev/Main.js'
 
 export interface CustomMarkers { line: string, block: [string, string] }
 
-export interface DocState { filePath: string, version: number, selections: Selection[] }
+export interface DocState { filePath: string, version: number, selections: readonly Selection[] }
 
 export interface DocType {
   path: string
@@ -17,7 +17,7 @@ export interface Edit {
   startLine: number
   endLine: number
   lines: string[]
-  selections: Selection[]
+  selections: readonly Selection[]
 }
 
 export interface Position { line: number, character: number }
@@ -48,7 +48,7 @@ export const noCustomMarkers : CustomMarkers = Main.noCustomMarkers
 
 export const rewrap:
   (docType: DocType, settings: Settings,
-   selections: Selection[], docLine: (i:number) => string) => Edit =
+   selections: readonly Selection[], docLine: (i:number) => string) => Edit =
   Main.rewrap
 
 export const saveDocState: (docState: DocState) => void = Main.saveDocState
