@@ -6,7 +6,7 @@ For <a href="https://marketplace.visualstudio.com/items?itemName=stkb.rewrap">
   <b>Open VSX</b></a>
 and <a href="https://marketplace.visualstudio.com/items?itemName=stkb.Rewrap-18980">
   <b>Visual Studio</b></a>.
-Latest version <b>1.15.4</b>
+Latest version <b>1.16.0</b>
   (<a href="https://github.com/stkb/vscode-rewrap/releases">changelog</a>)
 </td></tr></table>
 
