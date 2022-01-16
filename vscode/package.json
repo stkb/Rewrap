@@ -37,7 +37,10 @@
   ],
   "markdown": "standard",
   "activationEvents": [
-    "*"
+    "onStartupFinished",
+    "onCommand:rewrap.rewrapComment",
+    "onCommand:rewrap.rewrapCommentAt",
+    "onCommand:rewrap.toggleAutoWrap"
   ],
   "main": "./dist/Extension.js",
   "browser": "./dist/Extension.js",
