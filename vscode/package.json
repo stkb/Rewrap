@@ -121,8 +121,5 @@
     "fast-diff": "^1.2.0",
     "json5": "^2.2.0"
   },
-  "devDependencies": {
-    "vsce": "^2.2.0"
-  },
   "source": "src/Extension.ts"
 }

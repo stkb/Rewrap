@@ -1,11 +1,22 @@
-# Pre-release versions #
+## Pre-release versions
 
-You can test pre-release (beta) versions manually by downloading and installing the .vsix file published on the release page.
+Pre-release versions are used to test or hammer-out new features before they're added to
+the stable branch. Releases are more frequent and features come earlier to these versions.
 
-You can stick with the beta version until the final version is released to the marketplace. When this happens, you don't have to worry about uninstalling the beta. VS Code will automatically update to the released version, and you'll be back to stable versions.
+You can switch to the Pre-Release channel from within VS Code (v1.63 or above) by going to
+the extension's page and then choosing **Switch to Pre-Release Version** (make sure to hit
+"Reload Required" after it's installed).
 
-### To download/install ###
+<img src="https://stkb.github.io/Rewrap/images/switch-to-prerelease.png" width="600"/>
 
-1. Download the .vsix file from the "Assets" section of the release page (something like `rewrap-x.x.x-beta.vsix`)
-2. In VS Code, press `F1` and run the command `Extensions: Install from VSIX...`. Choose the downloaded .vsix file. 
-3. The beta version will be installed and you'll be prompted to restart/reload.
+You don't have to be using VS Code Insiders to do this. You can painlessly switch back to
+the stable channel at any time too. [More info at the VS Code docs](
+https://code.visualstudio.com/updates/v1_63#_pre-release-extensions).
+
+
+### Visual Studio
+
+Visual Studio doesn't have the above VS Code feature, but you can still download the .vsix
+file from the **Assets** section below, and install it manually by double-clicking the
+file. When the next major stable version is released, VS will automatically upgrade to
+that.

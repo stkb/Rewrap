@@ -1,1 +1,1 @@
-@node --input-type=module - %* < ./do
+@node .config/do.mjs %*
