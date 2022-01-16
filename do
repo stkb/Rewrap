@@ -90,8 +90,8 @@ function getSetVersion ()
   else if (parts[3] == null) {
     parts[3] = 300
 
-    for (let p of ['docs/index.md'])
-      replaceInFile(p, /version: (.+?)\*/, newVer)
+    replaceInFile('README.md', /Latest version <b>(.+?)</, newVer)
+    createVSCReadme ()
 
     let pre = parts[2] == "0" ? "## " : "### "
     replaceInFile('CHANGELOG.md', /(## Unstable)/, pre + newVer)
@@ -111,14 +111,6 @@ function getSetVersion ()
     if (!match) return;
     FS.writeFileSync (path, cnt.replace(match[0], match[0].replace(match[1], rep)))
   }
-}
-
-
-function publishDocs () {
-  let cnt = FS.readFileSync ('docs/index.md', 'utf8')
-  cnt = cnt.substring(0, cnt.indexOf("<!-- END README -->"))
-  FS.writeFileSync ('README.md',cnt)
-  FS.writeFileSync ('vscode/README.md', cnt.replaceAll('.svg', '.png'))
 }
 
 
@@ -183,6 +175,12 @@ function devBuild () {
 
 
 //========== STEPS ==========//
+
+
+function createVSCReadme () {
+  let cnt = FS.readFileSync ('README.md', 'utf8')
+  FS.writeFileSync ('vscode/README.md', cnt.replaceAll('.svg', '.png'))
+}
 
 
 function buildCore ({production} = {}) {

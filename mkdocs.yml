@@ -37,11 +37,13 @@ markdown_extensions:
   - pymdownx.extra
   - pymdownx.highlight:
       use_pygments: true
+  - pymdownx.snippets:
+      check_paths: true
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
 nav:
-- 'Getting Started': index.md
+- 'Getting Started': README.md
 - configuration.md
 - extra-features.md
 - 'Specs':
