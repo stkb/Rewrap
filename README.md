@@ -4,13 +4,12 @@ GitHub. For GitHub we can't get rid of the border on the td nor make the font sm
 we want-->
 <table class="topright" align="right" style="font-size:90%;width:auto;margin:0;border:none">
 <tr style="border:none"><td align="right" style="border:none">
-Reformats code comments and other text to a given line length.<br/>
 For <a href="https://marketplace.visualstudio.com/items?itemName=stkb.rewrap"><b>VS Code</b></a>,
 <a href="https://open-vsx.org/extension/stkb/rewrap"><b>Open VSX</b></a> and
 <a href="https://marketplace.visualstudio.com/items?itemName=stkb.Rewrap-18980">
-  <b>Visual Studio</b></a>.
-Latest version <b>1.16.0</b>
-(<a href="https://github.com/stkb/vscode-rewrap/releases">changelog</a>)
+  <b>Visual Studio</b></a>.<br/>
+Latest stable version <b>1.16.0</b> / pre-release <b>17.x</b> /
+<a href="https://github.com/stkb/vscode-rewrap/releases">changelog</a>
 </td></tr></table>
 
 
