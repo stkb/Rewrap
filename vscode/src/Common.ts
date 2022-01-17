@@ -39,6 +39,8 @@ export function applyEdit (editor, edit) {
         })
         .then(didEdit => {
             if(!didEdit) return
+            // Try to prevent rare "TextEditor has been disposed" error
+            if(editor !== window.activeTextEditor) return
             if(wholeDocSelected) {
                 const wholeRange = getDocRange()
                 editor.selection = new Selection(wholeRange.start, wholeRange.end)
