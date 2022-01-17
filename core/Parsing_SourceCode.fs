@@ -247,7 +247,7 @@ let blockComment :
     let endPattern =
       let step (i:int, r:string) s = i + 1, r.Replace("$" + i.ToString(), s)
       Array.fold step (0, endMarker) m |> snd
-    let endRegex = Regex(endPattern, RegexOptions.ECMAScript)
+    let endRegex = Regex (endPattern, RegexOptions.ECMAScript)
 
     let rec testForEnd (line: Line) : FirstLineRes =
       let m = endRegex.Match(line.content)

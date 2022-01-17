@@ -162,7 +162,7 @@ let mutable languages = [
     lang "Lean" "" ".lean" <| sc [line "--"; block ("/-[-!]?", "-/")]
     lang "Less" "" ".less"
         java
-    lang "Lua" "" ".lua" <| sc [block (@"--\[\[", @"\]\]"); line "--"]
+    lang "Lua" "" ".lua" <| sc [block (@"--\[(=*)\[", @"\]$1\]"); line "--"]
     lang "Makefile" "make" "makefile" <| configFile
     lang "Markdown" "" ".md" <| docOf markdown
     // MATLAB uses .m but that's already taken for Objective-C
