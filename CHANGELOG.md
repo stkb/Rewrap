@@ -2,6 +2,7 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 
 
 ## 1.16.0
+
 - New architecture (still WIP) with performance increase.
 - Markdown: new parser that fixes many small bugs (inc #288), as well as supporting:
   - Front matter header (#277, #294)
@@ -14,24 +15,29 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 
 
 ### 1.15.4
+
 - Support svelte files (HTML) (#243, #299).
 
 
 ### 1.15.3
+
 - VSCode: support untrusted workspaces (#292).
 - VSCode: Fix crash when a language extension provides a line- but no block comment marker.
 
 
 ### 1.15.2
+
 - Fix regression: Wrapping column < 1 should be treated as no wrapping
 
 
 ### 1.15.1
+
 - VS Code: Fix broken release (VSIX file)
 - Visual Studio: Fix crash in VS 17.1 Preview
 
 
 ## 1.15.0
+
 This is a small release to push out unreleased changes and support Visual Studio
 2022. Larger changes are coming soon.
 - Supports Visual Studio 2022
