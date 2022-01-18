@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+    viewBox="0 0 76 7" font-size="1.6">
+  <style>
+    text { font-family: monospace; fill: #ddd; white-space: pre }
+  </style>
+
+  <symbol id="editor" height="100%">
+    <rect width="37" height="100%" fill="#2b69ab" rx="0.5"/>
+    <line x1="33" y1="0" x2="33" y2="100%" stroke="#aaa" stroke-width="0.1"/>
+  </symbol>
+
+
+  <g transform="translate(0)">
+    <use xlink:href="#editor"/>
+    <g transform="translate(1,1)">
+      <text y="1.5" textLength="35">// A comment that's too long to fit</text>
+      <text x="27.7" y="1.5">│</text>
+    </g>
+  </g>
+
+  <g transform="translate(39)">
+    <use xlink:href="#editor"/>
+    <g transform="translate(1,1)">
+      <text y="1.5" textLength="31">// A comment that's too long to</text>
+      <text y="3.0" textLength="31">// fit on one line gets wrapped</text>
+      <text y="4.5" textLength="22">// onto multiple lines</text>
+      <text x="27.7" y="1.5">│</text>
+    </g>
+  </g>
+
+  <text x="34.7" y="6.5" style="fill: #eee; stroke: #2b69ab; stroke-width: 0.1px" font-size="5.5">➥</text>
+</svg>
