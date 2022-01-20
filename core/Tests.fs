@@ -121,7 +121,7 @@ let readTestLines fileName (settings: TestSettings) lines : Result<Test * Option
       else
         match pending, sels with
           | Some _, _ -> Error InvalidSelection
-          | None, [] -> Ok ([| sel 0 0 lines.Length 0 |])
+          | None, [] -> Ok ([||])
           | None, _ -> Ok (List.rev sels |> List.toArray)
 
     enum.MoveNext() |> ignore

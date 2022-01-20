@@ -34,9 +34,8 @@ const getChangesText = () => {
   // 'Unwrap' for github markdown
   const docType = {path: "", language: "markdown", getMarkers: () => null}
   const settings = {column: 0}
-  const selection = {anchor: {line: 0, character: 0}, active: {line:lines.length, character: 0}}
   const docLine = i => lines[i]
-  const edit = Rewrap.rewrap(docType, settings, [selection], docLine)
+  const edit = Rewrap.rewrap(docType, settings, [], docLine)
   lines.splice(edit.startLine, edit.endLine - edit.startLine + 1, ...edit.lines)
   return lines.join("\n")
 }

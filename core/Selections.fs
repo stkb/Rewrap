@@ -202,7 +202,8 @@ let wrapSelected : Nonempty<string> -> Selection seq -> Context -> Edit =
   fun originalLines selections context ->
 
   let selectionRanges =
-    selections |> Seq.map LineRange.fromSelection |> List.ofSeq |> normalizeRanges
+    if Seq.isEmpty selections then [LineRange.toInfinity 0]
+    else selections |> Seq.map LineRange.fromSelection |> List.ofSeq |> normalizeRanges
   let parseResult =
     {startLine = 0; originalLines = originalLines; blocks = context.getBlocks()}
   processBlocks context selectionRanges parseResult
