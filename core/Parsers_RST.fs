@@ -26,15 +26,6 @@ let private indentWidth (ctx: Context) (line: Line) : int =
   let ws = line.content.Substring (0, line.content.Length - line.content.TrimStart().Length)
   strWidth' (strWidth tabWidth line.prefix) tabWidth ws
 
-/// Returns the line with its whitespace indent trimmed and the width of the trim. IE the
-/// same as trimWhitespace but also returns the width of the trim
-let private trimIndent (ctx: Context) (line: Line) : int * Line =
-  let tabWidth = ctx.settings.tabWidth
-  let newContent = line.content.TrimStart()
-  let ws = line.content.Substring (0, line.content.Length - newContent.Length)
-  let indentWidth = strWidth' (strWidth tabWidth line.prefix) tabWidth ws
-  indentWidth, Line (line.prefix + ws, newContent)
-
 let private compareIndents ctx line1 line2 = prefixWidth ctx line2 - prefixWidth ctx line1
 
 let private finishedOnPrev : FirstLineRes ->  NextLineRes = FinishedOnPrev << Some

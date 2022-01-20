@@ -4,9 +4,9 @@ In the examples on this page, `«` represents the start of a selection and `»`
 the end. These characers are removed from the input.
 
 
-## Plain text ##
+## Plain text
 
-> language: "plaintext"
+> language: "plaintext-indentseparated"
 
 An empty selection selects a whole paragraph (and only that paragraph)
 

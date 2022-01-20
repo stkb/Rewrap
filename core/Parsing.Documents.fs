@@ -21,7 +21,7 @@ let oldPlainText settings =
 
   takeUntil blankLines paragraphs |> repeatToEnd
 
-let plainText : DocumentProcessor = toNewDocProcessor oldPlainText
+let plainText : DocumentProcessor = docOf Parsers.plainText
 
 // For creating source code doc types
 let private sc comments = Parsing_SourceCode.sourceCode comments
@@ -181,6 +181,7 @@ let mutable languages = [
               oldLine @"(?://|#)"
             ]
         )
+    lang "PlainText-IndentSeparated" "" "" <| docOf plainText_indentSeparated
     lang "PowerShell" "" ".ps1|.psd1|.psm1"
         ( oldSourceCode [ customLine psdoc "#"; customBlock psdoc ( "", "" ) ( "<#", "#>" ) ] )
     lang "Prisma" "" ".prisma" <| sc [line "///?"]

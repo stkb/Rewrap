@@ -1,4 +1,7 @@
-# Basics
+# PlainText
+
+`plaintext` is the most basic content type. Paragraphs are only separated by blank lines.
+This documents also details basic wrapping behavior.
 
 > language: "plaintext"
 
@@ -26,23 +29,36 @@ Paragraphs are separated by blank lines.
     Foo      ¦                         ¦
     bar.     ¦                Foo bar. ¦
 
-Or by a significant difference in indent (2 characters or more). This only
-applies to the default plain text type.
+The indent of all lines is kept as is was:
 
-    Foo bar baz.      ->      Foo bar   ¦
-      Foo     ¦               baz.      ¦
-      bar.    ¦                 Foo bar.¦
+    one two three                             one two     ¦
+      four five six                   ->        three four¦
+     seven eight¦                              five six   ¦
+                ¦                              seven eight¦
 
-Also works with tab characters.
+## PlainText-IndentSeparated
 
-Two spaces at the end of a line will preserve the line break after it (this
-works anywhere).
+With the `plaintext-indentseparated` processor, a difference in line indent *does* start a
+new paragraph.
 
-    Foo bar.··  ¦    ->      Foo bar.··  ¦
-    Baz foo     ¦            Baz foo bar ¦
-    bar baz.    ¦            baz.        ¦
+> language: plaintext-indentseparated
 
+    Foo bar baz.                              Foo bar   ¦
+     Foo      ¦                       ->      baz.      ¦
+     bar.     ¦                                Foo bar. ¦
 
-## Odd cases ##
+    Paragraph     ¦                           Paragraph one.¦
+    one.          ¦                            Paragraph    ¦
+     Paragraph two.                   ->       two.         ¦
+    Paragraph three.                          Paragraph     ¦
+                  ¦                           three.        ¦
 
-Tab characters in the middle of a paragraph could cause improper wrapping.
+Also works with tab characters. In the case of mixed spaces and tabs, it's the *indent
+width* that counts, not the actual characters.
+
+> language: plaintext-indentseparated, tabWidth: 2
+
+    Paragraph one.  ¦                         Paragraph one.  ¦
+    -→Paragraph     ¦                 ->      -→Paragraph two.¦
+    ··two.          ¦                         ·Paragraph      ¦
+    ·Paragraph three.                         ·three.         ¦

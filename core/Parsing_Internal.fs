@@ -42,6 +42,15 @@ let indentLength : Line -> int = Line.onContent (fun s -> s.Length - s.TrimStart
 let trimWhitespace : Line -> Line =
   Line.trimUpTo Int32.MaxValue
 
+/// Returns the line with its whitespace indent trimmed and the width of the trim. I.E.
+/// the same as trimWhitespace but also returns the width of the trim
+let trimIndent (ctx: Context) (line: Line) : int * Line =
+  let tabWidth = ctx.settings.tabWidth
+  let newContent = line.content.TrimStart()
+  let ws = line.content.Substring (0, line.content.Length - newContent.Length)
+  let indentWidth = strWidth' (strWidth tabWidth line.prefix) tabWidth ws
+  indentWidth, Line (line.prefix + ws, newContent)
+
 
 //---------- Line Results --------------------------------------------------------------//
 
