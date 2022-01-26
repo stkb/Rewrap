@@ -9,6 +9,12 @@
                 "isDefault": true
             },
             "label": "Build extension",
+            "presentation": {
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared",
+                "clear": true
+            }
         },
         {
             "type": "shell",
