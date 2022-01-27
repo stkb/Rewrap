@@ -13,10 +13,10 @@ const vscodeSelection = (s: Selection) =>
 const getDocRange = (doc: TextDocument) => doc.validateRange
     (new Range(0, 0, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER))
 
-/** Gets an object representing the state of the document and selections. When a
- *  standard wrap is done, the state is compared with the state after the last
- *  wrap. If they are equal, and there are multiple rulers for the document, the
- *  next ruler is used for wrapping instead. */
+/** Gets an object representing the state of the document and selections. When a standard
+ *  wrap is done, the state is compared with the state after the last wrap. If they are
+ *  equal, and there are multiple rulers for the document, the next ruler is used for
+ *  wrapping instead. */
 export const getDocState = (editor: TextEditor) : DocState => {
   const doc = editor.document, selections = editor.selections
   return {filePath: docType(doc).path, version: doc.version, selections}
@@ -44,7 +44,7 @@ export function buildEdit
 }
 
 /** Catches any error and displays a friendly message to the user. */
-export function catchErr(err) {
+export function catchErr (err) {
   console.error("====== Rewrap: Error ======")
   console.log(err)
   console.error(
@@ -58,15 +58,14 @@ export function catchErr(err) {
   )
 }
 
-/** Returns a function for the given document, that gets the line at the given
- *  index. */
-export function docLine(document: TextDocument) {
+/** Returns a function for the given document, that gets the line at the given index. */
+export function docLine (document: TextDocument) {
   return (i: number) => i < document.lineCount ? document.lineAt(i).text : null
 }
 
-/** Gets the path and language of the document. These are used to determine the
- *  parser used for it. */
-export function docType(document: TextDocument): DocType {
+/** Gets the path and language of the document. These are used to determine the parser
+ *  used for it. */
+export function docType (document: TextDocument): DocType {
     const path = document.fileName, language = document.languageId
     return {path, language, getMarkers: () => getCustomMarkers(language)}
 }
@@ -74,14 +73,14 @@ export function docType(document: TextDocument): DocType {
 type FixSelectionsData =
   { editor: TextEditor, oldLines: string[], selections: Selection[],
     edit: Edit, saveState: boolean }
-let fixSelectionsData : FixSelectionsData
+let fixSelectionsData : FixSelectionsData | undefined
 
 export function onDocumentChange (e: TextDocumentChangeEvent) {
   if (! fixSelectionsData) return
   const {editor, oldLines, selections, edit, saveState} = fixSelectionsData
-  if (editor !== window.activeTextEditor) { fixSelectionsData = null; return }
+  if (editor !== window.activeTextEditor) { fixSelectionsData = undefined; return }
   if (e.document !== editor.document) return
-  fixSelectionsData = null
+  fixSelectionsData = undefined
 
   if (selections.length === 0) {
     const wholeRange = getDocRange (editor.document)

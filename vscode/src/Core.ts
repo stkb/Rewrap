@@ -1,5 +1,5 @@
-// This file serves as a wrapper to the core JS library. It does nothing more
-// than a .d.ts file would do, except keeping this ugly import path to one place
+// This file serves as a wrapper to the core JS library. It does nothing more than a .d.ts
+// file would do, except keeping this ugly import path to one place
 import * as Main from '../../core/dist/dev/Main.js'
 
 
@@ -40,7 +40,7 @@ export const getWrappingColumn: (path: string, columns: number[]) => number =
 
 export const maybeAutoWrap:
   (docType: DocType, settings: Settings,
-   newText: string, pos: Position, docLine: (i:number) => string) => Edit =
+   newText: string, pos: Position, docLine: (i:number) => string | null) => Edit =
   Main.maybeAutoWrap
 
 export const maybeChangeWrappingColumn:
@@ -50,7 +50,7 @@ export const noCustomMarkers : CustomMarkers = Main.noCustomMarkers
 
 export const rewrap:
   (docType: DocType, settings: Settings,
-   selections: readonly Selection[], docLine: (i:number) => string) => Edit =
+   selections: readonly Selection[], docLine: (i:number) => string | null) => Edit =
   Main.rewrap
 
 export const saveDocState: (docState: DocState) => void = Main.saveDocState

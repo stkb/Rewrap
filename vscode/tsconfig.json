@@ -6,6 +6,7 @@
 		"lib": ["ES2019"],
 		"outDir": "bin",
 		"sourceMap": true,
-		"alwaysStrict": true
+		"alwaysStrict": true,
+		"strictNullChecks": true
 	}
 }
