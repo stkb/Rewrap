@@ -197,7 +197,7 @@ let mutable languages = [
     lang "PureScript" "" ".purs" <| sc [line "--\s*\|"; line "--"; block ("{-\s*\|?", "-}")]
     lang "Python" "" ".py" <| sc [line "#"; block' ("","") (@"(.*?)""""""", "\"\"\"") rst; block' ("","") (@"(.*?)'''", "'''") rst]
     lang "R" "" ".r" <| sc [line "#'?"]
-    lang "reStructuredText" "" ".rst|.rest" <| docOf rst
+    lang "reStructuredText" "rst" ".rst|.rest" <| docOf rst
     lang "Ruby" "" ".rb" <| sc [line "#"; block ("=begin", "=end")]
     lang "Rust" "" ".rs" <| sc [line @"//[/!]?"]
     lang "SCSS" "" ".scss"
