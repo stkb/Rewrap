@@ -182,6 +182,7 @@ let mutable languages = [
         )
     lang "PowerShell" "" ".ps1|.psd1|.psm1"
         ( oldSourceCode [ customLine psdoc "#"; customBlock psdoc ( "", "" ) ( "<#", "#>" ) ] )
+    lang "Prisma" "" ".prisma" <| sc [line "///?"]
     lang "Prolog" "" ""
         ( oldSourceCode
             [ customBlock DocComments.javadoc ( "*", " * " ) javadocMarkers
