@@ -17,7 +17,6 @@ open Parsing_SourceCode
 let oldPlainText settings =
   let paragraphs =
       splitIntoChunks (onIndent settings.tabWidth)
-          >> Nonempty.concatMap (splitIntoChunks (afterRegex (Regex("  $"))))
           >> map (indentSeparatedParagraphBlock textBlock)
 
   takeUntil blankLines paragraphs |> repeatToEnd

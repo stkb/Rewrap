@@ -69,7 +69,7 @@ let sgml
 
     let breakBefore line = justBlockEndTag line || beginsWithBlockStartTag line
     let breakAfter line =
-        Line.contains (regex @"([""\s]>\s*|  )$") line || endsWithBlockTag line
+        Line.contains (regex @"([""\s]>\s*)$") line || endsWithBlockTag line
 
     let paragraphBlocks =
         splitIntoChunks (splitBefore breakBefore)

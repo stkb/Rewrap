@@ -105,9 +105,7 @@ let ddoc =
 let godoc settings =
     let indentedLines =
         ignoreParser (Nonempty.span (fun line -> line.[0] = ' ' || line.[0] = '\t'))
-    let textLines =
-        splitIntoChunks (afterRegex (Regex("  $"))) >> map (Wrap << Wrappable.fromLines ("", ""))
-
+    let textLines = Nonempty.singleton << Wrap << Wrappable.fromLines ("", "")
     textLines
         |> takeUntil (tryMany [blankLines; indentedLines])
         |> repeatToEnd

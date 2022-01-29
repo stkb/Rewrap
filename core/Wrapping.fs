@@ -37,7 +37,7 @@ let canBreakBetweenChars c1 c2 =
 
 /// When concatenating lines before breaking up again, whether to add a space
 /// between chars
-let addSpaceBetweenChars c1 c2 = if isCJ c1 || isCJ c2 then false else true
+let addSpaceBetweenChars c1 c2 = if c1 = 10us || isCJ c1 || isCJ c2 then false else true
 
 
 /// Concatenates lines into a single string, adding the right amount of
@@ -47,10 +47,9 @@ let concatLines doubleSentenceSpacing lines =
   let addLine (acc: string) (line: string) =
     // Shouldn't be getting empty strings in this function but just in case...
     if line = String.Empty || acc = String.Empty then acc else
-    let acc = acc.TrimEnd()
+    let acc = if acc.EndsWith("  ") then acc + "\n" else acc.TrimEnd()
     let accEnd = uint16 acc.[acc.Length-1]
-    let space =
-      if doubleSentenceSpacing && Array.contains accEnd stops then "  " else " "
+    let space = if doubleSentenceSpacing && Array.contains accEnd stops then "  " else " "
     if addSpaceBetweenChars accEnd (uint16 line.[0]) then acc + space + line else acc + line
   List.reduce addLine (Nonempty.toList lines)
 
@@ -76,7 +75,9 @@ let breakUpString addLine tabWidth maxWidth (str: string) =
   let outputLine prefixes pStart pEnd =
     let prefix, nextPrefixes = popOrPeek prefixes
     let content =
-      if pEnd > pStart then str.Substring(pStart, pEnd - pStart).Trim()
+      if pEnd > pStart then
+        if str[pEnd-1] = '\n' then str.Substring(pStart, pEnd - pStart - 1)
+        else str.Substring(pStart, pEnd - pStart).TrimEnd()
       else str.Substring(pStart)
     addLine (prefix + content.Replace('\000', ' '))
     nextPrefixes
@@ -87,6 +88,11 @@ let breakUpString addLine tabWidth maxWidth (str: string) =
     if pStr >= str.Length then outputLine prefixes lineStart 0 |> ignore
     else
     let charCode = uint16 str.[pStr]
+    // If we come across a LF char then start a new line
+    if charCode = 10us then
+      let nextPrefixes = outputLine prefixes lineStart (pStr+1)
+      loop nextPrefixes (pStr+1) (prefixWidth nextPrefixes) (pStr+1)
+    else
     let newWidth = curWidth + Line.charWidth tabWidth curWidth charCode
     // If current char is whitespace we don't need to wrap yet. Wait until we come across
     // a non-whitespace char

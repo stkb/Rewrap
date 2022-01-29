@@ -26,7 +26,7 @@ let private mdMarker marker = regex (@"^ {0,3}" + marker)
 
 /// The default paragraph type (fallback for if no other parser matches)
 let private defaultPara (_ctx: Context) : FirstLineParser =
-  let lineBreakEnd = regex @"(\\|\s{2}|<br/?>)$"
+  let lineBreakEnd = regex @"(\\|<br/?>)$"
   let rec parseLine (line: Line) : FirstLineRes =
     // We assume a >3 space indent on the first line would have already been
     // picked up by another parser, so it's ok to just trim all indent

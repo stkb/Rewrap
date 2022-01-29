@@ -23,7 +23,7 @@ wrapping column.
 ## At the end of a line
 
 Two spaces at the end of a line preserves the line break after it. This comes
-from Markdown should work for any content.
+from Markdown and should work for any content.
 
 > language: "plaintext"
 
@@ -64,3 +64,9 @@ from Markdown should work for any content.
     Baz foo     ¦            Baz foo bar ¦
     bar baz.    ¦            baz.        ¦
     #>          ¦            #>          ¦
+
+> language: "rst"
+
+    Foo bar.··  ¦    ->      Foo bar.··  ¦
+    Baz foo     ¦            Baz foo bar ¦
+    bar baz.    ¦            baz.        ¦
