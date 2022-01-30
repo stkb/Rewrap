@@ -1,6 +1,14 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
 
+### 1.16.1
+
+- VS Code: Attempt to prevent rare "TextEditor has been disposed" error (#100)
+- Lua: Support `--[=[` block comments (#290)
+- MDX files: Treat as Markdown.
+- Support Prisma (#306)
+
+
 ## 1.16.0
 
 - New architecture (still WIP) with performance increase.

@@ -8,7 +8,7 @@ For <a href="https://marketplace.visualstudio.com/items?itemName=stkb.rewrap"><b
 <a href="https://open-vsx.org/extension/stkb/rewrap"><b>Open VSX</b></a> and
 <a href="https://marketplace.visualstudio.com/items?itemName=stkb.Rewrap-18980">
   <b>Visual Studio</b></a>.<br/>
-Latest stable version <b>1.16.0</b> / pre-release <b>17.x</b> /
+Latest stable version <b>1.16.1</b> / pre-release <b>17.x</b> /
 <a href="https://github.com/stkb/vscode-rewrap/releases">changelog</a>
 </td></tr></table>
 
@@ -19,8 +19,7 @@ Latest stable version <b>1.16.0</b> / pre-release <b>17.x</b> /
 
 The main Rewrap command is: <sn>**Rewrap Comment / Text**</sn>, by default bound to
 `Alt+Q`. With the cursor in a comment block, hit this to re-wrap the contents to the
-[specified wrapping column
-](https://stkb.github.io/Rewrap/configuration/#wrapping-column).
+[specified wrapping column](https://stkb.github.io/Rewrap/configuration/#wrapping-column).
 
 
 ## Features
