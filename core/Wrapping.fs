@@ -149,6 +149,4 @@ type OutputBuffer(settings : Settings) =
     linesConsumed <- linesConsumed + size contents
 
   member _.toEdit () =
-    { startLine = startLine; endLine = startLine + linesConsumed - 1
-      lines = List.toArray (List.rev outputLines); selections = [||]
-    }
+    Edit (startLine, startLine + linesConsumed - 1, List.toArray (List.rev outputLines), [||])

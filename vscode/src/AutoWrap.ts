@@ -31,7 +31,7 @@ const checkChange = (e: TextDocumentChangeEvent) => {
         // maybeAutoWrap does more checks: that newText isn't empty, but is only
         // whitespace. Don't call this in a promise: it causes timing issues.
         const edit = maybeAutoWrap(file, settings, newText, range.start, docLine(doc))
-        return applyEdit(editor, edit).then(null, catchErr)
+        if (!edit.isEmpty) return applyEdit(editor, edit).then(null, catchErr)
     }
     catch(err) { catchErr(err) }
 }

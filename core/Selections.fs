@@ -180,6 +180,22 @@ let rec private processBlocks : Context -> LineRange list -> ParseResult -> unit
 
   loop selections parseResult.startLine parseResult.blocks parseResult.originalLines
 
+/// Trims all unchanged lines from the start and end of an edit.
+let private trimEdit (originalLines: Nonempty<string>) (edit : Edit) : Edit =
+  let originalLinesArray = originalLines |> Nonempty.toList |> List.toArray
+
+  let mutable s = 0
+  while s < edit.lines.Length && s <= edit.endLine - edit.startLine
+    && originalLinesArray[edit.startLine + s] = edit.lines[s]
+    do s <- s + 1
+
+  let mutable e = 0
+  while e < edit.lines.Length - s && e <= edit.endLine - edit.startLine - s
+      && originalLinesArray[edit.endLine - e] = edit.lines[edit.lines.Length - 1 - e]
+      do e <- e + 1
+
+  Edit (edit.startLine + s, edit.endLine - e,
+    Array.sub edit.lines s (edit.lines.Length - s - e), edit.selections)
 
 
 let wrapSelected : Nonempty<string> -> Selection seq -> Context -> Edit =
@@ -190,4 +206,5 @@ let wrapSelected : Nonempty<string> -> Selection seq -> Context -> Edit =
   let parseResult =
     {startLine = 0; originalLines = originalLines; blocks = context.getBlocks()}
   processBlocks context selectionRanges parseResult
-  {(context.output.toEdit ()) with selections = Seq.toArray selections}
+  let edit = context.output.toEdit () |> trimEdit originalLines
+  edit.withSelections (Seq.toArray selections)

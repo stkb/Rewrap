@@ -16,8 +16,10 @@ export interface DocType {
 export interface Edit {
   startLine: number
   endLine: number
-  lines: string[]
+  lines: readonly string[]
   selections: readonly Selection[]
+
+  isEmpty: boolean
 }
 
 export interface Position { line: number, character: number }

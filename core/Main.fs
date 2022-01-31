@@ -42,7 +42,7 @@ let strWidth tabSize str = Line.strWidth tabSize str
 /// The client must supply the new text that was inserted in the edit, as well
 /// as the position where it was inserted
 let maybeAutoWrap file settings newText (pos: Position) (getLine: Func<int, string>) =
-    let noEdit = { startLine=0; endLine=0; lines = [||]; selections = [||] }
+    let noEdit = Edit.empty
 
     if String.IsNullOrEmpty(newText) then noEdit
     // If column < 1 we never wrap
@@ -75,4 +75,4 @@ let maybeAutoWrap file settings newText (pos: Position) (getLine: Func<int, stri
             let afterPos =
                 if enterPressed then { line = line + 1; character = indent.Length }
                 else { line = line; character = char }
-            { edit with selections = [| { anchor=afterPos; active=afterPos} |] }
+            edit.withSelections [| { anchor=afterPos; active=afterPos} |]

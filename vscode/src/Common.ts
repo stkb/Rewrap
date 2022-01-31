@@ -12,7 +12,7 @@ const vscodeSelection = s =>
 /** Applies an edit to the document. Also fixes the selections afterwards. If
  * the edit is empty this is a no-op */
 export function applyEdit (editor, edit) {
-    if (!edit.lines.length) return Promise.resolve()
+    if (edit.isEmpty) return Promise.resolve()
 
     const selections = edit.selections.map(vscodeSelection)
     const doc = editor.document
