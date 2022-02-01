@@ -1,13 +1,9 @@
 import {DocState, DocType, Edit, saveDocState} from './Core'
-import {Range, Selection, TextDocument, TextDocumentChangeEvent, TextEditor, TextEditorEdit, window} from 'vscode'
-import fixSelections from './FixSelections'
+import vscode, {Position, Range, Selection, TextDocument, TextEditor, TextEditorEdit} from 'vscode'
+import fd from 'fast-diff'
 import GetCustomMarkers from './CustomLanguage'
 const getCustomMarkers = GetCustomMarkers()
 
-
-/** Gets the range for the whole document */
-const getDocRange = (doc: TextDocument) => doc.validateRange
-    (new Range(0, 0, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER))
 
 /** Gets an object representing the state of the document and selections. When a standard
  *  wrap is done, the state is compared with the state after the last wrap. If they are
@@ -18,25 +14,92 @@ export const getDocState = (editor: TextEditor) : DocState => {
   return {filePath: docType(doc).path, version: doc.version, selections}
 }
 
-/** Builds the vscode edits that apply an Edit to the document. Also sets the needed data
- *  to fix the selections afterwards. If the edit is empty this is a no-op */
+/** Builds the vscode edits that apply an Edit to the document. Also calculates where the
+ * post-wrap selections will be and saves the state of the document. If the edit is empty
+ * this is a no-op */
 export function buildEdit
   (editor: TextEditor, editBuilder: TextEditorEdit, edit: Edit, saveState: boolean) : void
 {
   if (edit.isEmpty) return
 
-  const selections = edit.selections
   const doc = editor.document
-  const oldLines = Array(edit.endLine - edit.startLine + 1).fill(null)
-    .map((_, i) => doc.lineAt(edit.startLine + i).text)
-  const wholeDocSelected = selections[0].isEqual (getDocRange (doc))
-  const range =
-    doc.validateRange (new Range(edit.startLine, 0, edit.endLine, Number.MAX_VALUE))
-  // vscode takes care of converting to \r\n if necessary
+    , oldLines = Array(edit.endLine - edit.startLine + 1).fill(null)
+        .map((_, i) => doc.lineAt(edit.startLine + i).text)
+    , oldSelections = [...edit.selections].reverse()
+    , selections: Selection[] = []
+  let sel = oldSelections.pop()
 
-  editBuilder.replace (range, edit.lines.join('\n'))
-  fixSelectionsData =
-    {editor, oldLines, edit, selections: (wholeDocSelected ? [] : selections), saveState}
+  const eol = doc.eol === vscode.EndOfLine.CRLF ? "\r\n" : "\n"
+    , oldText = oldLines.join(eol), newText = edit.lines.join(eol)
+    , diffs = fd(oldText, newText)
+  let startPos = new vscode.Position (edit.startLine, 0), endPos
+    , endOffset = doc.offsetAt(startPos), offsetDiff = 0
+    , newAnchorPos: Position | undefined, newActivePos: Position | undefined
+  const editStartOffset = endOffset
+  const checkSelPos = (pos: vscode.Position, newOff?: number) => {
+    if (pos.line < edit.startLine) return pos
+    if (pos.isAfterOrEqual(endPos)) return undefined
+    let off = (newOff || doc.offsetAt(pos)) + offsetDiff - editStartOffset
+    for (let i = 0; i < edit.lines.length; i++) {
+      const lineLength = edit.lines[i].length + eol.length
+      if (off < lineLength) return new vscode.Position(edit.startLine + i, off)
+      else off -= lineLength
+    }
+    throw new Error("Tried to find position outside edit range.")
+  }
+
+  for (let [op, str] of diffs) {
+    if (op === fd.INSERT) {
+      offsetDiff += str.length
+      editBuilder.insert (startPos, str)
+      continue
+    }
+
+    endOffset += str.length, endPos = doc.positionAt(endOffset)
+
+    while (sel) {
+      // If selection falls in a deleted section it will be moved to the start of it
+      let newOffset = op === fd.DELETE ? endOffset - str.length : undefined
+      if (!newAnchorPos) newAnchorPos = checkSelPos(sel.anchor, newOffset)
+      if (!newActivePos) newActivePos = checkSelPos(sel.active, newOffset)
+      if (newAnchorPos && newActivePos) {
+        selections.push (new Selection (newAnchorPos, newActivePos))
+        newAnchorPos = newActivePos = undefined
+        sel = oldSelections.pop ()
+      }
+      else break
+    }
+
+    if (op === fd.DELETE) {
+      offsetDiff -= str.length
+      editBuilder.delete (new Range (startPos, endPos))
+    }
+    startPos = endPos
+  }
+
+  // Handle special case of a selection that's right at the end of the edit. This won't
+  // have been captured in the above because of the < endPos check.
+  if (sel) {
+    let endLine = edit.lines.length - 1
+    const test = p => endPos.isEqual(p) ?
+      new Position (edit.startLine + endLine, edit.lines[endLine].length) : undefined
+    newAnchorPos = newAnchorPos || test (sel.anchor)
+    newActivePos = newActivePos || test (sel.active)
+  }
+
+  // Finish off selections after the edit
+  const lineDelta = edit.lines.length - (edit.endLine - edit.startLine + 1)
+  while (sel) {
+    selections.push (new Selection (
+      newAnchorPos || sel.anchor.translate (lineDelta),
+      newActivePos || sel.active.translate (lineDelta)
+    ))
+    newAnchorPos = newActivePos = undefined
+    sel = oldSelections.pop ()
+  }
+
+  if (saveState)
+    saveDocState ({filePath: doc.fileName, version: doc.version + 1, selections})
 }
 
 /** Catches any error and displays a friendly message to the user. */
@@ -47,7 +110,7 @@ export function catchErr (err) {
     "^^^^^^ Rewrap: Please report this (with a copy of the above lines) ^^^^^^\n" +
     "at https://github.com/stkb/vscode-rewrap/issues"
   )
-  window.showInformationMessage(
+  vscode.window.showInformationMessage(
     "Sorry, there was an error in Rewrap. " +
     "Go to: Help -> Toggle Developer Tools -> Console " +
     "for more information."
@@ -64,25 +127,4 @@ export function docLine (document: TextDocument) {
 export function docType (document: TextDocument): DocType {
     const path = document.fileName, language = document.languageId
     return {path, language, getMarkers: () => getCustomMarkers(language)}
-}
-
-type FixSelectionsData =
-  { editor: TextEditor, oldLines: string[], selections: readonly Selection[],
-    edit: Edit, saveState: boolean }
-let fixSelectionsData : FixSelectionsData | undefined
-
-export function onDocumentChange (e: TextDocumentChangeEvent) {
-  if (! fixSelectionsData) return
-  const {editor, oldLines, selections, edit, saveState} = fixSelectionsData
-  if (editor !== window.activeTextEditor) { fixSelectionsData = undefined; return }
-  if (e.document !== editor.document) return
-  fixSelectionsData = undefined
-
-  if (selections.length === 0) {
-    const wholeRange = getDocRange (editor.document)
-    editor.selection = new Selection (wholeRange.start, wholeRange.end)
-  }
-  else editor.selections = fixSelections (oldLines, selections, edit)
-
-  if (saveState) saveDocState (getDocState (editor))
 }

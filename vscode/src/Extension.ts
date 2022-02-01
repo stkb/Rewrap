@@ -1,6 +1,6 @@
 import {maybeChangeWrappingColumn, rewrap} from './Core'
-import {buildEdit, catchErr, docType, docLine, getDocState, onDocumentChange} from './Common'
-import {Disposable, ExtensionContext, TextEditor, TextEditorEdit, commands, window, workspace} from 'vscode'
+import {buildEdit, catchErr, docType, docLine, getDocState} from './Common'
+import {ExtensionContext, TextEditor, TextEditorEdit, commands, window} from 'vscode'
 import {getCoreSettings, getEditorSettings} from './Settings'
 import AutoWrap from './AutoWrap'
 
@@ -15,7 +15,6 @@ async function activate (context: ExtensionContext) {
     ( commands.registerTextEditorCommand('rewrap.rewrapComment', rewrapCommentCommand)
     , commands.registerTextEditorCommand('rewrap.rewrapCommentAt', rewrapCommentAtCommand)
     , commands.registerTextEditorCommand('rewrap.toggleAutoWrap', autoWrap.editorToggle)
-    , workspace.onDidChangeTextDocument(onDocumentChange)
     )
 }
 

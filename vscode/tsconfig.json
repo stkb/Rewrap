@@ -2,6 +2,7 @@
 	"files": [ "src/Extension.ts" ],
 	"compilerOptions": {
 		"module": "commonjs",
+		"esModuleInterop": true,
 		"target": "es2019",
 		"lib": ["ES2019"],
 		"outDir": "bin",
