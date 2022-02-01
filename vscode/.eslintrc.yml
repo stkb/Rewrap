@@ -17,6 +17,7 @@ rules:
   no-trailing-spaces: [error, ignoreComments: true]
   no-undef: error
   no-unreachable: error
+  '@typescript-eslint/no-unused-vars': error
   keyword-spacing: error
   space-before-function-paren: error
 root: true
