@@ -5,10 +5,6 @@ import GetCustomMarkers from './CustomLanguage'
 const getCustomMarkers = GetCustomMarkers()
 
 
-/** Converts a selection-like object to a vscode Selection object */
-const vscodeSelection = (s: Selection) =>
-  new Selection(s.anchor.line, s.anchor.character, s.active.line, s.active.character)
-
 /** Gets the range for the whole document */
 const getDocRange = (doc: TextDocument) => doc.validateRange
     (new Range(0, 0, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER))
@@ -29,7 +25,7 @@ export function buildEdit
 {
   if (edit.isEmpty) return
 
-  const selections = edit.selections.map(vscodeSelection)
+  const selections = edit.selections
   const doc = editor.document
   const oldLines = Array(edit.endLine - edit.startLine + 1).fill(null)
     .map((_, i) => doc.lineAt(edit.startLine + i).text)
@@ -71,7 +67,7 @@ export function docType (document: TextDocument): DocType {
 }
 
 type FixSelectionsData =
-  { editor: TextEditor, oldLines: string[], selections: Selection[],
+  { editor: TextEditor, oldLines: string[], selections: readonly Selection[],
     edit: Edit, saveState: boolean }
 let fixSelectionsData : FixSelectionsData | undefined
 
