@@ -47,7 +47,7 @@ nav:
 - configuration.md
 - extra-features.md
 - 'Specs':
-  - specs/readme.md
+  - specs/README.md
   - 'Features':
     - specs/features/line-comments.md
     - specs/features/block-comments.md
