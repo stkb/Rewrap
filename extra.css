@@ -8,10 +8,19 @@
 
 .md-sidebar { width: 20% }
 .md-nav__title { display: none }
+.md-nav__item .md-nav__link--active { font-weight: bold }
+[dir="ltr"] .md-nav--integrated > .md-nav__list > .md-nav__item--active .md-nav--secondary {
+  margin-top: 0.5em; margin-left: 0.25em;
+  border-left: 0.1rem solid var(--md-primary-fg-color);
+  padding:  0.1em 0 0.7em;
+  background: #2b69ab30
+}
 
 .md-main__inner { margin: 0 }
 
 .md-typeset h1, .md-typeset h2 { font-weight: 500 }
+
+.md-typeset code { font-size: 0.75em }
 
 .md-typeset table:not([class]) td { padding: 0.7em 1em }
 .md-typeset table:not([class]) th { padding: 0.5em 1em }
