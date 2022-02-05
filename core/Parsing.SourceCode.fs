@@ -58,11 +58,7 @@ let java : DocumentProcessor =
         ]
 
 /// Parser for css (also used in html)
-let css : DocumentProcessor =
-    oldSourceCode
-        [ customBlock DocComments.javadoc ( "*", " * " ) javadocMarkers
-          cBlock
-        ]
+let css : DocumentProcessor = java
 
 /// Parser for html
 let html : DocumentProcessor =
