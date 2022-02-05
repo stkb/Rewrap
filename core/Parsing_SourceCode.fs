@@ -58,7 +58,7 @@ let private splitAtWidth : int -> int -> int -> Line -> Line =
   (if extraWidth < 1 then line else loop 0 0) |> tabsToSpacesContent tabWidth
 
 /// Regex that captures whitespace at the beginning of a string
-let private wsRegex = Regex(@"^\s*")
+let private wsRegex = regex @"^\s*"
 
 type CommentFormat =
   /// Line comment (//). Takes the comment lines and the column that's immediately after
@@ -111,7 +111,7 @@ let private inspectAndProcessContent :
         lines :> seq<Line>, wsRegex, initialIndent
     | MultiLineBlockFmt (_, tLines, _, bodyMarkers) ->
         let bm = if bodyMarkers <> "" then "[" + bodyMarkers + @"]?\s*" else ""
-        tLines :> seq<Line>, Regex(@"^\s*" + bm), 0
+        tLines :> seq<Line>, regex (@"^\s*" + bm), 0
     | SingleLineBlockFmt _ ->
         Seq.empty, wsRegex, 0
 
@@ -174,8 +174,8 @@ type private LineCommentBlock (contentParser: ContentParser) =
 
 let lineComment : string -> ContentParser -> TryNewParser =
   fun marker contentParser ->
-  let regex = Regex(@"^(\s*)" + marker, RegexOptions.ECMAScript)
-  let tryMatchLine line = tryMatch regex line <|>> fun m -> Line.adjustSplit m.[0].Length line
+  let rx = regex (@"^(\s*)" + marker)
+  let tryMatchLine line = tryMatch rx line <|>> fun m -> Line.adjustSplit m.[0].Length line
   let comment = LineCommentBlock (contentParser)
 
   fun ctx ->
@@ -230,7 +230,7 @@ let blockComment :
   (string * string) -> (string * string) -> ContentParser -> TryNewParser =
 
   fun (bodyMarkers, defaultBodyMarker) (startMarker, endMarker) contentParser ->
-  let startRegex = Regex(@"^\s*" + startMarker + @"\s*", RegexOptions.ECMAScript)
+  let startRegex = regex (@"^\s*" + startMarker + @"\s*")
   let comment prefixFn endMatchIndex =
     BlockCommentBlock(contentParser, bodyMarkers, defaultBodyMarker, prefixFn, endMatchIndex)
 
@@ -247,7 +247,7 @@ let blockComment :
     let endPattern =
       let step (i:int, r:string) s = i + 1, r.Replace("$" + i.ToString(), s)
       Array.fold step (0, endMarker) m |> snd
-    let endRegex = Regex (endPattern, RegexOptions.ECMAScript)
+    let endRegex = regex endPattern
 
     let rec testForEnd (line: Line) : FirstLineRes =
       let m = endRegex.Match(line.content)

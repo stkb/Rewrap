@@ -10,6 +10,8 @@ open Parsing_
 
 type private Lines = Nonempty<string>
 
+let inline regex pat = Regex(pat, RegexOptions.IgnoreCase ||| RegexOptions.ECMAScript)
+
 let extractWrappable
   (marker: string)
   (eraseIndentedMarker: bool)
@@ -39,15 +41,15 @@ let extractWrappable
         >> fun (pre, rest) -> pre + rest
     lines |> map stripLine
 
-  let regex = Regex(@"^(\s*)" + marker + @"\s*")
+  let rx = regex (@"^(\s*)" + marker + @"\s*")
 
   let prefix, prefixLength =
-    extractPrefix regex "" settings.tabWidth (Nonempty.toList lines)
+    extractPrefix rx "" settings.tabWidth (Nonempty.toList lines)
 
   let newPrefix = if settings.reformat then (reformatPrefix prefix) else prefix
 
   ( (newPrefix, newPrefix)
-  , stripLines regex prefixLength settings.tabWidth eraseIndentedMarker lines
+  , stripLines rx prefixLength settings.tabWidth eraseIndentedMarker lines
   )
 
 let private maybeReformat settings (prefix: string) : string =
@@ -110,7 +112,7 @@ let private processCommentContent settings contentParser prefix =
 
 
 /// Regex that captures whitespace at the beginning of a string
-let private wsRegex = Regex(@"^\s*")
+let private wsRegex = regex @"^\s*"
 
 type CommentFormat =
   /// Line comment (//). Takes the comment lines and the column that's
@@ -141,7 +143,7 @@ let private inspectAndProcessContent :
         lines :> seq<Line>, wsRegex, initialIndent
     | MultiLineBlockFmt (_, tLines, _, bodyMarkers) ->
         let bm = if bodyMarkers <> "" then "[" + bodyMarkers + @"]?\s*" else ""
-        tLines :> seq<Line>, Regex(@"^\s*" + bm), 0
+        tLines :> seq<Line>, regex (@"^\s*" + bm), 0
     | SingleLineBlockFmt _ ->
         Seq.empty, wsRegex, 0
 
@@ -200,7 +202,7 @@ let private inspectAndProcessContent :
 let lineComment : (Settings -> TotalParser<string>) -> string -> Settings -> OptionParser<string,string> =
   fun contentParser marker settings ->
 
-  let prefixRegex = Regex(@"^(\s*)" + marker, RegexOptions.ECMAScript)
+  let prefixRegex = regex (@"^(\s*)" + marker)
   let strWidth = strWidth' 0 settings.tabWidth
 
   /// Tries to match the given line with our comment marker. If it matches,
@@ -232,7 +234,7 @@ let blockComment :
   -> OptionParser<string,string> =
   fun contentParser (bodyMarkers, defaultBodyMarker) (startMarker, endMarker) settings ->
 
-  let startRegex, endRegex = Regex(@"^\s*" + startMarker + @"\s*"), Regex(endMarker)
+  let startRegex, endRegex = regex (@"^\s*" + startMarker + @"\s*"), regex (endMarker)
   let inline hasTextUpTo p (str: string) = Line.containsText (str.Substring(0, p))
 
   /// Given remaining lines, finds the comment end marker

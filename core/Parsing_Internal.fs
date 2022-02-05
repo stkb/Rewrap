@@ -12,7 +12,7 @@ open Parsing_
 
 
 /// Creates a regex ignores case & is ecmascript compatible
-let regex pat = Regex(pat, RegexOptions.IgnoreCase ||| RegexOptions.ECMAScript)
+let inline regex pat = Regex(pat, RegexOptions.IgnoreCase ||| RegexOptions.ECMAScript)
 
 
 let tryMatch' : Regex -> Line -> Option<string[] * Line> =
