@@ -63,7 +63,7 @@ let mutable languages = [
     lang "AutoHotkey" "ahk" ".ahk" <| sc [line ";"; cBlock]
     lang "Basic" "vb" ".vb"
         ( oldSourceCode [ customLine xmldoc "'''"; oldLine "'" ] )
-    lang "Batch file" "bat" ".bat" <| sc [line "(?:rem|::)"]
+    lang "Batch file" "bat" ".bat" <| sc [line "(?:@?rem|::)"]
     lang "Bikeshed" "" ".bs" <| docOf markdown
     lang "C/C++" "c|c++|cpp" ".c|.cpp|.h"
         ( oldSourceCode

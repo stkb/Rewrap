@@ -61,6 +61,7 @@ nav:
     - specs/features/misc.md
   - 'Content Types':
     - specs/content-types/dotnet-xmldoc.md
+    - specs/content-types/batch-file.md
     - specs/content-types/d.md
     - specs/content-types/dart.md
     - specs/content-types/doxygen.md
