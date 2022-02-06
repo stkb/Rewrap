@@ -212,7 +212,7 @@ let mutable languages = [
     lang "Scheme" "" ".scm|.ss|.sch|.rkt" <| sc [line ";+"; block (@"#\|", @"\|#")]
     lang "Shaderlab" "" ".shader"
         java
-    lang "Shell script" "shellscript" ".sh" <| configFile
+    lang "Shell script" "shellscript" ".sh" <| sc [line @"#(?!\!)"]
     lang "SQL" "postgres" ".pgsql|.psql|.sql" <| sc [line "--"; cBlock]
     lang "Swift" "" ".swift"
         java
