@@ -1,5 +1,7 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
+---
+
 
 ### 1.16.1
 
