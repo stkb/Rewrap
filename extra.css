@@ -10,10 +10,10 @@
 .md-nav__title { display: none }
 .md-nav__item .md-nav__link--active { font-weight: bold }
 [dir="ltr"] .md-nav--integrated > .md-nav__list > .md-nav__item--active .md-nav--secondary {
-  margin-top: 0.5em; margin-left: 0.25em;
-  border-left: 0.1rem solid var(--md-primary-fg-color);
+  margin-top: 0.5em;
+  border-left: 0.1rem solid var(--md-primary-fg-color); border-radius: 0.2em;
   padding:  0.1em 0 0.7em;
-  background: #2b69ab30
+  background: #2b69ab10
 }
 
 .md-main__inner { margin: 0 }
