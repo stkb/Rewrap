@@ -171,6 +171,7 @@ let mutable languages = [
     lang "Objective-C" "" ".m|.mm"
         java
     lang "Octave" "" "" <| sc [block ("#\{", "#\}"); block ("%\{", "%\}"); line "##?"; line "%[^!]"]
+    lang "Pascal" "delphi" ".pas" <| sc [block (@"\(\*", @"\*\)"); block (@"\{(?!\$)", @"\}"); line "///?"]
     // Putting Perl & Perl6 together. Perl6 also has a form of block comment which still
     // needs to be supported. https://docs.perl6.org/language/syntax#Comments
     lang "Perl" "perl6" ".p6|.pl|.pl6|.pm|.pm6" <| configFile
