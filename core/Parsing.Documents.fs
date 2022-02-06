@@ -123,6 +123,7 @@ let mutable languages = [
               oldBlock ( @"\(\*", @"\*\)" )
             ]
         )
+    lang "FIDL" "" ".fidl" <| sc [line "///?"]
     lang "Go" "" ".go"
         ( oldSourceCode
             [ customBlock DocComments.godoc ( "", "" ) javadocMarkers
