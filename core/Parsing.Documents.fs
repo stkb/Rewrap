@@ -90,7 +90,7 @@ let mutable languages = [
             ]
         )
     lang "Common Lisp" "commonlisp|lisp" ".lisp" <| sc [line ";+"; block (@"#\|", @"\|#")]
-    lang "Configuration" "properties" ".conf|.gitconfig" <| configFile
+    lang "Configuration" "properties" ".conf|.gitconfig|.pylintrc|pylintrc" <| configFile
     lang "Crystal" "" ".cr" <| configFile
     lang "CSS" "postcss" ".css|.pcss|.postcss"
         css
