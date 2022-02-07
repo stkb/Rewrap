@@ -217,6 +217,7 @@ let mutable languages = [
     lang "Swift" "" ".swift"
         java
     lang "Tcl" "" ".tcl" <| configFile
+    lang "Textile" "" ".textile" <| docOf markdown
     lang "TOML" "" ".toml" <| configFile
     lang "TypeScript" "typescriptreact" ".ts|.tsx"
         java
