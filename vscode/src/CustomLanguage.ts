@@ -1,7 +1,5 @@
-import * as Path from 'path'
-import {readFileSync} from 'fs'
-import * as JSON from 'json5'
-import * as vscode from 'vscode'
+import JSON from 'json5'
+import vscode from 'vscode'
 import {CustomMarkers, noCustomMarkers} from './Core'
 
 const getConfig = (getText, path) => {
@@ -34,14 +32,14 @@ type Cache = Record<string, string | CustomMarkers>
 /** Iterates through all extensions and populates the cache with mappings for each found
  *  language id to a path to a configuration file. */
 function createCache (exts) : Cache {
-  const addConfigFiles = (cache, ext) => {
+  const addConfigFiles = (cache, ext: vscode.Extension<any>) => {
     try {
       let obj = ext.packageJSON
       if ((obj = obj.contributes) && (obj = obj.languages)) {
         for (const l of obj) {
           if (!l.id) continue
           if (l.configuration) {
-            const confPath = Path.join(ext.extensionPath, l.configuration)
+            const confPath = ext.extensionPath + '/' + l.configuration
             cache[l.id] = confPath
           }
         }
@@ -61,8 +59,11 @@ export default function (exts?, getFileText?) {
   exts = exts || vscode.extensions.all
   if (!exts.length)
     console.warn("`vscode.extensions.all` returned an empty array. Something is wrong.")
+  if (!getFileText) {
+    try { getFileText = require('fs').readFileSync }
+    catch { getFileText = () => "" }
+  }
 
-  getFileText = getFileText || (p => readFileSync(p))
   let cache
   return lang => {
     cache = cache || createCache(exts)

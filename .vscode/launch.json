@@ -12,6 +12,19 @@
             "preLaunchTask": "Build extension"
         },
         {
+            "name": "Web Extension",
+            "type": "pwa-extensionHost",
+            "debugWebWorkerHost": true,
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/vscode",
+                "--extensionDevelopmentKind=web"
+            ],
+            "sourceMaps": true,
+            "preLaunchTask": "Build extension"
+        },
+        {
             "name": "Core Tests",
             "type": "node",
             "request": "launch",
