@@ -123,14 +123,7 @@ let mutable languages = [
             ]
         )
     lang "FIDL" "" ".fidl" <| sc [line "///?"]
-    lang "Go" "" ".go"
-        ( oldSourceCode
-            [ customBlock DocComments.godoc ( "", "" ) javadocMarkers
-              Parsing.SourceCode.cBlock
-              customLine DocComments.godoc "//"
-              cLine
-            ]
-        )
+    lang "Go" "" ".go" <| sc [block' ("", "") (@"/\*", @"\*/") godoc; line' "//" godoc]
     lang "Git commit" "git-commit" "tag_editmsg" <| docOf markdown
     lang "GraphQL" "" ".graphql|.gql" <| sc [line "#"; block (@".*?""""""", "\"\"\"")]
     lang "Groovy" "" ".groovy"

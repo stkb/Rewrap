@@ -1,4 +1,8 @@
+# Go
+
 > language: "go", tabWidth: 2
+
+https://go.dev/blog/godoc
 
 Go uses [tabs](../features/tabs.md) for indentation. Comments in are wrapped using the
 rules of the godoc parser. There are two simple rules.
