@@ -4,7 +4,6 @@
 !dist/**
 !LICENSE
 !logo.png
-!node_modules/**
 !package.json
 !package-lock.json
 !README.md
