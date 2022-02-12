@@ -124,13 +124,10 @@ type Line (p: string, c: string) =
     let maxIndent = line.prefix.Length + line.content.Length - trimmed.Length
     Line(line, min indent maxIndent)
 
-  static member mapRight : (string -> string) -> Line -> Line =
+  static member mapContent : (string -> string) -> Line -> Line =
     fun fn line -> Line(line.prefix, fn line.content)
-  static member mapLeft : (string -> string) -> Line -> Line =
+  static member mapPrefix : (string -> string) -> Line -> Line =
     fun fn line -> Line(fn line.prefix, line.content)
-
-  static member bimap : (string -> string) -> (string -> string) -> Line -> Line =
-    fun f g line -> Line(f line.prefix, g line.content)
 
   override this.ToString() = this.prefix + this.content
 

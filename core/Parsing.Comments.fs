@@ -71,7 +71,7 @@ let tabsToSpacesContent : int -> Line -> Line =
   let convert initWidth (str: string) =
     str.Split([|'\t'|]) |> Array.fold step (None, initWidth) |> fst |> Option.get
 
-  fun line -> Line.mapRight (convert (strWidth tabSize line.prefix)) line
+  fun line -> Line.mapContent (convert (strWidth tabSize line.prefix)) line
 
 /// Decoration lines are not wrapped and their prefix is not modified. With
 /// normal lines the prefix may be adjusted if reformat is on, and the content
@@ -177,7 +177,7 @@ let private inspectAndProcessContent :
           else (typ, line), None
         | Normal ->
           let line = splitAtWidth tabWidth initialIndent indentIncrease line
-          let line = line |> tabsToSpacesContent tabWidth |> Line.mapLeft (maybeReformat settings)
+          let line = line |> tabsToSpacesContent tabWidth |> Line.mapPrefix (maybeReformat settings)
           (typ, line), if String.IsNullOrWhiteSpace(line.content) then None else Some line.prefix
     let mapping (maybePrefix: string Option) (line: LineType * Line) =
       let typ_line, mlp = adjust line in typ_line, maybePrefix |> Option.orElse mlp
@@ -259,7 +259,7 @@ let blockComment :
       if not (hasTextUpTo p hLine.content) then Decoration, hLine
       else
         let hLine = hLine |> tabsToSpacesContent settings.tabWidth
-        Normal, hLine |> Line.mapLeft (maybeReformat settings)
+        Normal, hLine |> Line.mapPrefix (maybeReformat settings)
 
     let fmt, linesAfter =
       let mEnd = endRegex.Match(hLine.content)

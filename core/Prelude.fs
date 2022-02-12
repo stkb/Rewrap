@@ -23,6 +23,8 @@ let inline map (f: ^a -> ^b) (x: ^x) =
   ((^x or ^Functor): (static member map: ^Functor * (^a -> ^b) * ^x -> ^r) (Functor, f, x))
 let inline (<<|>) f x = map f x
 let inline (<|>>) x f = map f x // This operator sometimes causes issues in Fable?
+/// Shortcut for x >> map f
+let inline (<>>>) x f = x >> map f
 
 /// Ignores the value in the functor and uses the specified value instead. The
 /// same as `map (always x)`
@@ -41,6 +43,7 @@ let inline rmap (g: ^c -> ^d) (x: ^x) =
 
 /// Alt. Can be used to chain Options or functions that return Options
 type Alt = Alt with
+  static member inline alt (Alt, x: Option<'a>, fy: unit -> Option<'a>) = Option.orElseWith fy x
   static member inline alt (Alt, x: Option<'a>, y: Option<'a>) = Option.orElse y x
   static member inline alt (Alt, x: array<'a>, y: array<'a>) = Array.append x y
   static member inline alt (Alt, f1: 'a -> bool, f2: 'a -> bool) =
@@ -50,14 +53,15 @@ type Alt = Alt with
   static member inline alt (Alt, f1: 'a -> 'b -> Option<'r>, f2: 'a -> 'b -> Option<'r>) =
     fun a b -> match f1 a b with None -> f2 a b | r -> r
 
-let inline alt (x: ^a) (y: ^a) =
-  ((^a or ^Alt): (static member alt: ^Alt * ^a * ^a -> ^a ) (Alt, x, y))
+let inline alt (x: ^a) (y: ^b) =
+  ((^a or ^Alt): (static member alt: ^Alt * ^a * ^b -> ^a ) (Alt, x, y))
 let inline (<|>) x y = alt x y
 let inline tryMany list = Seq.reduce alt list
 
 /// For providing a default value, currently only for Options but could be used for any
 /// monoid. Can be used after an Alt chain.
 type HasDefault = HasDefault with
+  static member inline withDefault (HasDefault, td: unit -> 'r, x: Option<'r>) = Option.defaultWith td x
   static member inline withDefault (HasDefault, d: 'r, x: Option<'r>) = Option.defaultValue d x
   static member inline withDefault (HasDefault, fd: 'a -> 'r, f: 'a -> Option<'r>) =
     fun a -> match f a with None -> fd a | Some r -> r

@@ -36,7 +36,7 @@ let private tabsToSpacesContent : int -> Line -> Line =
   let convert initWidth (str: string) =
     str.Split([|'\t'|]) |> Array.fold step (None, initWidth) |> fst |> Option.get
 
-  fun line -> Line.mapRight (convert (strWidth tabSize line.prefix)) line
+  fun line -> Line.mapContent (convert (strWidth tabSize line.prefix)) line
 
 
 let private splitAtWidth : int -> int -> int -> Line -> Line =
