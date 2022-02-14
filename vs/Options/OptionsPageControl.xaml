@@ -242,12 +242,12 @@
                 </TextBlock>
                 <TextBlock TextWrapping="WrapWithOverflow">
                     <Hyperlink
-                        NavigateUri="https://stkb.github.io/Rewrap/#/settings-visualstudio"
+                        NavigateUri="https://stkb.github.io/Rewrap/configuration-visual-studio/"
                         RequestNavigate="OpenLinkInBrowser"
                         >
                             More info at can be found here
                     </Hyperlink>.
-                </TextBlock>
+                </TextBlock>
             </StackPanel>
         </Border>
         <Popup x:Name="LanguagesPopup" AllowsTransparency="True" Placement="Bottom" StaysOpen="False"
