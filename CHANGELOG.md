@@ -3,6 +3,17 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 ---
 
 
+### 1.16.2
+
+- Support .rmd files as markdown (#245)
+- Basic support for Textile files as markdown (#271)
+- Support FIDL (#255), Pascal/Delphi (#97) & pylintrc files (#121)
+- Shell script: Ignore shebangs (#129)
+- Add '//'-comments to CSS (workaround for #309)
+- Fix batch files: case-insensitive "REM" and "@" prefix (#313)
+- Fix the document being 'modified' if there were no actual changes (#308, #315)
+
+
 ### 1.16.1
 
 - VS Code: Attempt to prevent rare "TextEditor has been disposed" error (#100)
