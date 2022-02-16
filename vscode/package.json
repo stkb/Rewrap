@@ -91,6 +91,12 @@
           "default": false,
           "description": "(EXPERIMENTAL) When wrapping lines, reformat paragraph indents."
         },
+        "rewrap.onSave": {
+          "scope": "language-overridable",
+          "type": "boolean",
+          "default": false,
+          "description": "Do a rewrap on the whole document when saving."
+        },
         "rewrap.autoWrap.enabled": {
           "scope": "language-overridable",
           "type": "boolean",

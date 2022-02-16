@@ -47,6 +47,11 @@ export function getEditorSettings (editor: TextEditor) : EditorSettings {
   }
 }
 
+/** Gets the onSave setting for the wrap-on-save feature */
+export function getOnSaveSetting (document: TextDocument) : boolean {
+  return workspace.getConfiguration('', document).get('rewrap.onSave', false)
+}
+
 const getAutoWrapSettings =
   (config: WorkspaceConfiguration, lang: string) : AutoWrapSettings =>
 ({

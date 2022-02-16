@@ -1,6 +1,6 @@
 import {getWrappingColumn, maybeAutoWrap} from './Core'
 import {Memento, ThemeColor, workspace, window, TextDocumentChangeEvent, TextEditor, ConfigurationChangeEvent} from 'vscode'
-import {buildEdit, catchErr, docLine, docType} from './Common'
+import {buildEdits, catchErr, docLine, docType} from './Common'
 import {EditorSettings, getCoreSettings, getEditorSettings} from './Settings'
 
 /** Handler that's called if the text in the active editor changes */
@@ -30,7 +30,7 @@ const checkChange = async (e: TextDocumentChangeEvent) => {
     // maybeAutoWrap does more checks: that newText isn't empty, but is only whitespace.
     // Don't call this in a promise: it causes timing issues.
     const edit = maybeAutoWrap(file, settings, newText, range.start, docLine(doc))
-    if (!edit.isEmpty) return editor.edit (builder => buildEdit(editor, builder, edit, false))
+    if (!edit.isEmpty) return editor.edit (builder => buildEdits(doc, edit, builder))
   }
   catch (err) { catchErr(err) }
 }

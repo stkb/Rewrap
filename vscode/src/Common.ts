@@ -1,5 +1,5 @@
 import {DocState, DocType, Edit, saveDocState} from './Core'
-import vscode, {Position, Range, Selection, TextDocument, TextEditor, TextEditorEdit} from 'vscode'
+import vscode, {Position, Range, TextDocument, TextEdit, TextEditor} from 'vscode'
 import fd from 'fast-diff'
 import GetCustomMarkers from './CustomLanguage'
 const getCustomMarkers = GetCustomMarkers()
@@ -14,19 +14,20 @@ export const getDocState = (editor: TextEditor) : DocState => {
   return {filePath: docType(doc).path, version: doc.version, selections}
 }
 
-/** Builds the vscode edits that apply an Edit to the document. Also calculates where the
- * post-wrap selections will be and saves the state of the document. If the edit is empty
- * this is a no-op */
-export function buildEdit
-  (editor: TextEditor, editBuilder: TextEditorEdit, edit: Edit, saveState: boolean) : void
+/** Creates and returns the vscode edits to be applied to the the document. If a
+ *  TextEditorEdit is supplied, the edits are applied to it. If saveState is true, also
+ *  calculates where the post-wrap selections will be and saves the state of the document.
+ *  If the edit is empty this is a no-op */
+export function buildEdits
+  (doc: TextDocument, edit: Edit, eb?: vscode.TextEditorEdit, saveState = false) : TextEdit[]
 {
-  if (edit.isEmpty) return
+  const edits: TextEdit[] = []
+  if (edit.isEmpty) return edits
 
-  const doc = editor.document
-    , oldLines = Array(edit.endLine - edit.startLine + 1).fill(null)
-        .map((_, i) => doc.lineAt(edit.startLine + i).text)
+  const oldLines = Array(edit.endLine - edit.startLine + 1).fill(null)
+          .map((_, i) => doc.lineAt(edit.startLine + i).text)
     , oldSelections = [...edit.selections].reverse()
-    , selections: Selection[] = []
+    , selections: vscode.Selection[] = []
   let sel = oldSelections.pop()
 
   const eol = doc.eol === vscode.EndOfLine.CRLF ? "\r\n" : "\n"
@@ -51,7 +52,7 @@ export function buildEdit
   for (let [op, str] of diffs) {
     if (op === fd.INSERT) {
       offsetDiff += str.length
-      editBuilder.insert (startPos, str)
+      edits.push (TextEdit.insert (startPos, str))
       continue
     }
 
@@ -63,7 +64,7 @@ export function buildEdit
       if (!newAnchorPos) newAnchorPos = checkSelPos(sel.anchor, newOffset)
       if (!newActivePos) newActivePos = checkSelPos(sel.active, newOffset)
       if (newAnchorPos && newActivePos) {
-        selections.push (new Selection (newAnchorPos, newActivePos))
+        selections.push (new vscode.Selection (newAnchorPos, newActivePos))
         newAnchorPos = newActivePos = undefined
         sel = oldSelections.pop ()
       }
@@ -72,7 +73,7 @@ export function buildEdit
 
     if (op === fd.DELETE) {
       offsetDiff -= str.length
-      editBuilder.delete (new Range (startPos, endPos))
+      edits.push (TextEdit.delete (new Range (startPos, endPos)))
     }
     startPos = endPos
   }
@@ -90,7 +91,7 @@ export function buildEdit
   // Finish off selections after the edit
   const lineDelta = edit.lines.length - (edit.endLine - edit.startLine + 1)
   while (sel) {
-    selections.push (new Selection (
+    selections.push (new vscode.Selection (
       newAnchorPos || sel.anchor.translate (lineDelta),
       newActivePos || sel.active.translate (lineDelta)
     ))
@@ -98,8 +99,12 @@ export function buildEdit
     sel = oldSelections.pop ()
   }
 
+  if (eb)
+    edits.forEach(e => e.newText ? eb.insert (e.range.start, e.newText) : eb.delete (e.range))
   if (saveState)
     saveDocState ({filePath: doc.fileName, version: doc.version + 1, selections})
+
+  return edits
 }
 
 /** Catches any error and displays a friendly message to the user. */
