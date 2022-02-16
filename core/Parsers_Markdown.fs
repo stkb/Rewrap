@@ -287,12 +287,12 @@ let markdown : ContentParser =
   // section in the middle of a document.
   let restOfContent : ContentParser = container id Some
   let yamlHeader =
-    let marker = mdMarker "(---)\s*$"
+    let rxStart, rxEnd = regex "^---\s*$", regex "^---"
     let rec parseLine line =
-      match tryMatch marker line with
+      match tryMatch rxEnd line with
       | Some _ -> ThisLine (finished line noWrapBlock (restOfContent ctx))
       | None -> ThisLine (pending line noWrapBlock parseLine)
     fun line ->
-      tryMatch marker line |> map (fun _ -> pending line noWrapBlock parseLine)
+      tryMatch rxStart line |> map (fun _ -> pending line noWrapBlock parseLine)
 
   fun line -> yamlHeader line ||? fun () -> restOfContent ctx line
