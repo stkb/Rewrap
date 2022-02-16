@@ -1,7 +1,6 @@
 module internal Parsing.Documents
 
 open System
-open System.Text.RegularExpressions
 open Prelude
 open Block
 open Rewrap
@@ -37,11 +36,15 @@ let block' innerMarkers outerMarkers = blockComment innerMarkers outerMarkers
 let block (startMarker, endMarker) = block' ("", "") (startMarker, endMarker) markdown
 
 // Common comment markers/types
-let javadocMarkers = (@"/\*[*!]", @"\*/")
 let cBlock = block' ("*", "") (@"/\*", @"\*/") markdown
+let javadocMarkers = (@"/\*[*!]", @"\*/")
+let jsDocBlock = block' ("*", " * ") javadocMarkers jsdoc_markdown
+
 
 // Common doc types
 let private configFile = sc [line "#"]
+let java : DocumentProcessor =
+  sc [ jsDocBlock; cBlock; line' "//[/!]" jsdoc_markdown; line "//" ]
 
 // Takes 4 args to create a Language:
 //  1. display name (used only in VS)
@@ -81,13 +84,9 @@ let mutable languages = [
         )
     lang "Clojure" "" ".clj|.cljs|.cljc|.cljx|.edn" <| sc [line ";+"]
     lang "CMake" "" "CMakeLists.txt" <| configFile
-    lang "CoffeeScript" "" ".coffee"
-        ( oldSourceCode
-            [ customBlock javadoc ("*#", " * ") ( "###\\*", "###" )
-              oldBlock ( "###", "###" )
-              oldLine "#"
-            ]
-        )
+    lang "CoffeeScript" "" ".coffee" <| sc
+      [ block' ("*#", " * ") ("###\\*", "###") jsdoc_markdown
+        block ("###", "###"); line "#" ]
     lang "Common Lisp" "commonlisp|lisp" ".lisp" <| sc [line ";+"; block (@"#\|", @"\|#")]
     lang "Configuration" "properties" ".conf|.gitconfig|.pylintrc|pylintrc" <| configFile
     lang "Crystal" "" ".cr" <| configFile
@@ -104,14 +103,9 @@ let mutable languages = [
               oldBlock ( "/\+", "\+/" )
             ]
         )
-    lang "Dart" "" ".dart"
-        ( oldSourceCode
-            [ customLine dartdoc "///"
-              cLine
-              customBlock dartdoc ( "*", " * " ) javadocMarkers
-              Parsing.SourceCode.cBlock
-            ]
-        )
+    lang "Dart" "" ".dart" <| sc
+      [ line' "///" (dartdoc_markdown); line "//"
+        block' ("*"," * ") javadocMarkers dartdoc_markdown; cBlock ]
     lang "Dockerfile" "docker" "dockerfile" <| configFile
     lang "Elixir" "" ".ex|.exs" <| sc [line "#"; block ("@(?:module|type|)doc\s+\"\"\"", "\"\"\"")]
     lang "Elm" "" ".elm" <| sc [line "--"; block ("{-\|?", "-}")]
@@ -126,54 +120,34 @@ let mutable languages = [
     lang "Go" "" ".go" <| sc [block' ("", "") (@"/\*", @"\*/") godoc; line' "//" godoc]
     lang "Git commit" "git-commit" "tag_editmsg" <| docOf markdown
     lang "GraphQL" "" ".graphql|.gql" <| sc [line "#"; block (@".*?""""""", "\"\"\"")]
-    lang "Groovy" "" ".groovy"
-        java
+    lang "Groovy" "" ".groovy" java
     lang "Handlebars" "" ".handlebars|.hbs" <| sc [block ("{{!--", "--}}"); block ("{{!", "}}"); block ("<!--", "-->")]
     lang "Haskell" "" ".hs" <| sc [line "--"; block ("{-\s*\|?", "-}")]
-    lang "HCL" "terraform" ".hcl|.tf"
-        ( oldSourceCode
-            [ customBlock DocComments.javadoc ( "*", " * " ) javadocMarkers
-              Parsing.SourceCode.cBlock
-              customLine DocComments.javadoc "//[/!]"
-              cLine
-              oldLine "#"
-            ]
-        )
+    lang "HCL" "terraform" ".hcl|.tf" <| sc [ jsDocBlock; cBlock; line' "//[/!]" jsdoc_markdown; line @"(?://|#)" ]
     lang "HTML" "erb|htmlx|svelte|vue" ".htm|.html|.svelte|.vue"
         html
     lang "INI" "" ".ini" <| sc [line "[#;]"]
     lang "J" "" ".ijs" <| sc [line @"NB\."]
-    lang "Java" "" ".java"
-        java
-    lang "JavaScript" "javascriptreact|js" ".js|.jsx"
-        java
+    lang "Java" "" ".java" java
+    lang "JavaScript" "javascriptreact|js" ".js|.jsx" java
     lang "Julia" "" ".jl" <| sc [block ("#=", "=#"); line "#"; block (@".*?""""""", "\"\"\"")]
-    lang "JSON" "json5|jsonc" ".json|.json5|.jsonc"
-        java
+    lang "JSON" "json5|jsonc" ".json|.json5|.jsonc" java
     lang "LaTeX" "tex" ".bbx|.cbx|.cls|.sty|.tex"
         <| toNewDocProcessor Latex.latex
     lang "Lean" "" ".lean" <| sc [line "--"; block ("/-[-!]?", "-/")]
-    lang "Less" "" ".less"
-        java
+    lang "Less" "" ".less" java
     lang "Lua" "" ".lua" <| sc [block (@"--\[(=*)\[", @"\]$1\]"); line "--"]
     lang "Makefile" "make" "makefile" <| configFile
     lang "Markdown" "mdx" ".md|.mdx|.rmd" <| docOf markdown
     // MATLAB uses .m but that's already taken for Objective-C
     lang "MATLAB" "" "" <| sc [line "%(?![%{}])"; block ("%\{", "%\}")]
-    lang "Objective-C" "" ".m|.mm"
-        java
+    lang "Objective-C" "" ".m|.mm" java
     lang "Octave" "" "" <| sc [block ("#\{", "#\}"); block ("%\{", "%\}"); line "##?"; line "%[^!]"]
     lang "Pascal" "delphi" ".pas" <| sc [block (@"\(\*", @"\*\)"); block (@"\{(?!\$)", @"\}"); line "///?"]
     // Putting Perl & Perl6 together. Perl6 also has a form of block comment which still
     // needs to be supported. https://docs.perl6.org/language/syntax#Comments
     lang "Perl" "perl6" ".p6|.pl|.pl6|.pm|.pm6" <| configFile
-    lang "PHP" "" ".php"
-        ( oldSourceCode
-            [ customBlock javadoc ( "*", " * " ) javadocMarkers
-              Parsing.SourceCode.cBlock
-              oldLine @"(?://|#)"
-            ]
-        )
+    lang "PHP" "" ".php" <| sc [ jsDocBlock; cBlock; line "(?://|#)"]
     lang "PlainText-IndentSeparated" "" "" <| docOf plainText_indentSeparated
     lang "PowerShell" "" ".ps1|.psd1|.psm1"
         ( oldSourceCode [ customLine psdoc "#"; customBlock psdoc ( "", "" ) ( "<#", "#>" ) ] )
@@ -196,26 +170,20 @@ let mutable languages = [
     lang "reStructuredText" "rst" ".rst|.rest" <| docOf rst
     lang "Ruby" "" ".rb" <| sc [line "#"; block ("=begin", "=end")]
     lang "Rust" "" ".rs" <| sc [line @"//[/!]?"]
-    lang "SCSS" "" ".scss"
+    lang "SCSS" "" ".scss" java
     // Sass still needs to be supported.
     // -  http://sass-lang.com/documentation/file.INDENTED_SYNTAX.html
-        java
-    lang "Scala" "" ".scala"
-        java
+    lang "Scala" "" ".scala" java
     lang "Scheme" "" ".scm|.ss|.sch|.rkt" <| sc [line ";+"; block (@"#\|", @"\|#")]
-    lang "Shaderlab" "" ".shader"
-        java
+    lang "Shaderlab" "" ".shader" java
     lang "Shell script" "shellscript" ".sh" <| sc [line @"#(?!\!)"]
     lang "SQL" "postgres" ".pgsql|.psql|.sql" <| sc [line "--"; cBlock]
-    lang "Swift" "" ".swift"
-        java
+    lang "Swift" "" ".swift" java
     lang "Tcl" "" ".tcl" <| configFile
     lang "Textile" "" ".textile" <| docOf markdown
     lang "TOML" "" ".toml" <| configFile
-    lang "TypeScript" "typescriptreact" ".ts|.tsx"
-        java
-    lang "Verilog/SystemVerilog" "systemverilog|verilog" ".sv|.svh|.v|.vh|.vl"
-        java
+    lang "TypeScript" "typescriptreact" ".ts|.tsx" java
+    lang "Verilog/SystemVerilog" "systemverilog|verilog" ".sv|.svh|.v|.vh|.vl" java
     lang "XAML" "" ".xaml"
         html
     lang "XML" "xsl" ".xml|.xsl"
