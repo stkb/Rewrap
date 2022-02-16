@@ -1,15 +1,15 @@
-﻿module internal Parsers
+﻿module internal rec Parsers
 
 open Prelude
 open Line
 open Parsing_
 open Parsing_Internal
 
-let ignoreAll : ContentParser =
-  let rec parseLine line = pending line noWrapBlock (ThisLine << parseLine)
-  fun _ctx -> parseLine
+let ignoreAll ctx = Parsing_Internal.ignoreAll ctx
 
 let markdown ctx = Parsers_Markdown.markdown ctx
+
+let markdown_noHeader ctx = Parsers_Markdown.markdown_noHeader ctx
 
 let plainText : ContentParser = fun _ctx ->
   let rec parseNext line =

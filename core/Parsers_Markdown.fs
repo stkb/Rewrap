@@ -1,13 +1,11 @@
-module internal rec Parsers_Markdown
-
-// This is a rec module because there's lots of recursive references among parsers. It's
-// important to heed the FS0040 warnings, otherwise there can be runtime errors where
+/// For markdown reference see https://spec.commonmark.org/
+module internal Parsers_Markdown
+// It's important to heed the FS0040 warnings, otherwise there can be runtime errors where
 // functions are not yet set (though it does run fine in Fable). For this reason some
 // functions here have had points added where they could normally be written point-free.
 // To fix the warnings you usually have to make sure the containing function takes at
 // least one arg before inner functions are defined.
-//
-// For markdown reference see https://spec.commonmark.org/
+
 
 open Prelude
 open Line
@@ -30,7 +28,7 @@ let private defaultPara (_ctx: Context) : FirstLineParser =
   let rec parseLine (line: Line) : FirstLineRes =
     // We assume a >3 space indent on the first line would have already been
     // picked up by another parser, so it's ok to just trim all indent
-    let line = Line.trimUpTo Int32.MaxValue line
+    let line = trimWhitespace line
     if isMatch lineBreakEnd line then Finished (LineRes(line, wrapBlock, true, None))
     else Pending (LineRes(line, wrapBlock, true, parseLine >> ThisLine))
   parseLine
@@ -133,52 +131,18 @@ let private thematicBreak : TryNewParser = fun _ctx ->
 //---------- Container blocks ----------------------------------------------------------//
 
 
-/// Makes a container. Takes a prefix-modifying function, and a function to test each line
-/// to check we're still in the container, before passing the line to the inner parser.
-let container : (string -> string) -> (Line -> Option<Line>) -> Context -> FirstLineParser =
-  fun prefixFn lineTest ctx ->
-
-  let rec wrapFLR : FirstLineRes -> FirstLineRes = function
-  | Pending r -> Pending (wrapResultParser (nlpWrapper r.isDefault) r)
-  | Finished r -> Finished (wrapResultParser (fun p -> Some (flpWrapper r.isDefault p)) r)
-
-  and flpWrapper wasPara maybeInnerParser line : FirstLineRes =
-    match lineTest line with
-    | Some line -> (maybeInnerParser |? getNewBlock ctx) line |> wrapFLR
-    | None ->
-        match maybeInnerParser, wasPara with
-        | Some p, true -> wrapFLR (p line)
-        | _ -> (maybeInnerParser |? getNewBlock ctx) line
-
-  and nlpWrapper wasPara innerParser line : NextLineRes =
-    match lineTest line with
-    | Some line -> innerParser line |> function
-      | ThisLine flr -> ThisLine (wrapFLR flr)
-      | FinishedOnPrev maybeThisLineRes ->
-          let tlr = maybeThisLineRes ||? fun () -> getNewBlock ctx line
-          FinishedOnPrev <| Some (wrapFLR tlr)
-    | None when not wasPara -> FinishedOnPrev None
-    | None -> innerParser line |> function
-      | ThisLine x -> ThisLine (wrapFLR x)
-      // This should only occur if the paragraph parser found a
-      // (non-paragraph) interruption. So we're out (don't wrap result)
-      | FinishedOnPrev x -> FinishedOnPrev x
-
-  getNewBlock ctx >> wrapFLR >> wrapPrefixFn prefixFn
-
-
 /// Block quote container. Reference: https://spec.commonmark.org/0.29/#block-quotes
-let private blockquote : TryNewParser =
-  fun ctx ->
+let private blockquote : ContentParser -> TryNewParser =
+  fun getNewBlock ctx ->
   let findMarker line : Option<Line> =
     tryMatch (mdMarker "> ?") line |> map (fun c -> Line.adjustSplit (c.[0].Length) line)
 
-  fun line -> findMarker line |> map (container id findMarker ctx)
+  fun line -> findMarker line |> map (container getNewBlock id findMarker ctx)
 
 
 /// Footnote container (not in commonmark)
-let private footnote : TryNewParser =
-  fun ctx ->
+let private footnote : ContentParser -> TryNewParser =
+  fun getNewBlock ctx ->
   let testLineIndent (line: Line) : Option<Line> =
     let minIndent = 4
     if not (isBlankLine line) && indentLength line < minIndent then None
@@ -188,12 +152,12 @@ let private footnote : TryNewParser =
     let! m = tryMatch (mdMarker "(\[\^\S+?\]:)( +)") line
     let prefixFn = blankOut' line.split m.[0].Length 0 "    "
     let line = Line.adjustSplit m.[0].Length line
-    return container prefixFn (testLineIndent) ctx line
+    return container getNewBlock prefixFn (testLineIndent) ctx line
   }
 
 
 /// Link reference definition. "Wraps" a single paragraph
-let linkRefDef : TryNewParser =
+let linkRefDef tryParaInterrupter : TryNewParser =
   fun ctx ->
   let rxLabel = mdMarker @"\[\s*\S.*?\]:\s*"
 
@@ -205,7 +169,7 @@ let linkRefDef : TryNewParser =
     match tryMatch rxLabel line with
     | Some m -> onMatch line m
     | None ->
-        match tryParaInterrupters ctx line with
+        match tryParaInterrupter ctx line with
         | Some flr -> flr
         | None -> defaultPara ctx line |> wrapFLR
 
@@ -213,7 +177,7 @@ let linkRefDef : TryNewParser =
     match tryMatch rxLabel line with
     | Some m -> FinishedOnPrev <| Some (onMatch line m )
     | None ->
-        match tryParaInterrupters ctx line with
+        match tryParaInterrupter ctx line with
         | None ->
             match paraParser line with
             | ThisLine flr -> ThisLine (wrapFLR flr)
@@ -228,8 +192,8 @@ let linkRefDef : TryNewParser =
 
 
 /// List item container
-let private listItem : TryNewParser =
-  fun ctx ->
+let private listItem : ContentParser -> TryNewParser =
+  fun getNewBlock ctx ->
   let rx = mdMarker "([-+*]|[0-9]{1,9}[.)])( +)"
 
   let testLineIndent childIndent line =
@@ -242,57 +206,58 @@ let private listItem : TryNewParser =
       if m.[2].Length <= 4 then m.[0].Length else m.[0].Length - m.[2].Length + 1
     let prefixFn = blankOut line childIndent
     let line = Line.adjustSplit childIndent line
-    return container prefixFn (testLineIndent childIndent) ctx line
+    return container getNewBlock prefixFn (testLineIndent childIndent) ctx line
   }
 
 
 //---------- Putting it together -------------------------------------------------------//
 
-
-/// List of blocks that can interrupt a paragraph
-let private tryParaInterrupters : TryNewParser =
-  tryMany [| blankLine; atxHeading; setextUnderline; thematicBreak;
-             blockquote; footnote; listItem; fencedCode; htmlType1To6 |]
-
-
-/// list of all blocks except setext underline and default paragraph
-let private tryContentBlocks : TryNewParser =
-    tryMany [| blankLine; atxHeading; thematicBreak; blockquote; footnote; listItem;
-               fencedCode; htmlType1To6; linkRefDef; indentedCode; table |]
+let private paraInterrupters (gnb : ContentParser) : List<Context -> Line -> Option<FirstLineRes>> =
+  [ atxHeading; setextUnderline; thematicBreak; blockquote gnb;
+    footnote gnb; listItem gnb; fencedCode; htmlType1To6 ]
+let private newBlocks (gnb : ContentParser) tpi : List<Context -> Line -> Option<FirstLineRes>> =
+  [ atxHeading; thematicBreak; blockquote gnb; footnote gnb; listItem gnb;
+    fencedCode; htmlType1To6; linkRefDef tpi; indentedCode; table ]
 
 
-/// Finds a new block, checking all options and falling back on default paragraph in
-/// necessary.
-let private getNewBlock : Context -> Line -> FirstLineRes =
-  fun ctx ->
-  // Wraps a result from a paragraph to add linebreak marker handling
-  let rec paragraphFallback ctx = defaultPara ctx >> function
-    | Pending r -> Pending (LineRes(r.line, wrapBlock, true, parseOtherLine))
-    | Finished r -> Finished (LineRes(r.line, wrapBlock, true, Some parseLineAfterLineBreak))
-  and parseLineAfterLineBreak (line: Line) : FirstLineRes =
-    (tryContentBlocks |? paragraphFallback) ctx line
-  and parseOtherLine (line: Line) : NextLineRes =
-    match tryParaInterrupters ctx line with
-    | None -> ThisLine (paragraphFallback ctx line)
-    | other -> FinishedOnPrev other
-  parseLineAfterLineBreak
+let private markdownWith (extras: List<Context -> Line -> Option<FirstLineRes>>) : ContentParser =
+  /// Finds a new block, checking all options and falling back on default paragraph in
+  /// necessary.
+  let rec getNewBlock : ContentParser =
+    fun ctx ->
+    // Wraps a result from a paragraph to add linebreak marker handling
+    let rec paragraphFallback ctx = defaultPara ctx >> function
+      | Pending r -> Pending (LineRes(r.line, wrapBlock, true, parseOtherLine))
+      | Finished r -> Finished (LineRes(r.line, wrapBlock, true, Some parseLineAfterLineBreak))
+    and parseLineAfterLineBreak (line: Line) : FirstLineRes =
+      (tryNewBlock |? paragraphFallback) ctx line
+    and parseOtherLine (line: Line) : NextLineRes =
+      match tryParaInterrupter ctx line with
+      | None -> ThisLine (paragraphFallback ctx line)
+      | other -> FinishedOnPrev other
+    parseLineAfterLineBreak
 
+  and tryParaInterrupter = tryMany (blankLine :: extras @ paraInterrupters getNewBlock)
+  and tryNewBlock = tryMany (blankLine :: extras @ newBlocks getNewBlock tryParaInterrupter)
 
-/// The same as markdown but with a header starting & ending with `---` lines
+  container getNewBlock id Some
+
+let markdown_noHeader : ContentParser = markdownWith []
+
+/// Markdown with a header starting & ending with `---` lines
 /// https://dotnet.github.io/docfx/spec/docfx_flavored_markdown.html
 let markdown : ContentParser =
   fun ctx ->
   // This "container" makes sure we always return a next parser from markdown. Otherwise
   // the markdown function will be called again and we might erraneously detect a header
   // section in the middle of a document.
-  let restOfContent : ContentParser = container id Some
   let yamlHeader =
     let rxStart, rxEnd = regex "^---\s*$", regex "^---"
     let rec parseLine line =
       match tryMatch rxEnd line with
-      | Some _ -> ThisLine (finished line noWrapBlock (restOfContent ctx))
+      | Some _ -> ThisLine (finished line noWrapBlock (markdown_noHeader ctx))
       | None -> ThisLine (pending line noWrapBlock parseLine)
     fun line ->
       tryMatch rxStart line |> map (fun _ -> pending line noWrapBlock parseLine)
 
-  fun line -> yamlHeader line ||? fun () -> restOfContent ctx line
+  fun line -> yamlHeader line ||? fun () -> markdown_noHeader ctx line
