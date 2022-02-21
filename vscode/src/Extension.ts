@@ -29,7 +29,7 @@ function rewrapCommentCommand (editor: TextEditor, editBuilder: TextEditorEdit) 
 let customWrappingColumn = 0;
 
 /** Does a rewrap, but first prompts for a custom wrapping column to use. */
-async function rewrapCommentAtCommand (editor: TextEditor, editBuilder: TextEditorEdit)
+async function rewrapCommentAtCommand (editor: TextEditor)
 {
   let columnStr = customWrappingColumn > 0 ?
     customWrappingColumn.toString() : undefined
@@ -41,7 +41,8 @@ async function rewrapCommentAtCommand (editor: TextEditor, editBuilder: TextEdit
   if (columnStr === undefined) return // The user pressed cancel
 
   customWrappingColumn = parseInt(columnStr) || 0
-  doWrap (editor, editBuilder, customWrappingColumn)
+  // Since this is an async function, we have to use editor.edit
+  editor.edit (editBuilder => doWrap (editor, editBuilder, customWrappingColumn))
 }
 
 
