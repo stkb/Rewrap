@@ -3,6 +3,12 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 ---
 
 
+### 1.16.3
+
+- Markdown: Fix front-matter marker rules (#321)
+- Preparation for supporting VS Code for the Web
+
+
 ### 1.16.2
 
 - Support .rmd files as markdown (#245)
