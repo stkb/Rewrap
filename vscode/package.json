@@ -40,6 +40,7 @@
     "*"
   ],
   "main": "./dist/Extension.js",
+  "browser": "./dist/Extension.js",
   "capabilities": {
     "untrustedWorkspaces": {
       "supported": true
@@ -121,5 +122,8 @@
     "fast-diff": "^1.2.0",
     "json5": "^2.2.0"
   },
-  "source": "src/Extension.ts"
+  "source": "src/Extension.ts",
+  "targets": {
+    "browser": false
+  }
 }
