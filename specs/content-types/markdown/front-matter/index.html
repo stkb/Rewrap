@@ -15,7 +15,7 @@
     
     
       
-        <title>Front matter - Rewrap</title>
+        <title>Markdown: Front Matter - Rewrap</title>
       
     
     
@@ -65,6 +65,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#markdown-front-matter" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -93,7 +98,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Front matter
+              Markdown: Front Matter
             
           </span>
         </div>
@@ -898,12 +903,11 @@
 </a>
 
 
-  <h1>Front matter</h1>
-
+<h1 id="markdown-front-matter">Markdown: Front Matter</h1>
 <blockquote>
 <p>language: "markdown"</p>
 </blockquote>
-<p>Some markdown implementations support a <em>Yaml header</em>: an extra section at the top of the
+<p>Some markdown implementations support a <em>Yaml header</em>, also known as <em>front matter</em>: an extra section at the top of the
 file that starts and ends with lines with triple dashes (<code>---</code>). For example
 <a href="https://dotnet.github.io/docfx/spec/docfx_flavored_markdown.html">DocFX</a> and
 <a href="https://assemble.io/docs/YAML-front-matter.html">Assemble</a>.</p>
@@ -924,8 +928,8 @@ files:        ¦               files:        ¦
     - 01-one.md       -&gt;          - 01-one.md
 ---           ¦               ---           ¦
 </code></pre></div>
-<p>The yaml header start on the first line of the document. If it doesn't then it will be
-interpreted differently.</p>
+<p>The yaml header must start on the first line of the document. If it doesn't then it will
+be interpreted differently.</p>
 <div class="highlight"><pre><span></span><code>Text            ¦               Text            ¦
                 ¦                               ¦
 ---             ¦               ---             ¦
@@ -933,6 +937,46 @@ Not a yaml header.      -&gt;      Not a yaml      ¦
 Actually a      ¦               header. Actually
 setext heading                  a setext heading
 ---             ¦               ---             ¦
+</code></pre></div>
+<h2 id="markers">Markers</h2>
+<p>The start marker must not be indented.</p>
+<div class="highlight"><pre><span></span><code>·---               ¦                      ·---               ¦
+Not a front matter section        -&gt;      Not a front matter ¦
+                   ¦                      section            ¦
+</code></pre></div>
+<p>It may have whitespace after the <code>---</code>, but no other characters are allowed</p>
+<div class="highlight"><pre><span></span><code>---·               ¦                      ---·               ¦
+A front matter section                    A front matter section
+---                ¦              -&gt;      ---                ¦
+Normal             ¦                      Normal paragraph   ¦
+paragraph          ¦                                         ¦
+
+----               ¦                      ----               ¦
+Not a front matter section        -&gt;      Not a front matter ¦
+                   ¦                      section            ¦
+
+--- abc            ¦              -&gt;      --- abc Not a front¦
+Not a front matter section                matter section     ¦
+</code></pre></div>
+<p>The end marker must not be indented.</p>
+<div class="highlight"><pre><span></span><code>---                ¦                      ---                ¦
+A front matter section                    A front matter section
+·---               ¦              -&gt;      ·---               ¦
+Still in the front matter                 Still in the front matter
+</code></pre></div>
+<p>However unlike the start marker, as long as it starts with <code>---</code>, any characters may
+follow on the line.</p>
+<div class="highlight"><pre><span></span><code>---                ¦                      ---                ¦
+A front matter section                    A front matter section
+----               ¦              -&gt;      ----               ¦
+Normal             ¦                      Normal paragraph   ¦
+paragraph          ¦                                         ¦
+
+---                ¦                      ---                ¦
+A front matter section                    A front matter section
+---abc             ¦              -&gt;      ---abc             ¦
+Normal             ¦                      Normal paragraph   ¦
+paragraph          ¦                                         ¦
 </code></pre></div>
 
               
