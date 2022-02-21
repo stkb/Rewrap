@@ -1,5 +1,39 @@
 See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stkb/vscode-rewrap/releases) (for working links to issues)
 
+#### 17.8
+- Fix error when using "Rewrap At..." command (#324)
+#### 17.7
+- New feature: Run rewrap on save (#165)
+- Markdown: Fix front-matter marker rules (#321)
+- Support VS Code for the Web (#314): Attempt 2
+#### 17.6
+- Support .rmd files as markdown (#245)
+- Basic support for Textile files as markdown (#271)
+- Support FIDL (#255), Pascal/Delphi (#97) & pylintrc files (#121)
+- Shell script: Ignore shebangs (#129)
+- Attempt at supporting VS Code for the Web (#314)
+#### 17.5
+- Add '//'-comments to CSS (workaround for #309)
+- Fix batch files: case-insensitive "REM" and "@" prefix (#313)
+- Fix the document being 'modified' if there were no actual changes (#308, #315)
+- Rewritten code that applies edits to the document and fixes the selections after
+  wrapping. Is more efficient and should hopefully fix issues with autowrap when typing
+  too fast (#207). For the most part you should notice no changes but please report any
+  bugs where the selection after wrapping is not as expected.
+#### 17.4
+- Make the rule of ending a line with 2 spaces to preserve the line-break after work everywhere.
+- Support Prisma (#306)
+#### 17.3
+- MDX files: Treat as Markdown.
+#### 17.2
+- Lua: Support `--[=[` block comments (#290)
+- VS Code: Attempt to prevent rare "TextEditor has been disposed" error (#100)
+#### 17.1
+- VS Code: Change extension activation event from on startup to "onStartupFinished". This
+  should help to avoid slowing down VS Code startup. Testing to see if any problems come
+  from this.
+
+
 ---
 
 
