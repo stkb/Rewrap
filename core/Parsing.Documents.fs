@@ -133,6 +133,7 @@ let mutable languages = [
             ]
         )
     lang "Git commit" "git-commit" "tag_editmsg" <| docOf markdown
+    lang "GN" "" ".gn|.gni" <| configFile
     lang "GraphQL" "" ".graphql|.gql" <| sc [line "#"; block (@".*?""""""", "\"\"\"")]
     lang "Groovy" "" ".groovy"
         java
