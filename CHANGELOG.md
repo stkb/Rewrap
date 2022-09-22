@@ -2,6 +2,10 @@ See also [https://github.com/stkb/vscode-rewrap/releases](https://github.com/stk
 
 ---
 
+### Unreleased
+
+- Add GN language (#342)
+
 
 ### 1.16.3
 
