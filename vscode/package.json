@@ -120,7 +120,7 @@
   },
   "dependencies": {
     "fast-diff": "^1.2.0",
-    "json5": "^2.2.0"
+    "json5": "^2.2.2"
   },
   "source": "src/Extension.ts",
   "targets": {
