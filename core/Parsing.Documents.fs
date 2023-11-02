@@ -228,11 +228,17 @@ let mutable languages = [
     lang "XML" "xsl" ".xml|.xsl"
         html
     lang "YAML" "" ".yaml|.yml"
-        /// Also allow text paragraphs to be wrapped. Though wrapping the whole
-        /// file at once will mess it up.
+        // Also allow text paragraphs to be wrapped. Though wrapping the whole
+        // file at once will mess it up.
         <| toNewDocProcessor (fun settings ->
             let comments = oldLine "#{1,3}" settings
             takeUntil comments (oldPlainText settings) |> repeatToEnd)
+    lang "Zig" "" ".zig|.zon"
+        ( oldSourceCode
+            [ customLine DocComments.javadoc "//[/!]"
+              cLine
+            ]
+        )
     ]
 
 /// Creates a custom language parser, if the given CustomMarkers are valid. Also
