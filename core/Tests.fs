@@ -271,7 +271,7 @@ type Results = {passes:int; failures:int; errors:int}
 
 [<EntryPoint>]
 let main argv =
-  let norm (s: String) = s.ToLower().Replace('\\', '/')
+  let norm (s: String) = s.Replace('\\', '/')
   let argv = Array.map norm argv
   let inArgv (f: string) = argv |> Array.exists (fun a -> f.EndsWith (a))
   let filesToTest =
