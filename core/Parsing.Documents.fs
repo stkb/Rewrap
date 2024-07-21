@@ -65,7 +65,7 @@ let mutable languages = [
         ( oldSourceCode [ customLine xmldoc "'''"; oldLine "'" ] )
     lang "Batch file" "bat" ".bat" <| sc [line "(?:@?rem|::)"]
     lang "Bikeshed" "" ".bs" <| docOf markdown
-    lang "C/C++" "c|c++|cpp" ".c|.cpp|.h"
+    lang "C/C++" "c|c++|cpp|angelscript" ".c|.cpp|.h|.as"
         ( oldSourceCode
             [ customBlock DocComments.javadoc ( "*", " * " ) javadocMarkers
               Parsing.SourceCode.cBlock
