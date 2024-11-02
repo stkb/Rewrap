@@ -74,6 +74,15 @@ let mutable languages = [
               cLine
             ]
         )
+    lang "CUDA C++" "cuda-cpp" ".cu|.cuh"
+        ( oldSourceCode
+            [ customBlock DocComments.javadoc ( "*", " * " ) javadocMarkers
+              Parsing.SourceCode.cBlock
+              customLine xmldoc "///"
+              customLine DocComments.javadoc "//!?"
+              cLine
+            ]
+        )
     lang "C#" "csharp" ".cs"
         ( oldSourceCode
             [ customLine xmldoc "///"; cLine
